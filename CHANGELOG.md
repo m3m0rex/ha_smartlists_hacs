@@ -3,6 +3,14 @@
 All notable changes to SmartLists are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning follows [Semantic Versioning](https://semver.org/).
 
+## [3.9.10] – 2026-11-14
+
+### Added
+
+- **"🌐 shared on the web" in the list header** as long as a share link of that list is valid (with the number of
+  links if there are several). Tap it to open the list settings with the links (view, revoke). A list that is only
+  yours no longer says "🔒 private" while a link is active.
+
 ## [3.9.9] – 2026-11-14
 
 ### Changed

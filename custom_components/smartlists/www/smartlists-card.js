@@ -43,7 +43,7 @@ const ICON = {
 };
 
 // Wird beim Release mit manifest.json hochgezählt; weicht sie von der Integration ab, ist die Karte im Browser-Cache veraltet
-const CARD_VERSION = "3.9.9";
+const CARD_VERSION = "3.9.10";
 const SORT_MODES = ["category", "alpha", "added", "list"];
 // Darstellung pro Karte (Lovelace-Editor). Persönliche Bedienung steht dagegen in UI_DEFAULTS.
 const CARD_DEFAULTS = {
@@ -322,6 +322,7 @@ const TEXTS = {
     share_30d: "30 Tage",
     share_forever: "bis zum Widerruf",
     share_create: "Link erstellen",
+    link_shared: "im Internet geteilt", link_shared_help: "Über {n} Link(s) für Personen ohne Konto erreichbar. Antippen: Links ansehen oder widerrufen.",
     pub_cf_arch: "{path} ist für einen anderen Prozessor ({found}). Dieses System braucht {file} – die alte Datei löschen oder ersetzen.", pub_cf_kind_windows: "{path} ist die Windows-Version. Für Home Assistant wird {file} gebraucht.", pub_cf_kind_mac: "{path} ist die macOS-Version. Für Home Assistant wird {file} gebraucht.", pub_cf_kind_archive: "{path} ist ein Archiv (.tgz/.zip/.deb), nicht das Programm. Bitte die Datei {file} ohne Endung laden.", pub_cf_kind_html: "{path} ist eine gespeicherte Webseite, nicht das Programm. Auf der Release-Seite die Datei {file} direkt herunterladen.", pub_cf_kind_not_executable: "{path} lässt sich nicht ausführen (Rechte). Datei neu ablegen oder Rechte prüfen.", pub_cf_kind_unknown: "{path} passt nicht zu diesem System. Gebraucht wird {file}.",
     shared_change_hint: "Ändern: Zahnrad dieser Liste → Freigaben.",
     l_plain: "Einfache Liste", l_plain_help: "Ohne Kategorien, Vorschläge, gemerkte Wörter und Preise. Was hier steht, merkt sich SmartLists nicht – es taucht in keiner anderen Liste auf (z. B. Baumarkt).",
@@ -568,6 +569,7 @@ const TEXTS = {
     share_30d: "30 days",
     share_forever: "until revoked",
     share_create: "Create link",
+    link_shared: "shared on the web", link_shared_help: "Reachable via {n} link(s) for people without an account. Tap to view or revoke the links.",
     pub_cf_arch: "{path} is built for another processor ({found}). This system needs {file} – delete or replace the old file.", pub_cf_kind_windows: "{path} is the Windows version. Home Assistant needs {file}.", pub_cf_kind_mac: "{path} is the macOS version. Home Assistant needs {file}.", pub_cf_kind_archive: "{path} is an archive (.tgz/.zip/.deb), not the program. Please download the file {file} without extension.", pub_cf_kind_html: "{path} is a saved web page, not the program. Download the file {file} directly from the release page.", pub_cf_kind_not_executable: "{path} cannot be executed (permissions). Put the file there again or check its permissions.", pub_cf_kind_unknown: "{path} does not fit this system. It needs {file}.",
     shared_change_hint: "To change: gear of this list → Sharing.",
     l_plain: "Plain list", l_plain_help: "No categories, suggestions, remembered words or prices. SmartLists remembers nothing from this list – its items never show up in other lists (e.g. hardware store).",
@@ -814,6 +816,7 @@ const TEXTS = {
     share_30d: "30 jours",
     share_forever: "jusqu'à révocation",
     share_create: "Créer un lien",
+    link_shared: "partagée sur le web", link_shared_help: "Accessible par {n} lien(s) pour des personnes sans compte. Touche pour voir ou révoquer les liens.",
     pub_cf_arch: "{path} est prévu pour un autre processeur ({found}). Ce système a besoin de {file} – supprime ou remplace l'ancien fichier.", pub_cf_kind_windows: "{path} est la version Windows. Home Assistant a besoin de {file}.", pub_cf_kind_mac: "{path} est la version macOS. Home Assistant a besoin de {file}.", pub_cf_kind_archive: "{path} est une archive (.tgz/.zip/.deb), pas le programme. Télécharge le fichier {file} sans extension.", pub_cf_kind_html: "{path} est une page web enregistrée, pas le programme. Télécharge directement le fichier {file} depuis la page des versions.", pub_cf_kind_not_executable: "{path} ne peut pas être exécuté (droits). Replace le fichier ou vérifie ses droits.", pub_cf_kind_unknown: "{path} ne convient pas à ce système. Il faut {file}.",
     shared_change_hint: "Pour modifier : engrenage de cette liste → Partage.",
     l_plain: "Liste simple", l_plain_help: "Sans catégories, suggestions, mots mémorisés ni prix. SmartLists ne retient rien de cette liste – ses articles n'apparaissent dans aucune autre (p. ex. bricolage).",
@@ -1060,6 +1063,7 @@ const TEXTS = {
     share_30d: "30 días",
     share_forever: "hasta revocarlo",
     share_create: "Crear enlace",
+    link_shared: "compartida en la web", link_shared_help: "Accesible mediante {n} enlace(s) para personas sin cuenta. Toca para ver o revocar los enlaces.",
     pub_cf_arch: "{path} es para otro procesador ({found}). Este sistema necesita {file} – borra o sustituye el archivo antiguo.", pub_cf_kind_windows: "{path} es la versión de Windows. Home Assistant necesita {file}.", pub_cf_kind_mac: "{path} es la versión de macOS. Home Assistant necesita {file}.", pub_cf_kind_archive: "{path} es un archivo comprimido (.tgz/.zip/.deb), no el programa. Descarga el archivo {file} sin extensión.", pub_cf_kind_html: "{path} es una página web guardada, no el programa. Descarga el archivo {file} directamente desde la página de versiones.", pub_cf_kind_not_executable: "{path} no se puede ejecutar (permisos). Vuelve a colocar el archivo o revisa sus permisos.", pub_cf_kind_unknown: "{path} no sirve para este sistema. Se necesita {file}.",
     shared_change_hint: "Para cambiar: engranaje de esta lista → Compartir.",
     l_plain: "Lista simple", l_plain_help: "Sin categorías, sugerencias, palabras recordadas ni precios. SmartLists no recuerda nada de esta lista – sus artículos no aparecen en otras (p. ej. ferretería).",
@@ -1306,6 +1310,7 @@ const TEXTS = {
     share_30d: "30 giorni",
     share_forever: "fino alla revoca",
     share_create: "Crea link",
+    link_shared: "condivisa sul web", link_shared_help: "Raggiungibile tramite {n} link per persone senza account. Tocca per vedere o revocare i link.",
     pub_cf_arch: "{path} è per un altro processore ({found}). Questo sistema richiede {file} – elimina o sostituisci il vecchio file.", pub_cf_kind_windows: "{path} è la versione per Windows. Home Assistant richiede {file}.", pub_cf_kind_mac: "{path} è la versione per macOS. Home Assistant richiede {file}.", pub_cf_kind_archive: "{path} è un archivio (.tgz/.zip/.deb), non il programma. Scarica il file {file} senza estensione.", pub_cf_kind_html: "{path} è una pagina web salvata, non il programma. Scarica il file {file} direttamente dalla pagina delle release.", pub_cf_kind_not_executable: "{path} non è eseguibile (permessi). Rimetti il file o controlla i permessi.", pub_cf_kind_unknown: "{path} non è adatto a questo sistema. Serve {file}.",
     shared_change_hint: "Per modificare: ingranaggio di questa lista → Condivisione.",
     l_plain: "Lista semplice", l_plain_help: "Senza categorie, suggerimenti, parole memorizzate né prezzi. SmartLists non ricorda nulla di questa lista – i suoi articoli non compaiono in altre (ad es. fai da te).",
@@ -1552,6 +1557,7 @@ const TEXTS = {
     share_30d: "30 dni",
     share_forever: "do odwołania",
     share_create: "Utwórz link",
+    link_shared: "udostępniona w sieci", link_shared_help: "Dostępna przez {n} link(i) dla osób bez konta. Stuknij, aby zobaczyć lub cofnąć linki.",
     pub_cf_arch: "{path} jest dla innego procesora ({found}). Ten system potrzebuje {file} – usuń lub zastąp stary plik.", pub_cf_kind_windows: "{path} to wersja dla Windows. Home Assistant potrzebuje {file}.", pub_cf_kind_mac: "{path} to wersja dla macOS. Home Assistant potrzebuje {file}.", pub_cf_kind_archive: "{path} to archiwum (.tgz/.zip/.deb), a nie program. Pobierz plik {file} bez rozszerzenia.", pub_cf_kind_html: "{path} to zapisana strona internetowa, a nie program. Pobierz plik {file} bezpośrednio ze strony wydań.", pub_cf_kind_not_executable: "{path} nie da się uruchomić (uprawnienia). Umieść plik ponownie lub sprawdź uprawnienia.", pub_cf_kind_unknown: "{path} nie pasuje do tego systemu. Potrzebny jest {file}.",
     shared_change_hint: "Aby zmienić: koło zębate tej listy → Udostępnianie.",
     l_plain: "Prosta lista", l_plain_help: "Bez kategorii, podpowiedzi, zapamiętanych słów i cen. SmartLists nic z tej listy nie zapamiętuje – jej pozycje nie pojawiają się na innych listach (np. market budowlany).",
@@ -2177,6 +2183,7 @@ const STYLE = `
   button.badge { border:none; font:inherit; font-size:.7rem; cursor:pointer; line-height:inherit; }
   button.badge:hover { filter:brightness(1.1); }
   .badge.combined { background:var(--info-color,#2196f3); }
+  .badge.public { background:color-mix(in srgb, var(--warning-color,#ff9800) 22%, transparent); color:var(--warning-color,#ff9800); font-weight:600; }
   .count { color:var(--secondary-text-color); font-size:.85rem; white-space:nowrap; }
   .sort { display:flex; align-items:center; gap:2px; color:var(--secondary-text-color); }
   .sort select { background:none; border:none; padding:4px 2px; font-size:.85rem; color:var(--secondary-text-color); cursor:pointer; }
@@ -2899,10 +2906,15 @@ class SmartListsCard extends HTMLElement {
     fill(this._headEl, 
       h("div", { class: "title" }, this._config.title || d.name),
       d.type === "combined" ? h("span", { class: "badge combined" }, t.combined) : null,
-      // Antippen: mit wem die Liste geteilt ist (nur Anzeige; ändern im Zahnrad der Liste)
-      d.own ? h("button", { type: "button", class: "badge own", title: `${t.owner}: ${d.own.owner || "?"} – ${t.sharing}`,
+      // Antippen: mit wem die Liste geteilt ist (nur Anzeige; ändern im Zahnrad der Liste).
+      // „privat“ nur, solange auch kein Link aktiv ist – sonst wäre das irreführend
+      d.own && !(d.own.role === "owner" && !Object.keys(d.own.shares || {}).length && d.links) ? h("button", { type: "button", class: "badge own", title: `${t.owner}: ${d.own.owner || "?"} – ${t.sharing}`,
         "aria-haspopup": "dialog", onclick: () => this._sharedWithDialog(d) },
         d.own.role === "owner" ? (Object.keys(d.own.shares || {}).length ? `👥 ${t.shared}` : `🔒 ${t.private}`) : `👤 ${d.own.owner || "?"} · ${t["role_" + d.own.role]}`) : null,
+      // Solange ein Teilen-Link gilt, ist die Liste im Internet erreichbar – deutlich zeigen; antippen = Links verwalten
+      d.links ? h("button", { type: "button", class: "badge public", title: t.link_shared_help.replace("{n}", d.links),
+        "aria-label": t.link_shared_help.replace("{n}", d.links), onclick: () => this._listDialog() },
+        `🌐 ${t.link_shared}${d.links > 1 ? " · " + d.links : ""}`) : null,
       d.foreign ? h("span", { class: "badge foreign" }, t.foreign) : null,
       !this._config.show_count ? null : h("span", { class: "count" }, this._searchQuery
         ? `${this._hitCount ?? 0} ${t.hits}`

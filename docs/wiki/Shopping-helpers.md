@@ -44,6 +44,7 @@ active links of all lists.
 - Options when creating: **checking off** – *view only* (default), *“soft”* (the person can mark
   items; you see "✓ marked from outside" but the item stays open until you check it off) or *really
   check off*; **may add**; **valid** for 2 hours, 1 day, 7 days, 30 days or until revoked.
+- As long as a link is valid, the list header shows **🌐 shared on the web** (tap it to see or revoke the links).
 - You get the link and a **QR code** once; copy or share it. The list shows active links with expiry
   and how often they were opened; **revoke** any time.
 - **Security:** the link contains a random 256-bit key; only its SHA-256 hash is stored, so even

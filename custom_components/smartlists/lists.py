@@ -250,6 +250,8 @@ async def get_list(hass: HomeAssistant, entity_id: str, user: Any | None = None,
         "categories": [] if notes else learning.categories.as_list(language),
         "trip_start": extras.trips.get(entity_id) if extras else None,
         "settings": dict(extras.list_settings.get(entity_id) or {}) if extras else {},
+        # aktive Teilen-Links (Personen ohne Konto, „im Internet geteilt“) – die Karte zeigt das im Kopf
+        "links": sum(1 for x in shares.for_list(entity_id) if not x["expired"]) if shares else 0,
         "items": items,
     }
 
