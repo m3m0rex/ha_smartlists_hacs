@@ -102,8 +102,8 @@ Gilt für alle Listen und alle HA-Benutzer, gespeichert in `.storage/smartlists.
 - **Verbundene Geräte:** jedes Gerät mit der App erscheint unter *Einstellungen → Global → Geräte und Notizen* und als HA-Gerät mit den Sensoren *Zuletzt gesehen* und *App-Version*.
 - **Bedienung:** Standard für alle (Admin) → je Benutzer abweichend → optional je Gerät abweichend.
 - **Teilen:** mit Personen in Home Assistant (sehen, abhaken, bearbeiten) oder **per Link / QR-Code** – nur diese Liste,
-  befristet, jederzeit zurückziehbar. Links laufen auf Wunsch über einen **Cloudflare Quick Tunnel oder einen
-  eigenen Proxy** statt über die Adresse deines Home Assistant – wer den Link bekommt, erfährt sie nicht (siehe
+  befristet, jederzeit zurückziehbar. Links laufen auf Wunsch über einen **Cloudflare Quick Tunnel, einen Cloudflare
+  Tunnel mit fester Adresse auf deiner eigenen Domain oder einen eigenen Proxy** statt über die Adresse deines Home Assistant – wer den Link bekommt, erfährt sie nicht (siehe
   [Wiki](https://github.com/m3m0rex/ha_smartlists/wiki/Shopping-helpers#share-without-revealing-your-home-assistant-address)).
   👥 *geteilt* im Kopf einer Liste antippen zeigt, mit wem sie geteilt ist:
 

@@ -101,7 +101,8 @@ Shared by all lists and all HA users, stored in `.storage/smartlists.learning`:
 - **Meal plan** (optional, *Settings → Global → Extras*; also as a tab on the sidebar page) with a calendar entity and optional **Mealie** import, **history per item**, a one-click
   **shopping dashboard**, **diagnostics** download and hints under **Repairs**.
 - **Sharing:** with people in Home Assistant (view, check off, edit) or **via link / QR code** – only this list,
-  limited in time, revocable. Links can go through a **Cloudflare Quick Tunnel or your own proxy** instead of
+  limited in time, revocable. Links can go through a **Cloudflare Quick Tunnel, a Cloudflare Tunnel with a fixed address on your own domain or
+  your own proxy** instead of
   your Home Assistant address, so nobody you share with learns that address – see the
   [wiki](https://github.com/m3m0rex/ha_smartlists/wiki/Shopping-helpers#share-without-revealing-your-home-assistant-address).
   Tap 👥 *shared* in a list's header to see who it is shared with:

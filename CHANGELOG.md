@@ -3,6 +3,17 @@
 All notable changes to SmartLists are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning follows [Semantic Versioning](https://semver.org/).
 
+## [3.9.12] – 2026-11-14
+
+### Added
+
+- **Cloudflare Tunnel with a fixed address** (*Sharing and permissions → Public address → Cloudflare Tunnel (fixed
+  address)*): create a tunnel once in the Cloudflare dashboard (public hostname e.g. `list.yourdomain.com` →
+  `http://localhost:8126`), paste its token here – SmartLists runs the existing cloudflared with it. Unlike the Quick
+  Tunnel the address stays the same after restarts, so links keep working. The token is passed as an environment
+  variable, stays in Home Assistant and is never sent back to the browser. Needs a free Cloudflare account and a
+  domain on Cloudflare.
+
 ## [3.9.11] – 2026-11-14
 
 ### Added

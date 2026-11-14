@@ -81,7 +81,7 @@ def test_update_validates_without_starting():
     status = asyncio.run(p.async_update(mode="proxy", url="https://liste.example.org/", port=8200))
     assert (p.mode, p.url, p.port, p.applied) == ("proxy", "https://liste.example.org", 8200, True)
     assert status["mode"] == "proxy" and status["download"].startswith("https://github.com/cloudflare/cloudflared")
-    assert p._store.saved == {"mode": "proxy", "port": 8200, "url": "https://liste.example.org"}
+    assert p._store.saved == {"mode": "proxy", "port": 8200, "url": "https://liste.example.org", "token": ""}
 
 
 def _elf(path, arch):
@@ -140,3 +140,30 @@ def test_find_cloudflared_original_name_and_nested_folder():
             assert find_cloudflared(cfg) == (None, f"{other}|{path}")  # falsche Architektur: Problem statt „fehlt“
     finally:
         os.environ["PATH"] = old_path
+
+
+def test_named_tunnel_token_and_settings():
+    from smartlists.public import extract_token
+
+    tok = "eyJhIjoiYWJjZGVmIiwidCI6IjEyMzQ1Njc4OTAiLCJzIjoiWFlaIn0" + "A" * 20
+    assert extract_token(tok) == tok
+    assert extract_token(f"sudo cloudflared service install {tok}") == tok  # ganzer Befehl aus dem Dashboard
+    with pytest.raises(ValueError):
+        extract_token("hallo")
+
+    p = _public("ha")
+
+    async def apply():
+        p.applied = True
+
+    p.async_apply = apply
+    with pytest.raises(ValueError):
+        asyncio.run(p.async_update(mode="named", url="https://liste.example.org"))  # ohne Token
+    status = asyncio.run(p.async_update(mode="named", url="https://liste.example.org", token=tok))
+    assert p.token == tok and status["token_set"] is True and tok not in str(status)  # Token geht nie an die Karte
+    # gespeicherter Token bleibt, wenn keiner mitkommt
+    asyncio.run(p.async_update(mode="named", port=8200))
+    assert p.token == tok
+    with pytest.raises(ValueError):
+        _public("named", _runner=object(), url="https://liste.example.org").base_url()  # noch nicht verbunden
+    assert _public("named", _runner=object(), url="https://x.org", tunnel_url="https://x.org").base_url() == "https://x.org"

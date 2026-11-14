@@ -73,7 +73,8 @@ active links of all lists.
 |---|---|
 | **Home Assistant address** (default, as before) | The link points to the external URL of Home Assistant. |
 | **Cloudflare Quick Tunnel** | SmartLists starts `cloudflared` and gets a random address `https://….trycloudflare.com`. No Cloudflare account, no port forwarding. |
-| **Own proxy or tunnel** | Your own address (Caddy, nginx, Traefik, Cloudflare Tunnel with your own domain, …). |
+| **Cloudflare Tunnel (fixed address)** | A named tunnel on your own domain; SmartLists runs cloudflared with the tunnel's token. The address stays the same after restarts. |
+| **Own proxy or tunnel** | Your own address (Caddy, nginx, Traefik, the Cloudflared add-on, …). |
 
 For the tunnel and the own proxy SmartLists starts a **small server of its own (default port 8126)** that
 serves *only* the share page and the share API – no login page, no API, nothing else from Home Assistant.
@@ -94,6 +95,17 @@ Good to know about Quick Tunnels: the address **changes every time Home Assistan
 created before stop working (the card marks them "address has changed"). Cloudflare offers Quick Tunnels
 for testing and without uptime guarantee. For lasting links use your own proxy or a named Cloudflare Tunnel
 with your own domain.
+
+**Cloudflare Tunnel with a fixed address** – needs a free Cloudflare account and a domain managed by Cloudflare:
+
+1. Cloudflare dashboard → *Zero Trust → Networks → Tunnels → Create a tunnel* → type *Cloudflared*, any name.
+2. Copy the token shown in the install command (starts with `eyJ…`; pasting the whole command works too).
+3. *Public Hostname*: e.g. `list.yourdomain.com`, service **HTTP** `localhost:8126` (the SmartLists share server –
+   not Home Assistant).
+4. In SmartLists choose *Cloudflare Tunnel (fixed address)*, paste the token, enter `https://list.yourdomain.com`
+   and *Save*. cloudflared must be present as described above.
+
+The token is stored in Home Assistant, handed to cloudflared as an environment variable and never shown again.
 
 **Own proxy – examples** (replace `192.168.1.10` with the IP of Home Assistant):
 

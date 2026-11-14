@@ -1083,20 +1083,21 @@ async def ws_share_public(hass: HomeAssistant, connection: websocket_api.ActiveC
     public = hass.data[DOMAIN]["public"]
     path, problem = await hass.async_add_executor_job(find_cloudflared, hass.config.config_dir)
     # Datei inzwischen abgelegt, Tunnel stand auf „cloudflared fehlt“ → ohne erneutes Speichern starten
-    if path and public.mode == "tunnel" and str(public.error or "").startswith(("cloudflared_missing", "cloudflared_not_executable", "cloudflared_wrong")):
+    if path and public.mode in ("tunnel", "named") and str(public.error or "").startswith(("cloudflared_missing", "cloudflared_not_executable", "cloudflared_wrong")):
         await public.async_apply()
     connection.send_result(msg["id"], {**public.status(), "cloudflared": path, "cloudflared_problem": problem})
 
 
 @websocket_api.require_admin
 @websocket_api.websocket_command({vol.Required("type"): "smartlists/set_share_public",
-                                  vol.Optional("mode"): vol.In(["ha", "tunnel", "proxy"]),
+                                  vol.Optional("mode"): vol.In(["ha", "tunnel", "named", "proxy"]),
                                   vol.Optional("port"): vol.All(int, vol.Range(min=1024, max=65535)),
-                                  vol.Optional("url"): str})
+                                  vol.Optional("url"): str,
+                                  vol.Optional("token"): vol.All(str, vol.Length(max=4000))})
 @websocket_api.async_response
 async def ws_set_share_public(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]) -> None:
     try:
-        status = await hass.data[DOMAIN]["public"].async_update(msg.get("mode"), msg.get("port"), msg.get("url"))
+        status = await hass.data[DOMAIN]["public"].async_update(msg.get("mode"), msg.get("port"), msg.get("url"), msg.get("token"))
     except ValueError as err:
         connection.send_error(msg["id"], "invalid", str(err))
         return

@@ -10,8 +10,12 @@ und Rechte → Öffentliche Adresse):
             NICHT selbst herunter – fehlt es, zeigt die Einstellung, wo man es bekommt und wohin es gehört.
             Die Adresse ist zufällig (https://….trycloudflare.com) und ändert sich bei jedem Neustart;
             vorher erstellte Links funktionieren dann nicht mehr.
-- "proxy":  eigener Reverse-Proxy oder eigener Tunnel (Caddy, nginx, Cloudflare-Tunnel mit eigener Domain …)
-            mit einer selbst gewählten Adresse.
+- "named":  eigener (benannter) Cloudflare Tunnel mit fester Adresse auf der eigenen Domain. Den Tunnel legt man
+            einmal im Cloudflare-Dashboard an (Ziel: http://localhost:<Port>) und fügt hier dessen Token ein;
+            SmartLists startet das vorhandene cloudflared damit selbst. Die Adresse bleibt nach Neustarts gleich.
+            Der Token wird als Umgebungsvariable übergeben (nicht in der Prozessliste) und nie an die Karte geschickt.
+- "proxy":  eigener Reverse-Proxy oder eigener Tunnel (Caddy, nginx, Cloudflared-Add-on …) mit einer selbst
+            gewählten Adresse.
 
 Bei "tunnel" und "proxy" startet SmartLists einen kleinen eigenen Webserver (Standard-Port 8126), der NUR die
 Teilen-Seite und die Teilen-API ausliefert – nicht Home Assistant. Tunnel bzw. Proxy zeigen auf diesen Port.
@@ -42,7 +46,19 @@ from .const import DOMAIN, SIGNAL_DATA_CHANGED
 _LOGGER = logging.getLogger(__name__)
 
 STORAGE_KEY = f"{DOMAIN}.public"
-MODES = ("ha", "tunnel", "proxy")
+MODES = ("ha", "tunnel", "named", "proxy")
+# Token eines benannten Tunnels; auch aus einem eingefügten Befehl („cloudflared service install eyJ…“) herauslösen
+_TOKEN = re.compile(r"eyJ[A-Za-z0-9_\-+/=]{40,}")
+_REGISTERED = re.compile(r"Registered tunnel connection", re.I)
+_TOKEN_BAD = re.compile(r"token is not valid|invalid tunnel token|Unauthorized|tunnel not found", re.I)
+
+
+def extract_token(raw: str) -> str:
+    """Token aus der Eingabe: nackter Token oder ein kopierter Befehl aus dem Cloudflare-Dashboard."""
+    m = _TOKEN.search(str(raw or "").strip())
+    if not m:
+        raise ValueError("Das sieht nicht nach einem Tunnel-Token aus (beginnt mit „eyJ…“).")
+    return m.group(0)
 DEFAULT_PORT = 8126
 CLOUDFLARED_DOWNLOAD = "https://github.com/cloudflare/cloudflared/releases/latest"
 CLOUDFLARED_DOCS = "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/trycloudflare/"
@@ -175,7 +191,8 @@ class PublicShare:
         self._store: Store[dict[str, Any]] = Store(hass, 1, STORAGE_KEY)
         self.mode = "ha"
         self.port = DEFAULT_PORT
-        self.url = ""  # eigene Proxy-Adresse
+        self.url = ""  # eigene Adresse (Proxy bzw. Hostname des benannten Tunnels)
+        self.token = ""  # Token des benannten Cloudflare Tunnels
         self.tunnel_url: str | None = None
         self.error: str | None = None
         self.cloudflared: str | None = None
@@ -192,9 +209,10 @@ class PublicShare:
         port = data.get("port")
         self.port = port if isinstance(port, int) and 1024 <= port <= 65535 else DEFAULT_PORT
         self.url = str(data.get("url") or "")
+        self.token = str(data.get("token") or "")
 
     def _save(self) -> None:
-        self._store.async_delay_save(lambda: {"mode": self.mode, "port": self.port, "url": self.url}, 1.0)
+        self._store.async_delay_save(lambda: {"mode": self.mode, "port": self.port, "url": self.url, "token": self.token}, 1.0)
 
     def _changed(self) -> None:
         from homeassistant.helpers.dispatcher import async_dispatcher_send
@@ -203,7 +221,8 @@ class PublicShare:
             async_dispatcher_send(self.hass, SIGNAL_DATA_CHANGED)
 
     # ------------------------------------------------------------------ Einstellungen
-    async def async_update(self, mode: str | None = None, port: int | None = None, url: str | None = None) -> dict[str, Any]:
+    async def async_update(self, mode: str | None = None, port: int | None = None, url: str | None = None,
+                           token: str | None = None) -> dict[str, Any]:
         if mode is not None and mode not in MODES:
             raise ValueError(f"mode: {', '.join(MODES)}")
         if port is not None and not 1024 <= int(port) <= 65535:
@@ -214,7 +233,12 @@ class PublicShare:
         new_url = self.url if url is None else url
         if new_mode == "proxy" and not new_url:
             raise ValueError("Für einen eigenen Proxy bitte die öffentliche Adresse eintragen.")
-        self.mode, self.url = new_mode, new_url
+        new_token = self.token if token is None else (extract_token(token) if token.strip() else "")
+        if new_mode == "named" and not new_url:
+            raise ValueError("Bitte die feste Adresse des Tunnels eintragen, z. B. https://liste.example.org")
+        if new_mode == "named" and not new_token:
+            raise ValueError("Bitte den Token des Tunnels einfügen (Cloudflare-Dashboard → Tunnel → Installieren).")
+        self.mode, self.url, self.token = new_mode, new_url, new_token
         if port is not None:
             self.port = int(port)
         self._save()
@@ -231,6 +255,8 @@ class PublicShare:
             raise ValueError(self.error or "Der Teilen-Server läuft nicht.")
         if self.mode == "proxy":
             return self.url
+        if self.mode == "named" and not self.tunnel_url:
+            raise ValueError(self.error or "Der Tunnel verbindet sich noch – bitte gleich noch einmal versuchen.")
         if not self.tunnel_url:
             raise ValueError(self.error or "Der Tunnel startet noch – bitte gleich noch einmal versuchen.")
         return self.tunnel_url
@@ -238,6 +264,7 @@ class PublicShare:
     def status(self) -> dict[str, Any]:
         return {
             "mode": self.mode, "port": self.port, "url": self.url,
+            "token_set": bool(self.token),  # der Token selbst bleibt in Home Assistant
             "server": self._runner is not None,
             "tunnel_url": self.tunnel_url, "error": self.error,
             "cloudflared": self.cloudflared,
@@ -256,9 +283,9 @@ class PublicShare:
             await self._stop_server()
             self._changed()
             return
-        host = "127.0.0.1" if self.mode == "tunnel" else "0.0.0.0"
+        host = "127.0.0.1" if self.mode in ("tunnel", "named") else "0.0.0.0"
         await self._start_server(host)
-        if self.mode == "tunnel" and self._runner is not None:
+        if self.mode in ("tunnel", "named") and self._runner is not None:
             path, problem = await self.hass.async_add_executor_job(find_cloudflared, self.hass.config.config_dir)
             self.cloudflared = path
             if path is None:
@@ -293,11 +320,19 @@ class PublicShare:
 
     async def _run_tunnel(self, path: str) -> None:
         attempt = 0
+        named = self.mode == "named"
         while not self._stopping:
             self.tunnel_url = None
+            if named:
+                # benannter Tunnel: Ziel (http://localhost:<Port>) und Hostname stehen im Cloudflare-Dashboard
+                args = [path, "tunnel", "--no-autoupdate", "run"]
+                env = {**os.environ, "TUNNEL_TOKEN": self.token}
+            else:
+                args = [path, "tunnel", "--no-autoupdate", "--url", f"http://127.0.0.1:{self.port}"]
+                env = None
             try:
                 self._proc = await asyncio.create_subprocess_exec(
-                    path, "tunnel", "--no-autoupdate", "--url", f"http://127.0.0.1:{self.port}",
+                    *args, env=env,
                     stdin=asyncio.subprocess.DEVNULL, stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.PIPE)
             except OSError as err:
                 import errno
@@ -311,6 +346,15 @@ class PublicShare:
             assert self._proc.stderr is not None
             async for raw in self._proc.stderr:
                 line = raw.decode(errors="replace")
+                if named:
+                    if not self.tunnel_url and _REGISTERED.search(line):
+                        self.tunnel_url, self.error, attempt = self.url, None, 0
+                        _LOGGER.info("SmartLists: Cloudflare Tunnel verbunden: %s", self.url)
+                        self._changed()
+                    elif _TOKEN_BAD.search(line):
+                        self.error = "token_invalid"
+                        self._changed()
+                    continue
                 if not self.tunnel_url and (m := _TUNNEL_URL.search(line)):
                     self.tunnel_url, self.error, attempt = m.group(0), None, 0
                     _LOGGER.info("SmartLists: Quick Tunnel bereit: %s", self.tunnel_url)
@@ -320,7 +364,8 @@ class PublicShare:
             if self._stopping:
                 return
             self.tunnel_url = None
-            self.error = f"cloudflared_exit:{code}"
+            if self.error != "token_invalid":
+                self.error = f"cloudflared_exit:{code}"
             self._changed()
             await asyncio.sleep(_BACKOFF[min(attempt, len(_BACKOFF) - 1)])
             attempt += 1

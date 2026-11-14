@@ -43,7 +43,7 @@ const ICON = {
 };
 
 // Wird beim Release mit manifest.json hochgezählt; weicht sie von der Integration ab, ist die Karte im Browser-Cache veraltet
-const CARD_VERSION = "3.9.11";
+const CARD_VERSION = "3.9.12";
 const SORT_MODES = ["category", "alpha", "added", "list"];
 // Darstellung pro Karte (Lovelace-Editor). Persönliche Bedienung steht dagegen in UI_DEFAULTS.
 const CARD_DEFAULTS = {
@@ -322,6 +322,7 @@ const TEXTS = {
     share_30d: "30 Tage",
     share_forever: "bis zum Widerruf",
     share_create: "Link erstellen",
+    pub_named: "Cloudflare Tunnel (feste Adresse)", pub_named_help: "Feste Adresse auf deiner eigenen Domain, bleibt nach Neustarts gleich. Einmalig: Cloudflare-Dashboard → Zero Trust → Networks → Tunnels → Tunnel anlegen (Cloudflared) → Token kopieren; unter „Public Hostname“ z. B. liste.deinedomain.de mit Ziel http://localhost:{port} eintragen. Hier dann Token und Adresse eintragen und speichern. Braucht ein kostenloses Cloudflare-Konto und eine Domain bei Cloudflare.", pub_token: "Tunnel-Token", pub_token_help: "Beginnt mit „eyJ…“. Du kannst auch den ganzen Befehl aus dem Dashboard einfügen. Der Token bleibt in Home Assistant und wird nicht wieder angezeigt.", pub_token_saved: "gespeichert – zum Ändern neu einfügen", pub_err_token_invalid: "Cloudflare lehnt den Token ab – im Dashboard neu kopieren und einfügen.",
     soft_checked_by: "von {name} markiert (Link)", link_added_by: "von {name} über Link hinzugefügt",
     x_stats: "Statistik und Ausgaben", x_stats_help: "Am häufigsten gekauft, lange nicht gekauft, Anteile je Kategorie und Markt, Ausgaben je Monat (📊 auf der Seite, Sensor „Ausgaben diesen Monat“). Aus: ausgeblendet, gezählt wird im Hintergrund weiter.", w_x_stats_sub: "Was ihr oft kauft und wie viel ihr ausgebt",
     share_soft_add: "„soft“ abhaken und hinzufügen", link_added: "über Link hinzugefügt", link_added_help: "Jemand ohne Konto hat das über einen geteilten Link eingetragen.",
@@ -572,6 +573,7 @@ const TEXTS = {
     share_30d: "30 days",
     share_forever: "until revoked",
     share_create: "Create link",
+    pub_named: "Cloudflare Tunnel (fixed address)", pub_named_help: "A fixed address on your own domain that stays the same after restarts. Once: Cloudflare dashboard → Zero Trust → Networks → Tunnels → create a tunnel (Cloudflared) → copy the token; under “Public Hostname” add e.g. list.yourdomain.com with service http://localhost:{port}. Then enter token and address here and save. Needs a free Cloudflare account and a domain on Cloudflare.", pub_token: "Tunnel token", pub_token_help: "Starts with “eyJ…”. You can also paste the whole command from the dashboard. The token stays in Home Assistant and is not shown again.", pub_token_saved: "saved – paste again to change", pub_err_token_invalid: "Cloudflare rejects the token – copy it again from the dashboard and paste it.",
     soft_checked_by: "marked by {name} (link)", link_added_by: "added by {name} via link",
     x_stats: "Statistics and expenses", x_stats_help: "Bought most often, not bought for a while, shares per category and store, monthly expenses (📊 on the page, sensor “Expenses this month”). Off: hidden, counting continues in the background.", w_x_stats_sub: "What you buy often and how much you spend",
     share_soft_add: "“soft” check and add", link_added: "added via link", link_added_help: "Someone without an account added this via a shared link.",
@@ -822,6 +824,7 @@ const TEXTS = {
     share_30d: "30 jours",
     share_forever: "jusqu'à révocation",
     share_create: "Créer un lien",
+    pub_named: "Cloudflare Tunnel (adresse fixe)", pub_named_help: "Une adresse fixe sur ton propre domaine, qui reste la même après un redémarrage. Une fois : tableau de bord Cloudflare → Zero Trust → Networks → Tunnels → créer un tunnel (Cloudflared) → copier le jeton ; sous « Public Hostname », ajoute p. ex. liste.ton-domaine.fr avec le service http://localhost:{port}. Puis saisis ici le jeton et l'adresse et enregistre. Il faut un compte Cloudflare gratuit et un domaine chez Cloudflare.", pub_token: "Jeton du tunnel", pub_token_help: "Commence par « eyJ… ». Tu peux aussi coller toute la commande du tableau de bord. Le jeton reste dans Home Assistant et n'est plus affiché.", pub_token_saved: "enregistré – recolle-le pour le changer", pub_err_token_invalid: "Cloudflare refuse le jeton – recopie-le depuis le tableau de bord.",
     soft_checked_by: "marqué par {name} (lien)", link_added_by: "ajouté par {name} via le lien",
     x_stats: "Statistiques et dépenses", x_stats_help: "Achetés le plus souvent, pas achetés depuis longtemps, parts par catégorie et magasin, dépenses par mois (📊 sur la page, capteur « Dépenses ce mois-ci »). Désactivé : masqué, le comptage continue en arrière-plan.", w_x_stats_sub: "Ce que vous achetez souvent et combien vous dépensez",
     share_soft_add: "cocher « soft » et ajouter", link_added: "ajouté via le lien", link_added_help: "Quelqu'un sans compte l'a ajouté via un lien partagé.",
@@ -1072,6 +1075,7 @@ const TEXTS = {
     share_30d: "30 días",
     share_forever: "hasta revocarlo",
     share_create: "Crear enlace",
+    pub_named: "Cloudflare Tunnel (dirección fija)", pub_named_help: "Una dirección fija en tu propio dominio que no cambia tras reiniciar. Una vez: panel de Cloudflare → Zero Trust → Networks → Tunnels → crear túnel (Cloudflared) → copiar el token; en «Public Hostname» añade p. ej. lista.tudominio.es con el servicio http://localhost:{port}. Luego introduce aquí token y dirección y guarda. Requiere una cuenta gratuita de Cloudflare y un dominio en Cloudflare.", pub_token: "Token del túnel", pub_token_help: "Empieza por «eyJ…». También puedes pegar el comando completo del panel. El token se queda en Home Assistant y no se vuelve a mostrar.", pub_token_saved: "guardado – pégalo de nuevo para cambiarlo", pub_err_token_invalid: "Cloudflare rechaza el token – cópialo de nuevo del panel y pégalo.",
     soft_checked_by: "marcado por {name} (enlace)", link_added_by: "añadido por {name} por enlace",
     x_stats: "Estadísticas y gastos", x_stats_help: "Lo más comprado, lo que hace tiempo que no se compra, porcentajes por categoría y tienda, gastos por mes (📊 en la página, sensor «Gastos este mes»). Desactivado: oculto, se sigue contando en segundo plano.", w_x_stats_sub: "Lo que compráis a menudo y cuánto gastáis",
     share_soft_add: "marcar «soft» y añadir", link_added: "añadido por enlace", link_added_help: "Alguien sin cuenta lo añadió mediante un enlace compartido.",
@@ -1322,6 +1326,7 @@ const TEXTS = {
     share_30d: "30 giorni",
     share_forever: "fino alla revoca",
     share_create: "Crea link",
+    pub_named: "Cloudflare Tunnel (indirizzo fisso)", pub_named_help: "Un indirizzo fisso sul tuo dominio che resta uguale dopo i riavvii. Una volta: dashboard Cloudflare → Zero Trust → Networks → Tunnels → crea un tunnel (Cloudflared) → copia il token; in «Public Hostname» aggiungi ad es. lista.tuodominio.it con il servizio http://localhost:{port}. Poi inserisci qui token e indirizzo e salva. Servono un account Cloudflare gratuito e un dominio su Cloudflare.", pub_token: "Token del tunnel", pub_token_help: "Inizia con «eyJ…». Puoi anche incollare l'intero comando dalla dashboard. Il token resta in Home Assistant e non viene più mostrato.", pub_token_saved: "salvato – incollalo di nuovo per cambiarlo", pub_err_token_invalid: "Cloudflare rifiuta il token – copialo di nuovo dalla dashboard e incollalo.",
     soft_checked_by: "segnato da {name} (link)", link_added_by: "aggiunto da {name} tramite link",
     x_stats: "Statistiche e spese", x_stats_help: "Acquistati più spesso, non acquistati da tempo, quote per categoria e negozio, spese mensili (📊 nella pagina, sensore «Spese questo mese»). Disattivato: nascosto, il conteggio continua in background.", w_x_stats_sub: "Cosa comprate spesso e quanto spendete",
     share_soft_add: "spuntare «soft» e aggiungere", link_added: "aggiunto tramite link", link_added_help: "Qualcuno senza account l'ha aggiunto tramite un link condiviso.",
@@ -1572,6 +1577,7 @@ const TEXTS = {
     share_30d: "30 dni",
     share_forever: "do odwołania",
     share_create: "Utwórz link",
+    pub_named: "Cloudflare Tunnel (stały adres)", pub_named_help: "Stały adres w twojej domenie, taki sam po restarcie. Jednorazowo: panel Cloudflare → Zero Trust → Networks → Tunnels → utwórz tunel (Cloudflared) → skopiuj token; w „Public Hostname” dodaj np. lista.twojadomena.pl z usługą http://localhost:{port}. Potem wpisz tutaj token i adres i zapisz. Potrzebne darmowe konto Cloudflare i domena w Cloudflare.", pub_token: "Token tunelu", pub_token_help: "Zaczyna się od „eyJ…”. Możesz też wkleić całe polecenie z panelu. Token zostaje w Home Assistant i nie jest ponownie wyświetlany.", pub_token_saved: "zapisany – wklej ponownie, aby zmienić", pub_err_token_invalid: "Cloudflare odrzuca token – skopiuj go ponownie z panelu i wklej.",
     soft_checked_by: "oznaczone przez {name} (link)", link_added_by: "dodane przez {name} przez link",
     x_stats: "Statystyki i wydatki", x_stats_help: "Najczęściej kupowane, dawno niekupowane, udziały kategorii i sklepów, wydatki miesięczne (📊 na stronie, czujnik „Wydatki w tym miesiącu”). Wyłączone: ukryte, liczenie trwa w tle.", w_x_stats_sub: "Co często kupujecie i ile wydajecie",
     share_soft_add: "odhaczanie „soft” i dodawanie", link_added: "dodane przez link", link_added_help: "Ktoś bez konta dodał to przez udostępniony link.",
@@ -4435,7 +4441,8 @@ class SmartListsCard extends HTMLElement {
     const fmt = (str, vars) => String(str).replace(/\{(\w+)\}/g, (_, k) => (vars[k] != null ? vars[k] : ""));
     const status = h("span", { class: "ok2" });
     const body = h("div", {}, h("div", { class: "shelp" }, t.loading));
-    let st = null, mode = "ha", port = 8126, url = "", polls = 0, portOpen = false;
+    let st = null, mode = "ha", port = 8126, url = "", polls = 0, portOpen = false, token = "";
+    const viaCf = (m) => m === "tunnel" || m === "named";  // beide Arten starten cloudflared
     // „<art>|<pfad>“ (siehe public.py binary_kind) → verständlicher Satz mit der passenden Datei
     const wrongText = (code) => {
       const i = code.indexOf("|");
@@ -4456,13 +4463,14 @@ class SmartListsCard extends HTMLElement {
       if (polls === 0) { mode = st.mode; port = st.port; url = st.url; }
       draw();
       // Tunnel startet: ein paar Mal nachfragen, bis die Adresse da ist
-      if (st.mode === "tunnel" && !st.tunnel_url && !st.error && polls < 15) { polls++; setTimeout(load, 2000); } else polls = 0;
+      if (viaCf(st.mode) && !st.tunnel_url && !st.error && polls < 15) { polls++; setTimeout(load, 2000); } else polls = 0;
     };
     const save = async () => {
       status.textContent = t.loading;
-      try { st = await this._call("set_share_public", { mode, port: Number(port) || 8126, url }, false); status.textContent = "✓ " + t.saved; polls = 0; }
+      // Token nur mitschicken, wenn neu eingegeben (der gespeicherte bleibt in Home Assistant)
+      try { st = await this._call("set_share_public", { mode, port: Number(port) || 8126, url, ...(token ? { token } : {}) }, false); status.textContent = "✓ " + t.saved; polls = 0; token = ""; }
       catch (err) { status.textContent = (err && err.message) || t.error; return; }
-      if (st.mode === "tunnel" && !st.tunnel_url && !st.error) { polls = 1; setTimeout(load, 2000); }
+      if (viaCf(st.mode) && !st.tunnel_url && !st.error) { polls = 1; setTimeout(load, 2000); }
       draw();
     };
     const a = (href, label) => h("a", { href, target: "_blank", rel: "noreferrer noopener" }, label);
@@ -4474,17 +4482,19 @@ class SmartListsCard extends HTMLElement {
       if (!st) return;
       const live = st.mode === mode;  // gespeicherter Zustand gehört zur gewählten Art
       const state = !live ? null
-        : mode === "tunnel" ? (st.tunnel_url ? h("div", { class: "sharelink" }, "✓ " + st.tunnel_url) : st.error ? h("div", { class: "shelp", style: "color:var(--error-color,#db4437)" }, "⚠️ " + errText(st.error))
+        : viaCf(mode) ? (st.tunnel_url ? h("div", { class: "sharelink" }, "✓ " + st.tunnel_url) : st.error ? h("div", { class: "shelp", style: "color:var(--error-color,#db4437)" }, "⚠️ " + errText(st.error))
           : h("div", { class: "shelp" }, "⏳ " + t.pub_starting))
         : mode === "proxy" ? (st.server ? h("div", { class: "shelp" }, "✓ " + fmt(t.pub_server_ok, { port: st.port })) : h("div", { class: "shelp", style: "color:var(--error-color,#db4437)" }, "⚠️ " + errText(st.error)))
         : null;
       fill(body,
         this._setRow(t.pub_mode, h("select", { "aria-label": t.pub_mode, onchange: (e) => { mode = e.target.value; draw(); } },
-          [["ha", t.pub_ha], ["tunnel", t.pub_tunnel], ["proxy", t.pub_proxy]].map(([v, l]) => h("option", { value: v, selected: mode === v }, l)))),
-        h("div", { class: "shelp", style: "padding:4px 0" }, mode === "ha" ? "ℹ️ " + t.pub_ha_help : mode === "tunnel" ? t.pub_tunnel_help : fmt(t.pub_proxy_help, { port })),
-        mode === "tunnel" && !st.cloudflared ? cfHint() : null,
-        mode === "tunnel" && st.cloudflared ? h("div", { class: "shelp" }, "✓ cloudflared: " + st.cloudflared) : null,
-        mode === "proxy" ? this._setRow(t.pub_url, h("input", { class: "search2", style: "width:240px;margin:0", type: "url", value: url, placeholder: "https://liste.example.org",
+          [["ha", t.pub_ha], ["tunnel", t.pub_tunnel], ["named", t.pub_named], ["proxy", t.pub_proxy]].map(([v, l]) => h("option", { value: v, selected: mode === v }, l)))),
+        h("div", { class: "shelp", style: "padding:4px 0" }, mode === "ha" ? "ℹ️ " + t.pub_ha_help : mode === "tunnel" ? t.pub_tunnel_help : mode === "named" ? fmt(t.pub_named_help, { port }) : fmt(t.pub_proxy_help, { port })),
+        viaCf(mode) && !st.cloudflared ? cfHint() : null,
+        viaCf(mode) && st.cloudflared ? h("div", { class: "shelp" }, "✓ cloudflared: " + st.cloudflared) : null,
+        mode === "named" ? this._setRow(t.pub_token, h("input", { class: "search2", style: "width:240px;margin:0", type: "password", autocomplete: "off",
+          placeholder: st.token_set ? t.pub_token_saved : "eyJ…", "aria-label": t.pub_token, oninput: (e) => { token = e.target.value.trim(); } }), t.pub_token_help) : null,
+        mode === "proxy" || mode === "named" ? this._setRow(t.pub_url, h("input", { class: "search2", style: "width:240px;margin:0", type: "url", value: url, placeholder: "https://liste.example.org",
           "aria-label": t.pub_url, oninput: (e) => { url = e.target.value.trim(); } })) : null,
         // Port optional: Standard 8126, nur auf Wunsch ändern
         mode !== "ha" && !portOpen && Number(port) === 8126 ? h("div", { class: "acts", style: "justify-content:flex-start" },
