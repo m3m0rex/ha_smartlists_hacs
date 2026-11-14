@@ -130,6 +130,9 @@ no extra setup in SmartLists needed:
 - **Android:** long-press the home screen → *Widgets* → *Home Assistant* → **To-do list**, pick e.g.
   `todo.weekly_shop`. Items can be checked off right in the widget.
 - **iOS / iPadOS:** home screen → *Edit* → *Add widget* → *Home Assistant* → **To-do List**, choose the list.
+- **Nicer on Android:** use the app's **Template** widget with `{{ state_attr('todo.weekly_shop', 'widget') }}` –
+  SmartLists provides the list ready-formatted (categories, coloured store/person/tag badges, quantities). See the
+  [wiki](https://github.com/m3m0rex/ha_smartlists/wiki/Card#home-screen-widgets).
 
 See the companion app docs for [Android widgets](https://companion.home-assistant.io/docs/integrations/android-widgets/)
 and [iOS widgets](https://companion.home-assistant.io/docs/integrations/ios-widgets/). The widget shows the

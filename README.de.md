@@ -129,6 +129,9 @@ dass in SmartLists etwas einzurichten ist:
   `todo.grosseinkauf` wählen. Artikel lassen sich direkt im Widget abhaken.
 - **iOS / iPadOS:** Startbildschirm → *Bearbeiten* → *Widget hinzufügen* → *Home Assistant* → **To-do List**,
   Liste wählen.
+- **Schöner unter Android:** das **Template**-Widget der App mit `{{ state_attr('todo.grosseinkauf', 'widget') }}` –
+  SmartLists liefert die Liste fertig gestaltet (Kategorien, farbige Markt-/Personen-/Schlagwort-Badges, Mengen).
+  Siehe [Wiki](https://github.com/m3m0rex/ha_smartlists/wiki/Card#home-screen-widgets).
 
 Mehr in der Doku der App: [Android-Widgets](https://companion.home-assistant.io/docs/integrations/android-widgets/),
 [iOS-Widgets](https://companion.home-assistant.io/docs/integrations/ios-widgets/). Das Widget zeigt den reinen

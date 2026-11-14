@@ -43,7 +43,7 @@ const ICON = {
 };
 
 // Wird beim Release mit manifest.json hochgezählt; weicht sie von der Integration ab, ist die Karte im Browser-Cache veraltet
-const CARD_VERSION = "3.9.12";
+const CARD_VERSION = "3.9.13";
 const SORT_MODES = ["category", "alpha", "added", "list"];
 // Darstellung pro Karte (Lovelace-Editor). Persönliche Bedienung steht dagegen in UI_DEFAULTS.
 const CARD_DEFAULTS = {
@@ -322,6 +322,7 @@ const TEXTS = {
     share_30d: "30 Tage",
     share_forever: "bis zum Widerruf",
     share_create: "Link erstellen",
+    offline: "offline", offline_help: "Keine Verbindung zu Home Assistant. Abhaken, Hinzufügen und Ändern gehen weiter und werden übertragen, sobald die Verbindung wieder da ist.", offline_synced: "{n} Änderungen übertragen", offline_skipped: "{n} übersprungen (Artikel gibt es nicht mehr)", offline_unavailable: "Offline – das geht erst wieder mit Verbindung.", offline_nodata: "Offline – diese Liste wurde auf diesem Gerät noch nie geöffnet.",
     pub_named: "Cloudflare Tunnel (feste Adresse)", pub_named_help: "Feste Adresse auf deiner eigenen Domain, bleibt nach Neustarts gleich. Einmalig: Cloudflare-Dashboard → Zero Trust → Networks → Tunnels → Tunnel anlegen (Cloudflared) → Token kopieren; unter „Public Hostname“ z. B. liste.deinedomain.de mit Ziel http://localhost:{port} eintragen. Hier dann Token und Adresse eintragen und speichern. Braucht ein kostenloses Cloudflare-Konto und eine Domain bei Cloudflare.", pub_token: "Tunnel-Token", pub_token_help: "Beginnt mit „eyJ…“. Du kannst auch den ganzen Befehl aus dem Dashboard einfügen. Der Token bleibt in Home Assistant und wird nicht wieder angezeigt.", pub_token_saved: "gespeichert – zum Ändern neu einfügen", pub_err_token_invalid: "Cloudflare lehnt den Token ab – im Dashboard neu kopieren und einfügen.",
     soft_checked_by: "von {name} markiert (Link)", link_added_by: "von {name} über Link hinzugefügt",
     x_stats: "Statistik und Ausgaben", x_stats_help: "Am häufigsten gekauft, lange nicht gekauft, Anteile je Kategorie und Markt, Ausgaben je Monat (📊 auf der Seite, Sensor „Ausgaben diesen Monat“). Aus: ausgeblendet, gezählt wird im Hintergrund weiter.", w_x_stats_sub: "Was ihr oft kauft und wie viel ihr ausgebt",
@@ -573,6 +574,7 @@ const TEXTS = {
     share_30d: "30 days",
     share_forever: "until revoked",
     share_create: "Create link",
+    offline: "offline", offline_help: "No connection to Home Assistant. Checking off, adding and editing keep working and are sent as soon as the connection is back.", offline_synced: "{n} changes sent", offline_skipped: "{n} skipped (item no longer exists)", offline_unavailable: "Offline – this needs a connection.", offline_nodata: "Offline – this list has never been opened on this device.",
     pub_named: "Cloudflare Tunnel (fixed address)", pub_named_help: "A fixed address on your own domain that stays the same after restarts. Once: Cloudflare dashboard → Zero Trust → Networks → Tunnels → create a tunnel (Cloudflared) → copy the token; under “Public Hostname” add e.g. list.yourdomain.com with service http://localhost:{port}. Then enter token and address here and save. Needs a free Cloudflare account and a domain on Cloudflare.", pub_token: "Tunnel token", pub_token_help: "Starts with “eyJ…”. You can also paste the whole command from the dashboard. The token stays in Home Assistant and is not shown again.", pub_token_saved: "saved – paste again to change", pub_err_token_invalid: "Cloudflare rejects the token – copy it again from the dashboard and paste it.",
     soft_checked_by: "marked by {name} (link)", link_added_by: "added by {name} via link",
     x_stats: "Statistics and expenses", x_stats_help: "Bought most often, not bought for a while, shares per category and store, monthly expenses (📊 on the page, sensor “Expenses this month”). Off: hidden, counting continues in the background.", w_x_stats_sub: "What you buy often and how much you spend",
@@ -824,6 +826,7 @@ const TEXTS = {
     share_30d: "30 jours",
     share_forever: "jusqu'à révocation",
     share_create: "Créer un lien",
+    offline: "hors ligne", offline_help: "Pas de connexion à Home Assistant. Cocher, ajouter et modifier fonctionnent toujours et sont envoyés dès que la connexion revient.", offline_synced: "{n} modifications envoyées", offline_skipped: "{n} ignorée(s) (l'article n'existe plus)", offline_unavailable: "Hors ligne – il faut une connexion pour cela.", offline_nodata: "Hors ligne – cette liste n'a jamais été ouverte sur cet appareil.",
     pub_named: "Cloudflare Tunnel (adresse fixe)", pub_named_help: "Une adresse fixe sur ton propre domaine, qui reste la même après un redémarrage. Une fois : tableau de bord Cloudflare → Zero Trust → Networks → Tunnels → créer un tunnel (Cloudflared) → copier le jeton ; sous « Public Hostname », ajoute p. ex. liste.ton-domaine.fr avec le service http://localhost:{port}. Puis saisis ici le jeton et l'adresse et enregistre. Il faut un compte Cloudflare gratuit et un domaine chez Cloudflare.", pub_token: "Jeton du tunnel", pub_token_help: "Commence par « eyJ… ». Tu peux aussi coller toute la commande du tableau de bord. Le jeton reste dans Home Assistant et n'est plus affiché.", pub_token_saved: "enregistré – recolle-le pour le changer", pub_err_token_invalid: "Cloudflare refuse le jeton – recopie-le depuis le tableau de bord.",
     soft_checked_by: "marqué par {name} (lien)", link_added_by: "ajouté par {name} via le lien",
     x_stats: "Statistiques et dépenses", x_stats_help: "Achetés le plus souvent, pas achetés depuis longtemps, parts par catégorie et magasin, dépenses par mois (📊 sur la page, capteur « Dépenses ce mois-ci »). Désactivé : masqué, le comptage continue en arrière-plan.", w_x_stats_sub: "Ce que vous achetez souvent et combien vous dépensez",
@@ -1075,6 +1078,7 @@ const TEXTS = {
     share_30d: "30 días",
     share_forever: "hasta revocarlo",
     share_create: "Crear enlace",
+    offline: "sin conexión", offline_help: "Sin conexión con Home Assistant. Marcar, añadir y editar siguen funcionando y se envían en cuanto vuelva la conexión.", offline_synced: "{n} cambios enviados", offline_skipped: "{n} omitido(s) (el artículo ya no existe)", offline_unavailable: "Sin conexión – esto necesita conexión.", offline_nodata: "Sin conexión – esta lista nunca se abrió en este dispositivo.",
     pub_named: "Cloudflare Tunnel (dirección fija)", pub_named_help: "Una dirección fija en tu propio dominio que no cambia tras reiniciar. Una vez: panel de Cloudflare → Zero Trust → Networks → Tunnels → crear túnel (Cloudflared) → copiar el token; en «Public Hostname» añade p. ej. lista.tudominio.es con el servicio http://localhost:{port}. Luego introduce aquí token y dirección y guarda. Requiere una cuenta gratuita de Cloudflare y un dominio en Cloudflare.", pub_token: "Token del túnel", pub_token_help: "Empieza por «eyJ…». También puedes pegar el comando completo del panel. El token se queda en Home Assistant y no se vuelve a mostrar.", pub_token_saved: "guardado – pégalo de nuevo para cambiarlo", pub_err_token_invalid: "Cloudflare rechaza el token – cópialo de nuevo del panel y pégalo.",
     soft_checked_by: "marcado por {name} (enlace)", link_added_by: "añadido por {name} por enlace",
     x_stats: "Estadísticas y gastos", x_stats_help: "Lo más comprado, lo que hace tiempo que no se compra, porcentajes por categoría y tienda, gastos por mes (📊 en la página, sensor «Gastos este mes»). Desactivado: oculto, se sigue contando en segundo plano.", w_x_stats_sub: "Lo que compráis a menudo y cuánto gastáis",
@@ -1326,6 +1330,7 @@ const TEXTS = {
     share_30d: "30 giorni",
     share_forever: "fino alla revoca",
     share_create: "Crea link",
+    offline: "offline", offline_help: "Nessuna connessione a Home Assistant. Spuntare, aggiungere e modificare continuano a funzionare e vengono inviati appena torna la connessione.", offline_synced: "{n} modifiche inviate", offline_skipped: "{n} saltate (l'articolo non esiste più)", offline_unavailable: "Offline – serve una connessione.", offline_nodata: "Offline – questa lista non è mai stata aperta su questo dispositivo.",
     pub_named: "Cloudflare Tunnel (indirizzo fisso)", pub_named_help: "Un indirizzo fisso sul tuo dominio che resta uguale dopo i riavvii. Una volta: dashboard Cloudflare → Zero Trust → Networks → Tunnels → crea un tunnel (Cloudflared) → copia il token; in «Public Hostname» aggiungi ad es. lista.tuodominio.it con il servizio http://localhost:{port}. Poi inserisci qui token e indirizzo e salva. Servono un account Cloudflare gratuito e un dominio su Cloudflare.", pub_token: "Token del tunnel", pub_token_help: "Inizia con «eyJ…». Puoi anche incollare l'intero comando dalla dashboard. Il token resta in Home Assistant e non viene più mostrato.", pub_token_saved: "salvato – incollalo di nuovo per cambiarlo", pub_err_token_invalid: "Cloudflare rifiuta il token – copialo di nuovo dalla dashboard e incollalo.",
     soft_checked_by: "segnato da {name} (link)", link_added_by: "aggiunto da {name} tramite link",
     x_stats: "Statistiche e spese", x_stats_help: "Acquistati più spesso, non acquistati da tempo, quote per categoria e negozio, spese mensili (📊 nella pagina, sensore «Spese questo mese»). Disattivato: nascosto, il conteggio continua in background.", w_x_stats_sub: "Cosa comprate spesso e quanto spendete",
@@ -1577,6 +1582,7 @@ const TEXTS = {
     share_30d: "30 dni",
     share_forever: "do odwołania",
     share_create: "Utwórz link",
+    offline: "offline", offline_help: "Brak połączenia z Home Assistant. Odhaczanie, dodawanie i edycja działają dalej i zostaną wysłane, gdy połączenie wróci.", offline_synced: "Wysłano zmian: {n}", offline_skipped: "pominięto: {n} (produktu już nie ma)", offline_unavailable: "Offline – to wymaga połączenia.", offline_nodata: "Offline – ta lista nie była jeszcze otwierana na tym urządzeniu.",
     pub_named: "Cloudflare Tunnel (stały adres)", pub_named_help: "Stały adres w twojej domenie, taki sam po restarcie. Jednorazowo: panel Cloudflare → Zero Trust → Networks → Tunnels → utwórz tunel (Cloudflared) → skopiuj token; w „Public Hostname” dodaj np. lista.twojadomena.pl z usługą http://localhost:{port}. Potem wpisz tutaj token i adres i zapisz. Potrzebne darmowe konto Cloudflare i domena w Cloudflare.", pub_token: "Token tunelu", pub_token_help: "Zaczyna się od „eyJ…”. Możesz też wkleić całe polecenie z panelu. Token zostaje w Home Assistant i nie jest ponownie wyświetlany.", pub_token_saved: "zapisany – wklej ponownie, aby zmienić", pub_err_token_invalid: "Cloudflare odrzuca token – skopiuj go ponownie z panelu i wklej.",
     soft_checked_by: "oznaczone przez {name} (link)", link_added_by: "dodane przez {name} przez link",
     x_stats: "Statystyki i wydatki", x_stats_help: "Najczęściej kupowane, dawno niekupowane, udziały kategorii i sklepów, wydatki miesięczne (📊 na stronie, czujnik „Wydatki w tym miesiącu”). Wyłączone: ukryte, liczenie trwa w tle.", w_x_stats_sub: "Co często kupujecie i ile wydajecie",
@@ -1683,6 +1689,17 @@ function splitPrice(text) {
   const start = last.index + last[1].length, end = last.index + last[0].length;
   return [(text.slice(0, start) + " " + text.slice(end)).split(/\s+/).filter(Boolean).join(" "), Number((last[2] || last[3]).replace(",", "."))];
 }
+/* ---------------- Offline-Einkauf ----------------
+ * Im Laden ohne Netz: Liste aus dem Zwischenspeicher zeigen, Abhaken/Hinzufügen/Ändern/Löschen lokal sammeln und
+ * beim Wiederverbinden der Reihe nach übertragen. Geht, solange die Seite offen ist; gesammelte Änderungen bleiben
+ * auch über ein Neuladen erhalten und werden beim nächsten Öffnen mit Verbindung gesendet. */
+const OFFLINE_TYPES = new Set(["add_item", "update_item", "remove_items"]);
+const isConnErr = (e) => !!e && (e.code === 3 || /connection lost|not connected|socket/i.test(String((e && e.message) || e)));
+const offSnapKey = (e) => `smartlists-offline:${e}`;
+const offQueueKey = (e) => `smartlists-queue:${e}`;
+function offLoad(key, fallback) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
+function offSave(key, value) { try { if (value == null || (Array.isArray(value) && !value.length)) localStorage.removeItem(key); else localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* voll */ } }
+
 function parseText(text, rules, stores, typed = false) {
   const [rest, tags] = splitTags(text || "", rules, stores);
   let m;
@@ -2207,6 +2224,7 @@ const STYLE = `
   button.badge { border:none; font:inherit; font-size:.7rem; cursor:pointer; line-height:inherit; }
   button.badge:hover { filter:brightness(1.1); }
   .badge.combined { background:var(--info-color,#2196f3); }
+  .badge.offline { background:color-mix(in srgb, var(--warning-color,#ff9800) 25%, transparent); color:var(--warning-color,#ff9800); font-weight:600; }
   .badge.public { background:color-mix(in srgb, var(--warning-color,#ff9800) 22%, transparent); color:var(--warning-color,#ff9800); font-weight:600; }
   .count { color:var(--secondary-text-color); font-size:.85rem; white-space:nowrap; }
   .sort { display:flex; align-items:center; gap:2px; color:var(--secondary-text-color); }
@@ -2701,6 +2719,13 @@ class SmartListsCard extends HTMLElement {
     }
     const first = !this._hass;
     this._hass = hass;
+    // Verbindung weg/wieder da: Hinweis zeigen bzw. gesammelte Änderungen senden
+    if (hass.connection && this._offConn !== hass.connection) {
+      this._offConn = hass.connection;
+      hass.connection.addEventListener("ready", () => { this._render(); this._flushOffline(); });
+      hass.connection.addEventListener("disconnected", () => this._render());
+    }
+    if (first && this._offQueue().length) setTimeout(() => this._flushOffline(), 1500);
     if (this._config.view === "mealplan") { this._renderMealPlanView(); return; }
     if (first || !this._cfg) this._loadConfig();
     if (first) this._loadUserUi();
@@ -2726,7 +2751,100 @@ class SmartListsCard extends HTMLElement {
   get _t() { return TEXTS[this._lang] || TEXTS.en; }
   get _isAdmin() { return !this._hass.user || this._hass.user.is_admin; }
   _call(type, extra = {}, withEntity = true) {
-    return this._hass.callWS({ type: `smartlists/${type}`, ...(withEntity ? { entity_id: this._config.entity } : {}), ...extra });
+    const msg = { type: `smartlists/${type}`, ...(withEntity ? { entity_id: this._config.entity } : {}), ...extra };
+    const queueable = withEntity && OFFLINE_TYPES.has(type);
+    if (withEntity && type === "get_list" && this._isOffline()) return this._offlineList();
+    // offline – oder es warten noch gesammelte Änderungen (Reihenfolge bleibt erhalten)
+    if (queueable && (this._isOffline() || this._offQueue().length)) {
+      const r = this._offlineDo(msg);
+      if (!this._isOffline()) this._flushOffline();
+      return Promise.resolve(r);
+    }
+    if (withEntity && !queueable && this._isOffline() && type !== "get_list")
+      return Promise.reject(new Error(this._t.offline_unavailable));
+    return this._hass.callWS(msg).catch((err) => {
+      if (queueable && isConnErr(err)) return this._offlineDo(msg);
+      throw err;
+    });
+  }
+  _isOffline() {
+    const c = this._hass && this._hass.connection;
+    return (!!c && c.connected === false) || (typeof navigator !== "undefined" && navigator.onLine === false);
+  }
+  _offQueue() { return this._config && this._config.entity ? offLoad(offQueueKey(this._config.entity), []) : []; }
+  _offlineList() {
+    const snap = this._data || offLoad(offSnapKey(this._config.entity), null);
+    return snap ? Promise.resolve(JSON.parse(JSON.stringify(snap))) : Promise.reject(new Error(this._t.offline_nodata));
+  }
+  // Änderung lokal anwenden und für später merken
+  _offlineDo(msg) {
+    const d = this._data || offLoad(offSnapKey(this._config.entity), null);
+    if (d && !this._data) this._data = d;
+    let result = {};
+    if (d) {
+      const rules = (this._cfg && this._cfg.tag_rules) || [];
+      const fromText = (text) => {
+        const p = parseText(text, rules, this._cfg && this._cfg.known_stores, true);
+        return { text, clean_text: text, name: p.name || text, quantity: p.quantity ?? null, unit: p.unit || null, pack_count: p.pack_count || null, tags: p.tags || [] };
+      };
+      if (msg.type === "smartlists/add_item") {
+        const uid = `offline-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+        d.items.push({ uid, note: msg.note || "", checked: !!msg.checked, category: "sonstiges", offline: true,
+          permissions: { toggle: true, rename: true, delete: true }, ...fromText(msg.text) });
+        result = { uid };
+        msg = { ...msg, offline_uid: uid };
+      } else if (msg.type === "smartlists/update_item") {
+        const it = d.items.find((i) => i.uid === msg.uid);
+        if (it) {
+          if ("checked" in msg) it.checked = msg.checked;
+          if (msg.text != null) Object.assign(it, fromText(msg.text));
+          if (msg.note != null) it.note = msg.note;
+          it.offline = true;
+        }
+        result = { uid: msg.uid };
+      } else if (msg.type === "smartlists/remove_items") {
+        d.items = d.items.filter((i) => !(msg.uids || []).includes(i.uid));
+      }
+      offSave(offSnapKey(this._config.entity), d);
+    }
+    offSave(offQueueKey(this._config.entity), [...this._offQueue(), msg]);
+    this._render();
+    return result;
+  }
+  // Wieder verbunden: gesammelte Änderungen der Reihe nach senden (offline angelegte Artikel bekommen dabei ihre echte uid)
+  async _flushOffline() {
+    if (this._flushing || this._isOffline() || !this._hass) return;
+    let queue = this._offQueue();
+    if (!queue.length) return;
+    this._flushing = true;
+    const ids = {};
+    let sent = 0, skipped = 0;
+    try {
+      while (queue.length) {
+        const op = { ...queue[0] };
+        const offUid = op.offline_uid;
+        delete op.offline_uid;
+        if (op.uid && ids[op.uid] !== undefined) op.uid = ids[op.uid];
+        if (op.uids) op.uids = op.uids.map((u) => (ids[u] !== undefined ? ids[u] : u));
+        const orphan = (op.uid && String(op.uid).startsWith("offline-")) || (op.uids || []).some((u) => String(u).startsWith("offline-"));
+        if (orphan) { skipped++; } else {
+          try {
+            const r = await this._hass.callWS(op);
+            if (offUid) ids[offUid] = r && r.uid;
+            sent++;
+          } catch (err) {
+            if (isConnErr(err)) break;  // Verbindung wieder weg → Rest bleibt für später
+            skipped++;                  // z. B. inzwischen von jemand anderem gelöscht
+          }
+        }
+        queue = queue.slice(1);
+        offSave(offQueueKey(this._config.entity), queue);
+      }
+    } finally {
+      this._flushing = false;
+    }
+    if (sent || skipped) this._showSnack(this._t.offline_synced.replace("{n}", sent) + (skipped ? " · " + this._t.offline_skipped.replace("{n}", skipped) : ""), null);
+    await this._load();
   }
   _resetDraft() {
     this._draft = { text: "", parsed: null, info: null, pickedCat: null, sugg: [], suggMode: "name", active: -1 };
@@ -2805,6 +2923,7 @@ class SmartListsCard extends HTMLElement {
         this._sortMode = this._config.sort;
       }
       this._data = data;
+      if (!this._isOffline() && !this._offQueue().length) offSave(offSnapKey(this._config.entity), data);  // für den Laden ohne Netz
       // Darstellung dieser Liste (für alle Geräte gemerkt): gilt, solange die Karte bzw. dieses Gerät nichts anderes festlegt
       const ls = data.settings || {};
       if (JSON.stringify(ls) !== this._listSettingsApplied) {
@@ -2943,6 +3062,9 @@ class SmartListsCard extends HTMLElement {
         "aria-label": t.link_shared_help.replace("{n}", d.links), onclick: () => this._listDialog() },
         `🌐 ${t.link_shared}${d.links > 1 ? " · " + d.links : ""}`) : null,
       d.foreign ? h("span", { class: "badge foreign" }, t.foreign) : null,
+      // offline bzw. noch nicht übertragene Änderungen
+      this._isOffline() || this._offQueue().length ? h("span", { class: "badge offline", title: t.offline_help },
+        `${this._isOffline() ? "📴 " + t.offline : "⏳"}${this._offQueue().length ? " · " + this._offQueue().length : ""}`) : null,
       !this._config.show_count ? null : h("span", { class: "count" }, this._searchQuery
         ? `${this._hitCount ?? 0} ${t.hits}`
         : this._shopping ? `${d.items.length - open.length}/${d.items.length} ${t.in_cart}` : `${open.length} ${t.open}`),

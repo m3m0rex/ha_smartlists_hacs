@@ -3,6 +3,19 @@
 All notable changes to SmartLists are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning follows [Semantic Versioning](https://semver.org/).
 
+## [3.9.13] – 2026-11-14
+
+### Added
+
+- **Offline shopping:** no signal in the store? The card and the sidebar page keep the list on the device and go on
+  working – check off, reopen, add, edit and delete are collected locally (header shows "📴 offline · 3") and sent in
+  order as soon as Home Assistant is reachable again. Items added offline and then checked off are handled, items
+  deleted by someone else meanwhile are skipped with a hint. Works while the page stays open; collected changes
+  survive a reload and are sent the next time the list is opened with a connection.
+- **Nicer home-screen widget on Android:** every SmartLists list (combined and own) has the attribute `widget` with
+  ready-formatted text – grouped by category, store/person/tag in colour, quantities – for the *Template* widget of
+  the Home Assistant app: `{{ state_attr('todo.weekly_shop', 'widget') }}`. Not stored in the recorder.
+
 ## [3.9.12] – 2026-11-14
 
 ### Added

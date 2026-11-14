@@ -31,6 +31,7 @@ from homeassistant.util import dt as dt_util, slugify
 from .categories import CategoryIndex
 from .itemtext import join_offer, offer_summary, person_from_list_name, split_offer
 from .learning import Learning
+from .widget import build_widget
 from .own import async_user_info, permissions_for, role_for
 from .const import (
     CONF_APP_DEVICE,
@@ -213,6 +214,7 @@ class _AccessMixin:
 class CombinedTodoListEntity(_AccessMixin, TodoListEntity):
     """Fasst mehrere To-do-Listen zu einer zusammen."""
 
+    _unrecorded_attributes = frozenset({"widget"})  # Widget-Text nicht in die Datenbank
     _attr_should_poll = False
     _attr_icon = "mdi:format-list-checks"
     _restrict_always = False
@@ -394,6 +396,10 @@ class CombinedTodoListEntity(_AccessMixin, TodoListEntity):
             "completed_items": done,
             "unavailable_sources": [s for s in self._sources if s not in self._source_states],
             "open_by_category": self._open_by_category(items),
+            # fertig gestalteter Text fürs Template-Widget der HA-App (widget.py) – ohne Herkunfts-Zusatz im Namen
+            "widget": build_widget(self.hass, self.entity_id, self.name or "", [
+                (self._index[i.uid][2] if i.uid in self._index else (i.summary or ""), i.status == TodoItemStatus.COMPLETED)
+                for i in items]),
         }
 
     def _open_by_category(self, items: list[TodoItem]) -> dict[str, int]:
@@ -687,6 +693,7 @@ class OwnTodoListEntity(_AccessMixin, TodoListEntity):
 
     _attr_should_poll = False
     _attr_icon = "mdi:clipboard-account-outline"
+    _unrecorded_attributes = frozenset({"widget"})  # Widget-Text nicht in die Datenbank
     _attr_supported_features = (
         TodoListEntityFeature.CREATE_TODO_ITEM
         | TodoListEntityFeature.UPDATE_TODO_ITEM
@@ -743,6 +750,8 @@ class OwnTodoListEntity(_AccessMixin, TodoListEntity):
             "shared_with": self._share_names,
             "open_items": open_items,
             "completed_items": len(self._items) - open_items,
+            "widget": build_widget(self.hass, self.entity_id, self.name or "", [
+                (i.get("summary", ""), i.get("status") == TodoItemStatus.COMPLETED) for i in self._items]),
         }
 
     # -------- Daten --------

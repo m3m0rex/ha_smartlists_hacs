@@ -188,6 +188,9 @@ layout: columns
   to see only its items. If stores are linked to zones (*General settings → Global → Stores & zones*), the store
   whose zone you are in is selected automatically. Items without `@store` are shown as well (on by
   default; switch off under *For me* → "Also show items without a store").
+- **Offline**: without a connection (e.g. in the store) the list keeps working from the copy on the device – check
+  off, add, edit and delete are collected ("📴 offline · 3" in the header) and sent in order once Home Assistant is
+  reachable again. This works while the page stays open; collected changes also survive a reload.
 - **Header**: search, undo (when possible), shopping mode and **⋯**. The ⋯ menu holds sort order, import,
   templates, meal plan, the **general settings** and the settings window of **this list**. On the sidebar
   page the general settings are the ⚙ at the top right. See [[Settings]].
@@ -214,6 +217,18 @@ Assistant companion apps, because each list is a real `todo.*` entity – nothin
 - **Android:** long-press the home screen → *Widgets* → *Home Assistant* → **To-do list** → pick the list
   (e.g. a combined list). Items can be checked off in the widget.
 - **iOS / iPadOS:** *Edit* → *Add widget* → *Home Assistant* → **To-do List** → choose the list.
+
+**Nicer on Android – Template widget:** the To-do widget cannot be styled, but the app's *Template* widget shows
+formatted text. Every SmartLists list (combined and own lists) provides it ready-made in the attribute `widget`:
+grouped by category, store/person/tag badges in colour, quantities behind the item.
+
+1. Long-press the home screen → *Widgets* → *Home Assistant* → **Template**.
+2. Template: `{{ state_attr('todo.weekly_shop', 'widget') }}` (your list's entity ID).
+3. Optionally choose text size and background, save.
+
+Tapping the widget can open the SmartLists page (widget setting *tap action*); checking off happens there. Android
+refreshes widgets at intervals, not instantly. Regular to-do lists (e.g. Local To-do) have no `widget` attribute –
+combine them into a SmartLists list first.
 
 Details: [Android widgets](https://companion.home-assistant.io/docs/integrations/android-widgets/),
 [iOS widgets](https://companion.home-assistant.io/docs/integrations/ios-widgets/). The widget shows the plain

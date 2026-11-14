@@ -228,3 +228,20 @@ def test_share_names_are_cleaned_and_old_marks_still_work():
     assert clean_name("<b>Max</b>\x00") == "<b>Max</b>"  # nur Text; die Karte zeigt ihn als Text, nicht als HTML
     assert _mark(1700000000) == (1700000000, "")  # alte Markierung (nur Zeitpunkt)
     assert _mark({"t": 5, "by": "Max"}) == (5, "Max")
+
+
+def test_widget_text_for_template_widget():
+    """Template-Widget: gruppiert nach Kategorie, Badges farbig, Menge dahinter, abgehakte nicht, HTML maskiert."""
+    import types
+
+    from smartlists.widget import build_widget
+
+    learning = _learning()
+    hass = types.SimpleNamespace(data={"smartlists": {"learning": learning, "extras": None}}, config=types.SimpleNamespace(language="de"))
+    html = build_widget(hass, "todo.x", "Wocheneinkauf", [("Milch 2 l @REWE *Anna #bio", False), ("Äpfel 1 kg", False),
+                                                          ("Brot", True), ("<script>", False)])
+    assert html.startswith("<b><big>Wocheneinkauf</big></b>") and "· 3" in html
+    assert "REWE" in html and "👤 Anna" in html and "#bio" in html and "2 l" in html
+    assert "Brot" not in html  # abgehakt
+    assert "<script>" not in html and "&lt;script&gt;" in html
+    assert html.index("Äpfel") < html.index("Milch")  # Obst & Gemüse vor Kühlung
