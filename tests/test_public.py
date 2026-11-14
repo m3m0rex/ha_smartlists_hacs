@@ -82,3 +82,29 @@ def test_update_validates_without_starting():
     assert (p.mode, p.url, p.port, p.applied) == ("proxy", "https://liste.example.org", 8200, True)
     assert status["mode"] == "proxy" and status["download"].startswith("https://github.com/cloudflare/cloudflared")
     assert p._store.saved == {"mode": "proxy", "port": 8200, "url": "https://liste.example.org"}
+
+
+def test_find_cloudflared_original_name_and_nested_folder():
+    """Originalname (cloudflared-linux-<arch>) und Ordner „cloudflared“ mit der Datei tief darin werden gefunden."""
+    from smartlists.public import _arch
+
+    old_path = os.environ.get("PATH", "")
+    os.environ["PATH"] = ""
+    try:
+        with tempfile.TemporaryDirectory() as cfg:
+            path = os.path.join(cfg, f"cloudflared-linux-{_arch()}")
+            open(path, "w").close()
+            assert find_cloudflared(cfg)[0] == path
+        with tempfile.TemporaryDirectory() as cfg:
+            nested = os.path.join(cfg, "cloudflared", "config", "bin")
+            os.makedirs(nested)
+            path = os.path.join(nested, "cloudflared")
+            open(path, "w").close()
+            assert find_cloudflared(cfg)[0] == path
+        with tempfile.TemporaryDirectory() as cfg:
+            other = "arm64" if _arch() != "arm64" else "amd64"
+            path = os.path.join(cfg, f"cloudflared-linux-{other}")
+            open(path, "w").close()
+            assert find_cloudflared(cfg) == (None, path)  # falsche Architektur: Problem statt „fehlt“
+    finally:
+        os.environ["PATH"] = old_path

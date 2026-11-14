@@ -51,24 +51,65 @@ _TUNNEL_URL = re.compile(r"https://[a-z0-9-]+\.trycloudflare\.com")
 _BACKOFF = (10, 30, 60, 300)
 
 
+def _arch() -> str:
+    """amd64 / arm64 / arm – wie die Dateinamen der cloudflared-Releases."""
+    import platform
+
+    m = platform.machine().lower()
+    return "arm64" if m in ("aarch64", "arm64") else "arm" if m.startswith("arm") else "amd64"
+
+
+def suggested_file() -> str:
+    return f"cloudflared-linux-{_arch()}"
+
+
+def search_dirs(config_dir: str) -> list[str]:
+    """Ordner, in die man cloudflared legen kann (für den Hinweis)."""
+    return [config_dir, os.path.join(config_dir, "bin")]
+
+
 def cloudflared_candidates(config_dir: str) -> list[str]:
-    """Wo SmartLists nach cloudflared sucht (in dieser Reihenfolge)."""
-    names = ("cloudflared", "cloudflared.exe")
-    out = []
+    """Wo SmartLists nach cloudflared sucht (in dieser Reihenfolge). Großzügig, weil die Datei oft anders landet:
+    Originalname (cloudflared-linux-arm64) statt „cloudflared“, oder ein Ordner „cloudflared“ mit der Datei darin
+    (auch verschachtelt, z. B. /config/cloudflared/config/bin/cloudflared)."""
+    arch = _arch()
+    names = ("cloudflared", f"cloudflared-linux-{arch}", "cloudflared.exe")
+    out: list[str] = []
     which = shutil.which("cloudflared")
     if which:
         out.append(which)
-    for sub in ("", "bin", "smartlists"):
-        for name in names:
-            out.append(os.path.join(config_dir, sub, name) if sub else os.path.join(config_dir, name))
-    return out
+    for d in (config_dir, os.path.join(config_dir, "bin"), os.path.join(config_dir, "smartlists")):
+        out += [os.path.join(d, n) for n in names]
+    # Ordner /config/cloudflared (bzw. …/bin/cloudflared): darin bis 4 Ebenen tief suchen
+    for root in (os.path.join(config_dir, "cloudflared"), os.path.join(config_dir, "bin", "cloudflared")):
+        if not os.path.isdir(root):
+            continue
+        base_depth = root.rstrip(os.sep).count(os.sep)
+        for dirpath, dirnames, filenames in os.walk(root):
+            if dirpath.count(os.sep) - base_depth >= 4:
+                dirnames[:] = []
+            for n in names:
+                if n in filenames:
+                    out.append(os.path.join(dirpath, n))
+    # Datei für eine andere Architektur liegt da? Dann trotzdem melden (Problem statt „fehlt“)
+    for d in (config_dir, os.path.join(config_dir, "bin")):
+        for other in ("amd64", "arm64", "arm", "386"):
+            if other != arch:
+                out.append(os.path.join(d, f"cloudflared-linux-{other}"))
+    return list(dict.fromkeys(out))
 
 
 def find_cloudflared(config_dir: str) -> tuple[str | None, str | None]:
-    """(Pfad, Problem). Pfad = ausführbares cloudflared; Problem = gefunden, aber nicht ausführbar."""
+    """(Pfad, Problem). Pfad = ausführbares cloudflared; Problem = gefunden, aber nicht ausführbar bzw. für eine
+    andere Architektur (Pfad der Datei)."""
     problem = None
+    arch = _arch()
     for path in cloudflared_candidates(config_dir):
         if not os.path.isfile(path):
+            continue
+        name = os.path.basename(path)
+        if name.startswith("cloudflared-linux-") and name != f"cloudflared-linux-{arch}":
+            problem = problem or path  # falsche Architektur
             continue
         if os.access(path, os.X_OK):
             return path, None
@@ -168,9 +209,9 @@ class PublicShare:
             "server": self._runner is not None,
             "tunnel_url": self.tunnel_url, "error": self.error,
             "cloudflared": self.cloudflared,
-            # wohin man cloudflared legen kann (für den Hinweis in der Einstellung)
-            "cloudflared_paths": [os.path.join(self.hass.config.config_dir, "cloudflared"),
-                                  os.path.join(self.hass.config.config_dir, "bin", "cloudflared")] if hasattr(self.hass, "config") else [],
+            # wohin man cloudflared legen kann und welche Datei passt (für den Hinweis in der Einstellung)
+            "cloudflared_dirs": search_dirs(self.hass.config.config_dir) if hasattr(self.hass, "config") else [],
+            "cloudflared_file": suggested_file(),
             "download": CLOUDFLARED_DOWNLOAD, "docs": CLOUDFLARED_DOCS,
         }
 

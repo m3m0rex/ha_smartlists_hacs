@@ -1081,6 +1081,9 @@ async def ws_share_public(hass: HomeAssistant, connection: websocket_api.ActiveC
 
     public = hass.data[DOMAIN]["public"]
     path, problem = await hass.async_add_executor_job(find_cloudflared, hass.config.config_dir)
+    # Datei inzwischen abgelegt, Tunnel stand auf „cloudflared fehlt“ → ohne erneutes Speichern starten
+    if path and public.mode == "tunnel" and str(public.error or "").startswith(("cloudflared_missing", "cloudflared_not_executable")):
+        await public.async_apply()
     connection.send_result(msg["id"], {**public.status(), "cloudflared": path, "cloudflared_problem": problem})
 
 

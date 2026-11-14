@@ -75,10 +75,11 @@ never falls back silently to the Home Assistant address.
 
 **cloudflared** – SmartLists does **not download it by itself**. If it is already installed (in `PATH`),
 it is used. Otherwise the setting shows a hint: download it from the
-[cloudflared releases](https://github.com/cloudflare/cloudflared/releases/latest) (Home Assistant OS on a
-Raspberry Pi: `cloudflared-linux-arm64`, on x86: `cloudflared-linux-amd64`), rename it to `cloudflared`
-and put it at `/config/cloudflared` or `/config/bin/cloudflared` (e.g. via the Samba or File editor add-on),
-then press *Save*. A missing execute permission is added automatically.
+[cloudflared releases](https://github.com/cloudflare/cloudflared/releases/latest) – the setting shows which file
+fits your system (Home Assistant OS on a Raspberry Pi: `cloudflared-linux-arm64`, on x86: `cloudflared-linux-amd64`).
+Put that file into `/config` or `/config/bin` (e.g. via the Samba or File editor add-on); renaming it to
+`cloudflared` is optional, and a subfolder `cloudflared` (even nested) is searched as well. A missing execute
+permission is added automatically, and the tunnel starts by itself the next time you open the setting.
 
 Good to know about Quick Tunnels: the address **changes every time Home Assistant restarts**, so links
 created before stop working (the card marks them "address has changed"). Cloudflare offers Quick Tunnels

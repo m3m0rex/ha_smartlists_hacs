@@ -3,6 +3,19 @@
 All notable changes to SmartLists are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning follows [Semantic Versioning](https://semver.org/).
 
+## [3.9.7] – 2026-11-14
+
+### Fixed
+
+- **"The card is outdated – reload the page" was shown permanently** since 3.9.0: the card's own version number had
+  not been raised together with the integration's. A new test now fails if the two ever differ again.
+- **Quick Tunnel: cloudflared was not found** although it was there. SmartLists now also finds the file under its
+  original name (`cloudflared-linux-arm64` / `-amd64`, no renaming needed) and inside a folder `cloudflared`
+  (also nested, e.g. `/config/cloudflared/config/bin/cloudflared`). A file for another processor type is reported
+  as such instead of "missing". The hint names the right file for your system and lists the folders clearly.
+- After putting cloudflared in place the tunnel starts by itself when the setting is opened – no need to press
+  *Save* again.
+
 ## [3.9.6] – 2026-11-14
 
 ### Added
