@@ -394,12 +394,16 @@ def stats(learning: Any, extras: Extras, days: int = 90) -> dict[str, Any]:
     top = []
     overdue = []
     cats: dict[str, int] = {}
+    # „gekauft“ = abgehakt (seit 3.9.11). Ältere Käufe werden einmal aus dem Artikel-Verlauf nachgetragen.
+    log = getattr(getattr(learning, "hass", None), "data", {}).get(DOMAIN, {}).get("itemlog") if hasattr(learning, "hass") else None
+    if log is not None and hasattr(learning, "backfill_bought"):
+        learning.backfill_bought(log.log)
     for entry in learning.history.values():
-        times = [int(t) for t in entry.get("times", []) if t >= since]
+        times = [int(t) for t in entry.get("bought", []) if t >= since]
         if not times:
             continue
         r = learning.rhythm(entry["name"])
-        row = {"name": entry["name"], "count": len(times), "every_days": r["every_days"] if r else None, "last": entry.get("last")}
+        row = {"name": entry["name"], "count": len(times), "every_days": r["every_days"] if r else None, "last": max(times)}
         top.append(row)
         cid, _ = learning.resolve(entry["name"])
         cats[cid] = cats.get(cid, 0) + len(times)

@@ -190,3 +190,41 @@ def test_share_payload_looks_like_the_card():
     assert d["items"][1]["qty"] == "2" and d["items"][1]["unit"] == "l"
     assert d["categories"] and first["cat"]
     assert "geheim" not in str(d)  # Notizen bleiben privat
+
+
+def test_bought_means_checked_off():
+    """„Am häufigsten gekauft“ zählt Abhaken, nicht Hinzufügen; Fehltipp (gleich wieder offen) zählt nicht."""
+    import types
+
+    from smartlists.extras import Extras, stats
+
+    learning = _learning()
+    learning.record("Kaviar", "todo.a")  # nur hinzugefügt, nie gekauft
+    learning.record("Kaviar", "todo.a")
+    learning.record("Milch", "todo.a")
+    learning.record_bought("Milch 2 l", "todo.a")
+    learning.record_bought("Brot", "todo.a")
+    learning.unrecord_bought("Brot")  # gleich wieder geöffnet
+    extras = Extras(types.SimpleNamespace(data={}))
+    top = {r["name"]: r["count"] for r in stats(learning, extras, 90)["top"]}
+    assert top == {"Milch": 1}
+
+
+def test_bought_backfill_from_item_log():
+    learning = _learning()
+    now = int(time.time())
+    log = {"todo.a": [{"t": now - 20 * DAY, "a": "check", "text": "Butter"}, {"t": now - 5 * DAY, "a": "check", "text": "Butter"},
+                      {"t": now - 3 * DAY, "a": "add", "text": "Kaviar"}]}
+    assert learning.backfill_bought(log) == 2
+    assert len(learning.history["butter"]["bought"]) == 2 and "kaviar" not in learning.history
+    assert learning.backfill_bought(log) == 0  # nur einmal
+
+
+def test_share_names_are_cleaned_and_old_marks_still_work():
+    from smartlists.shares import _mark, clean_name
+
+    assert clean_name("  Max\n\t ") == "Max"
+    assert clean_name("A" * 80) == "A" * 30
+    assert clean_name("<b>Max</b>\x00") == "<b>Max</b>"  # nur Text; die Karte zeigt ihn als Text, nicht als HTML
+    assert _mark(1700000000) == (1700000000, "")  # alte Markierung (nur Zeitpunkt)
+    assert _mark({"t": 5, "by": "Max"}) == (5, "Max")

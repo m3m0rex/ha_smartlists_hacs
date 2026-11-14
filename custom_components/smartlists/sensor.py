@@ -54,7 +54,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         async_add_entities([LastSeenSensor(devices, device_id), AppVersionSensor(devices, device_id)])
 
     # Ausgaben dieses Monats (gebucht beim Abhaken von Artikeln mit Preis) – für Dashboards
-    async_add_entities([ExpensesMonthSensor(hass)])
+    from .features import get_features
+
+    expenses = ExpensesMonthSensor(hass)
+    # Statistik und Ausgaben unter Extras ausgeschaltet → neu angelegt wird der Sensor gleich deaktiviert
+    expenses._attr_entity_registry_enabled_default = get_features(hass)["stats"]
+    async_add_entities([expenses])
 
     for device_id in list(devices.devices):
         _add(device_id)

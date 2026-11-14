@@ -19,7 +19,7 @@ columns; on a narrow screen you first see the areas and open one. The search fie
 | Global (admins) | Badges and colours | naming convention (`@` `*` `#`), badge style per kind, background and text colours, names of single badges |
 | Global (admins) | Stores & zones | zones per store, aisle order |
 | Global (admins) | Categories | keyword packs, remembered categories |
-| Global (admins) | Extras | optional areas: notes (📝 section) and meal plan – off in the setup assistant by default |
+| Global (admins) | Extras | optional areas: notes (📝 section), meal plan, statistics and expenses – off in the setup assistant by default |
 | Global (admins) | Devices and notes | connected devices, combined lists from the app, app notes |
 | Global (admins) | Sharing and permissions | who may share lists via link and how far; public address for links (HA address, Quick Tunnel, own proxy); what users without admin rights may do |
 | Global (admins) | Voice, backup, defaults | Assist, due items, barcode lookup services, export/import, default controls for everyone, take over existing lists, run setup again, start from scratch |

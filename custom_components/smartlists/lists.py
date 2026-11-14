@@ -183,6 +183,7 @@ async def get_list(hass: HomeAssistant, entity_id: str, user: Any | None = None,
     plain = bool(extras and extras.is_plain(entity_id))
     shares = _shares(hass)
     soft = shares.soft_checked(entity_id) if shares else {}
+    via_link = shares.added_via_link(entity_id) if shares else {}
     for raw in await raw_items(hass, entity_id):
         if notes:
             # Notizliste der App: Titel + Text, keine Kategorie/Menge/Tags (wie in der App)
@@ -220,6 +221,9 @@ async def get_list(hass: HomeAssistant, entity_id: str, user: Any | None = None,
                 **info,
                 "price": price,
                 "soft_checked": raw["uid"] in soft,
+                "soft_by": soft.get(raw["uid"]) or None,
+                "link_added": raw["uid"] in via_link,
+                "link_by": via_link.get(raw["uid"]) or None,
                 "checked_at": (extras.checked_at.get(entity_id) or {}).get(raw["uid"]) if extras else None,
                 "uid": raw["uid"],
                 "text": raw["text"],

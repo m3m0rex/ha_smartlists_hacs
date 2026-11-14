@@ -56,11 +56,12 @@ def ws_config(hass: HomeAssistant, connection: websocket_api.ActiveConnection, m
 
 @websocket_api.require_admin
 @websocket_api.websocket_command({vol.Required("type"): "smartlists/set_features",
-                                  vol.Optional("notes"): bool, vol.Optional("mealplan"): bool})
+                                  vol.Optional("notes"): bool, vol.Optional("mealplan"): bool, vol.Optional("stats"): bool})
 @callback
 def ws_set_features(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]) -> None:
     """Einstellungen → Extras: Notizen und Wochenplan ein-/ausschalten (siehe features.py)."""
-    connection.send_result(msg["id"], {"features": set_features(hass, notes=msg.get("notes"), mealplan=msg.get("mealplan"))})
+    connection.send_result(msg["id"], {"features": set_features(hass, notes=msg.get("notes"), mealplan=msg.get("mealplan"),
+                                                                stats=msg.get("stats"))})
 
 
 @websocket_api.websocket_command(
@@ -1334,6 +1335,7 @@ def ws_set_list_settings(hass: HomeAssistant, connection: websocket_api.ActiveCo
         # Extras – im Assistenten standardmäßig aus (fehlt die Angabe: unverändert)
         vol.Optional("notes"): bool,
         vol.Optional("mealplan"): bool,
+        vol.Optional("stats"): bool,
     }
 )
 @websocket_api.async_response
@@ -1406,9 +1408,9 @@ async def ws_setup(hass: HomeAssistant, connection: websocket_api.ActiveConnecti
         rights = learning.rights()
         rights["share_who"] = "owners" if msg["share_links"] else "admins"
         learning.automation["rights"] = rights
-        if "notes" in msg or "mealplan" in msg:
-            set_features(hass, notes=msg.get("notes"), mealplan=msg.get("mealplan"))
-            done.extend(k for k in ("notes", "mealplan") if msg.get(k))
+        if "notes" in msg or "mealplan" in msg or "stats" in msg:
+            set_features(hass, notes=msg.get("notes"), mealplan=msg.get("mealplan"), stats=msg.get("stats"))
+            done.extend(k for k in ("notes", "mealplan", "stats") if msg.get(k))
         if not msg["prices"]:
             for e in [*lists_sel, *([main_list] if main_list else [])]:
                 _extras(hass).set_list_settings(e, show_prices=False)

@@ -41,9 +41,15 @@ under *General settings → Global → Sharing and permissions*: admins only, ad
 may allow at most, the longest validity for users without admin rights, and sees – and can revoke – the
 active links of all lists.
 
-- Options when creating: **checking off** – *view only* (default), *“soft”* (the person can mark
-  items; you see "✓ marked from outside" but the item stays open until you check it off) or *really
-  check off*; **may add**; **valid** for 2 hours, 1 day, 7 days, 30 days or until revoked.
+- Options when creating – **allowed**: *view only* (default), *“soft” check* (the person can mark items; you see
+  "✓ marked from outside" but the item stays open until you check it off), *“soft” check and add*, or *check off
+  and add*; **valid** for 2 hours, 1 day, 7 days, 30 days or until revoked. Items added via a link are marked
+  **🔗 added via link** in your list. Admins set the highest level allowed for users without admin rights
+  (*Sharing and permissions → A link may at most*).
+- People opening a link that allows checking off or adding have to enter their **first name** first (required,
+  remembered long-term on their device – browser storage plus a cookie for the share pages only, about 400 days;
+  changeable on the page). It shows in your list as "marked by Max (link)" / "added by Max via link" and in the item
+  history, so you can tell several friends with the same link apart.
 - As long as a link is valid, the list header shows **🌐 shared on the web** (tap it to see or revoke the links).
 - You get the link and a **QR code** once; copy or share it. The list shows active links with expiry
   and how often they were opened; **revoke** any time.
@@ -144,9 +150,13 @@ The product name comes from SmartLists' own memory or a lookup service (only the
 
 ## Statistics
 
+*Statistics and expenses* is an optional extra (*General settings → Global → Extras*), off in the setup assistant.
+
 📊 on the sidebar page (or *General settings → Statistics*): bought most often with rhythm ("every
 4 days"), *not bought for a while* (with ＋ to put it back on the list), shares per category and store.
-It uses the existing history – nothing new is collected. Admins can remove wrong items (×) from the
+**Bought means checked off** (since 3.9.11) – items that were only put on the list do not count; checking off and
+reopening right away (mistap, undo) does not count either. Check-offs from the item history are added once after the
+update. Admins can remove wrong items (×) from the
 history, and single expense bookings can be deleted under *Bookings* (admins all, others their own).
 
 ## Meal plan

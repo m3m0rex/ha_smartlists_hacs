@@ -31,11 +31,14 @@ class ItemLog:
         self._store.async_delay_save(lambda: {"log": self.log}, 5.0)
 
     @callback
-    def add(self, entity_id: str, action: str, text: str, user_id: str | None, via_link: bool = False, old: str | None = None) -> None:
+    def add(self, entity_id: str, action: str, text: str, user_id: str | None, via_link: bool = False, old: str | None = None,
+            by: str = "") -> None:
         rows = self.log.setdefault(entity_id, [])
         entry: dict[str, Any] = {"t": int(time.time()), "a": action, "text": text[:200], "user": user_id}
         if via_link:
             entry["link"] = True
+            if by:
+                entry["by"] = by[:30]  # Name, den die Person auf der geteilten Seite angegeben hat
         if old:
             entry["old"] = old[:200]
         rows.append(entry)
@@ -75,13 +78,15 @@ class ItemLog:
         from .shares import SHARE_CONTEXTS
 
         via_link = bool(event.context and event.context.id in SHARE_CONTEXTS)
+        by = SHARE_CONTEXTS.get(event.context.id, "") if via_link else ""
         from . import lists
 
+        learning = self.hass.data.get(DOMAIN, {}).get("learning")
         for entity_id in entity_ids:
             if entity_id in combined or lists.is_notes(self.hass, entity_id):
                 continue  # kombinierte Listen schreiben in ihre Quellen; Notizen gehören nicht in den Verlauf
             if service == "add_item":
-                self.add(entity_id, "add", str(sd.get("item", "")), user, via_link)
+                self.add(entity_id, "add", str(sd.get("item", "")), user, via_link, by=by)
                 continue
             try:
                 current = {i["uid"]: i for i in await lists.raw_items(self.hass, entity_id)}
@@ -97,9 +102,13 @@ class ItemLog:
                 elif sd.get("rename") and sd["rename"] != text:
                     self.add(entity_id, "rename", sd["rename"], user, via_link, old=text)
                 elif sd.get("status") == "completed":
-                    self.add(entity_id, "check", text, user, via_link)
+                    self.add(entity_id, "check", text, user, via_link, by=by)
+                    if learning is not None:
+                        learning.record_bought(text, entity_id)  # abgehakt = gekauft (Statistik)
                 elif sd.get("status") == "needs_action":
-                    self.add(entity_id, "uncheck", text, user, via_link)
+                    self.add(entity_id, "uncheck", text, user, via_link, by=by)
+                    if learning is not None:
+                        learning.unrecord_bought(text)
 
 
 async def async_get_itemlog(hass: HomeAssistant) -> ItemLog:

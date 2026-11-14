@@ -115,8 +115,8 @@ Gilt für alle Listen und alle HA-Benutzer, gespeichert in `.storage/smartlists.
 
 Mengen stehen wie in der App im Namen („Milch 2 l @REWE“). Beim Tippen wird auch „2 kg Äpfel“ erkannt.
 
-**Extras – optional, für Einsteiger aus:** **Notizen** (Notizlisten als eigener Bereich 📝) und der **Wochenplan**
-(mit Kalender „Essensplan“ und Mealie-Import) braucht man für den Anfang nicht. Der Einrichtungs-Assistent lässt
+**Extras – optional, für Einsteiger aus:** **Notizen** (Notizlisten als eigener Bereich 📝), der **Wochenplan**
+(mit Kalender „Essensplan“ und Mealie-Import) sowie **Statistik und Ausgaben** braucht man für den Anfang nicht. Der Einrichtungs-Assistent lässt
 sie aus; einschalten lassen sie sich jederzeit unter *Einstellungen → Global → Extras*.
 
 ## Startbildschirm-Widgets

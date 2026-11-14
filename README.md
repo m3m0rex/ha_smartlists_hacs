@@ -116,8 +116,8 @@ Shared by all lists and all HA users, stored in `.storage/smartlists.learning`:
 Quantities are stored in the name, as in the app ("Milch 2 l @REWE"). "2 kg apples" is recognised
 while typing, too.
 
-**Extras – optional, off for beginners:** **notes** (note lists as their own 📝 section) and the **meal plan**
-are not needed to get started. The setup assistant leaves them off; switch them on any time under
+**Extras – optional, off for beginners:** **notes** (note lists as their own 📝 section), the **meal plan** and
+**statistics and expenses** are not needed to get started. The setup assistant leaves them off; switch them on any time under
 *Settings → Global → Extras*.
 
 ## Home screen widgets

@@ -43,7 +43,7 @@ const ICON = {
 };
 
 // Wird beim Release mit manifest.json hochgezählt; weicht sie von der Integration ab, ist die Karte im Browser-Cache veraltet
-const CARD_VERSION = "3.9.10";
+const CARD_VERSION = "3.9.11";
 const SORT_MODES = ["category", "alpha", "added", "list"];
 // Darstellung pro Karte (Lovelace-Editor). Persönliche Bedienung steht dagegen in UI_DEFAULTS.
 const CARD_DEFAULTS = {
@@ -312,8 +312,8 @@ const TEXTS = {
     share_view: "nur ansehen",
     share_soft: "„soft“ abhaken (bleibt offen)",
     share_check: "richtig abhaken",
-    share_mode: "Abhaken",
-    share_mode_help: "„soft“: Du siehst, was markiert wurde – der Artikel bleibt in deiner Liste offen.",
+    share_mode: "Erlaubt",
+    share_mode_help: "„soft“: Du siehst, was markiert wurde – der Artikel bleibt in deiner Liste offen. Was über den Link hinzukommt, ist in deiner Liste mit 🔗 markiert.",
     share_add: "Darf hinzufügen",
     share_valid: "Gültig",
     share_2h: "2 Stunden",
@@ -322,6 +322,9 @@ const TEXTS = {
     share_30d: "30 Tage",
     share_forever: "bis zum Widerruf",
     share_create: "Link erstellen",
+    soft_checked_by: "von {name} markiert (Link)", link_added_by: "von {name} über Link hinzugefügt",
+    x_stats: "Statistik und Ausgaben", x_stats_help: "Am häufigsten gekauft, lange nicht gekauft, Anteile je Kategorie und Markt, Ausgaben je Monat (📊 auf der Seite, Sensor „Ausgaben diesen Monat“). Aus: ausgeblendet, gezählt wird im Hintergrund weiter.", w_x_stats_sub: "Was ihr oft kauft und wie viel ihr ausgebt",
+    share_soft_add: "„soft“ abhaken und hinzufügen", link_added: "über Link hinzugefügt", link_added_help: "Jemand ohne Konto hat das über einen geteilten Link eingetragen.",
     link_shared: "im Internet geteilt", link_shared_help: "Über {n} Link(s) für Personen ohne Konto erreichbar. Antippen: Links ansehen oder widerrufen.",
     pub_cf_arch: "{path} ist für einen anderen Prozessor ({found}). Dieses System braucht {file} – die alte Datei löschen oder ersetzen.", pub_cf_kind_windows: "{path} ist die Windows-Version. Für Home Assistant wird {file} gebraucht.", pub_cf_kind_mac: "{path} ist die macOS-Version. Für Home Assistant wird {file} gebraucht.", pub_cf_kind_archive: "{path} ist ein Archiv (.tgz/.zip/.deb), nicht das Programm. Bitte die Datei {file} ohne Endung laden.", pub_cf_kind_html: "{path} ist eine gespeicherte Webseite, nicht das Programm. Auf der Release-Seite die Datei {file} direkt herunterladen.", pub_cf_kind_not_executable: "{path} lässt sich nicht ausführen (Rechte). Datei neu ablegen oder Rechte prüfen.", pub_cf_kind_unknown: "{path} passt nicht zu diesem System. Gebraucht wird {file}.",
     shared_change_hint: "Ändern: Zahnrad dieser Liste → Freigaben.",
@@ -559,8 +562,8 @@ const TEXTS = {
     share_view: "view only",
     share_soft: "“soft” check (stays open)",
     share_check: "really check off",
-    share_mode: "Checking off",
-    share_mode_help: "“soft”: you see what was marked – the item stays open in your list.",
+    share_mode: "Allowed",
+    share_mode_help: "“soft”: you see what was marked – the item stays open in your list. Items added via the link are marked with 🔗 in your list.",
     share_add: "May add",
     share_valid: "Valid",
     share_2h: "2 hours",
@@ -569,6 +572,9 @@ const TEXTS = {
     share_30d: "30 days",
     share_forever: "until revoked",
     share_create: "Create link",
+    soft_checked_by: "marked by {name} (link)", link_added_by: "added by {name} via link",
+    x_stats: "Statistics and expenses", x_stats_help: "Bought most often, not bought for a while, shares per category and store, monthly expenses (📊 on the page, sensor “Expenses this month”). Off: hidden, counting continues in the background.", w_x_stats_sub: "What you buy often and how much you spend",
+    share_soft_add: "“soft” check and add", link_added: "added via link", link_added_help: "Someone without an account added this via a shared link.",
     link_shared: "shared on the web", link_shared_help: "Reachable via {n} link(s) for people without an account. Tap to view or revoke the links.",
     pub_cf_arch: "{path} is built for another processor ({found}). This system needs {file} – delete or replace the old file.", pub_cf_kind_windows: "{path} is the Windows version. Home Assistant needs {file}.", pub_cf_kind_mac: "{path} is the macOS version. Home Assistant needs {file}.", pub_cf_kind_archive: "{path} is an archive (.tgz/.zip/.deb), not the program. Please download the file {file} without extension.", pub_cf_kind_html: "{path} is a saved web page, not the program. Download the file {file} directly from the release page.", pub_cf_kind_not_executable: "{path} cannot be executed (permissions). Put the file there again or check its permissions.", pub_cf_kind_unknown: "{path} does not fit this system. It needs {file}.",
     shared_change_hint: "To change: gear of this list → Sharing.",
@@ -806,8 +812,8 @@ const TEXTS = {
     share_view: "lecture seule",
     share_soft: "cocher « soft » (reste ouvert)",
     share_check: "vraiment cocher",
-    share_mode: "Cocher",
-    share_mode_help: "« soft » : tu vois ce qui a été marqué – l'article reste ouvert dans ta liste.",
+    share_mode: "Autorisé",
+    share_mode_help: "« soft » : tu vois ce qui a été marqué – l'article reste ouvert dans ta liste. Ce qui est ajouté via le lien est marqué 🔗 dans ta liste.",
     share_add: "Peut ajouter",
     share_valid: "Validité",
     share_2h: "2 heures",
@@ -816,6 +822,9 @@ const TEXTS = {
     share_30d: "30 jours",
     share_forever: "jusqu'à révocation",
     share_create: "Créer un lien",
+    soft_checked_by: "marqué par {name} (lien)", link_added_by: "ajouté par {name} via le lien",
+    x_stats: "Statistiques et dépenses", x_stats_help: "Achetés le plus souvent, pas achetés depuis longtemps, parts par catégorie et magasin, dépenses par mois (📊 sur la page, capteur « Dépenses ce mois-ci »). Désactivé : masqué, le comptage continue en arrière-plan.", w_x_stats_sub: "Ce que vous achetez souvent et combien vous dépensez",
+    share_soft_add: "cocher « soft » et ajouter", link_added: "ajouté via le lien", link_added_help: "Quelqu'un sans compte l'a ajouté via un lien partagé.",
     link_shared: "partagée sur le web", link_shared_help: "Accessible par {n} lien(s) pour des personnes sans compte. Touche pour voir ou révoquer les liens.",
     pub_cf_arch: "{path} est prévu pour un autre processeur ({found}). Ce système a besoin de {file} – supprime ou remplace l'ancien fichier.", pub_cf_kind_windows: "{path} est la version Windows. Home Assistant a besoin de {file}.", pub_cf_kind_mac: "{path} est la version macOS. Home Assistant a besoin de {file}.", pub_cf_kind_archive: "{path} est une archive (.tgz/.zip/.deb), pas le programme. Télécharge le fichier {file} sans extension.", pub_cf_kind_html: "{path} est une page web enregistrée, pas le programme. Télécharge directement le fichier {file} depuis la page des versions.", pub_cf_kind_not_executable: "{path} ne peut pas être exécuté (droits). Replace le fichier ou vérifie ses droits.", pub_cf_kind_unknown: "{path} ne convient pas à ce système. Il faut {file}.",
     shared_change_hint: "Pour modifier : engrenage de cette liste → Partage.",
@@ -1053,8 +1062,8 @@ const TEXTS = {
     share_view: "solo ver",
     share_soft: "marcar «soft» (sigue abierto)",
     share_check: "marcar de verdad",
-    share_mode: "Marcar",
-    share_mode_help: "«soft»: ves lo que se ha marcado – el artículo sigue abierto en tu lista.",
+    share_mode: "Permitido",
+    share_mode_help: "«soft»: ves lo que se ha marcado – el artículo sigue abierto en tu lista. Lo añadido por el enlace se marca con 🔗 en tu lista.",
     share_add: "Puede añadir",
     share_valid: "Validez",
     share_2h: "2 horas",
@@ -1063,6 +1072,9 @@ const TEXTS = {
     share_30d: "30 días",
     share_forever: "hasta revocarlo",
     share_create: "Crear enlace",
+    soft_checked_by: "marcado por {name} (enlace)", link_added_by: "añadido por {name} por enlace",
+    x_stats: "Estadísticas y gastos", x_stats_help: "Lo más comprado, lo que hace tiempo que no se compra, porcentajes por categoría y tienda, gastos por mes (📊 en la página, sensor «Gastos este mes»). Desactivado: oculto, se sigue contando en segundo plano.", w_x_stats_sub: "Lo que compráis a menudo y cuánto gastáis",
+    share_soft_add: "marcar «soft» y añadir", link_added: "añadido por enlace", link_added_help: "Alguien sin cuenta lo añadió mediante un enlace compartido.",
     link_shared: "compartida en la web", link_shared_help: "Accesible mediante {n} enlace(s) para personas sin cuenta. Toca para ver o revocar los enlaces.",
     pub_cf_arch: "{path} es para otro procesador ({found}). Este sistema necesita {file} – borra o sustituye el archivo antiguo.", pub_cf_kind_windows: "{path} es la versión de Windows. Home Assistant necesita {file}.", pub_cf_kind_mac: "{path} es la versión de macOS. Home Assistant necesita {file}.", pub_cf_kind_archive: "{path} es un archivo comprimido (.tgz/.zip/.deb), no el programa. Descarga el archivo {file} sin extensión.", pub_cf_kind_html: "{path} es una página web guardada, no el programa. Descarga el archivo {file} directamente desde la página de versiones.", pub_cf_kind_not_executable: "{path} no se puede ejecutar (permisos). Vuelve a colocar el archivo o revisa sus permisos.", pub_cf_kind_unknown: "{path} no sirve para este sistema. Se necesita {file}.",
     shared_change_hint: "Para cambiar: engranaje de esta lista → Compartir.",
@@ -1300,8 +1312,8 @@ const TEXTS = {
     share_view: "solo visualizzazione",
     share_soft: "spunta «soft» (resta aperto)",
     share_check: "spunta davvero",
-    share_mode: "Spuntare",
-    share_mode_help: "«soft»: vedi cosa è stato segnato – l'articolo resta aperto nella tua lista.",
+    share_mode: "Consentito",
+    share_mode_help: "«soft»: vedi cosa è stato segnato – l'articolo resta aperto nella tua lista. Ciò che viene aggiunto tramite il link è segnato con 🔗 nella tua lista.",
     share_add: "Può aggiungere",
     share_valid: "Validità",
     share_2h: "2 ore",
@@ -1310,6 +1322,9 @@ const TEXTS = {
     share_30d: "30 giorni",
     share_forever: "fino alla revoca",
     share_create: "Crea link",
+    soft_checked_by: "segnato da {name} (link)", link_added_by: "aggiunto da {name} tramite link",
+    x_stats: "Statistiche e spese", x_stats_help: "Acquistati più spesso, non acquistati da tempo, quote per categoria e negozio, spese mensili (📊 nella pagina, sensore «Spese questo mese»). Disattivato: nascosto, il conteggio continua in background.", w_x_stats_sub: "Cosa comprate spesso e quanto spendete",
+    share_soft_add: "spuntare «soft» e aggiungere", link_added: "aggiunto tramite link", link_added_help: "Qualcuno senza account l'ha aggiunto tramite un link condiviso.",
     link_shared: "condivisa sul web", link_shared_help: "Raggiungibile tramite {n} link per persone senza account. Tocca per vedere o revocare i link.",
     pub_cf_arch: "{path} è per un altro processore ({found}). Questo sistema richiede {file} – elimina o sostituisci il vecchio file.", pub_cf_kind_windows: "{path} è la versione per Windows. Home Assistant richiede {file}.", pub_cf_kind_mac: "{path} è la versione per macOS. Home Assistant richiede {file}.", pub_cf_kind_archive: "{path} è un archivio (.tgz/.zip/.deb), non il programma. Scarica il file {file} senza estensione.", pub_cf_kind_html: "{path} è una pagina web salvata, non il programma. Scarica il file {file} direttamente dalla pagina delle release.", pub_cf_kind_not_executable: "{path} non è eseguibile (permessi). Rimetti il file o controlla i permessi.", pub_cf_kind_unknown: "{path} non è adatto a questo sistema. Serve {file}.",
     shared_change_hint: "Per modificare: ingranaggio di questa lista → Condivisione.",
@@ -1547,8 +1562,8 @@ const TEXTS = {
     share_view: "tylko podgląd",
     share_soft: "odhaczanie „soft” (pozostaje otwarte)",
     share_check: "naprawdę odhaczaj",
-    share_mode: "Odhaczanie",
-    share_mode_help: "„soft”: widzisz, co zostało oznaczone – produkt pozostaje otwarty na twojej liście.",
+    share_mode: "Dozwolone",
+    share_mode_help: "„soft”: widzisz, co zostało oznaczone – produkt pozostaje otwarty na twojej liście. To, co dodano przez link, jest na twojej liście oznaczone 🔗.",
     share_add: "Może dodawać",
     share_valid: "Ważność",
     share_2h: "2 godziny",
@@ -1557,6 +1572,9 @@ const TEXTS = {
     share_30d: "30 dni",
     share_forever: "do odwołania",
     share_create: "Utwórz link",
+    soft_checked_by: "oznaczone przez {name} (link)", link_added_by: "dodane przez {name} przez link",
+    x_stats: "Statystyki i wydatki", x_stats_help: "Najczęściej kupowane, dawno niekupowane, udziały kategorii i sklepów, wydatki miesięczne (📊 na stronie, czujnik „Wydatki w tym miesiącu”). Wyłączone: ukryte, liczenie trwa w tle.", w_x_stats_sub: "Co często kupujecie i ile wydajecie",
+    share_soft_add: "odhaczanie „soft” i dodawanie", link_added: "dodane przez link", link_added_help: "Ktoś bez konta dodał to przez udostępniony link.",
     link_shared: "udostępniona w sieci", link_shared_help: "Dostępna przez {n} link(i) dla osób bez konta. Stuknij, aby zobaczyć lub cofnąć linki.",
     pub_cf_arch: "{path} jest dla innego procesora ({found}). Ten system potrzebuje {file} – usuń lub zastąp stary plik.", pub_cf_kind_windows: "{path} to wersja dla Windows. Home Assistant potrzebuje {file}.", pub_cf_kind_mac: "{path} to wersja dla macOS. Home Assistant potrzebuje {file}.", pub_cf_kind_archive: "{path} to archiwum (.tgz/.zip/.deb), a nie program. Pobierz plik {file} bez rozszerzenia.", pub_cf_kind_html: "{path} to zapisana strona internetowa, a nie program. Pobierz plik {file} bezpośrednio ze strony wydań.", pub_cf_kind_not_executable: "{path} nie da się uruchomić (uprawnienia). Umieść plik ponownie lub sprawdź uprawnienia.", pub_cf_kind_unknown: "{path} nie pasuje do tego systemu. Potrzebny jest {file}.",
     shared_change_hint: "Aby zmienić: koło zębate tej listy → Udostępnianie.",
@@ -2217,6 +2235,9 @@ const STYLE = `
   .sugg li:hover { background:var(--secondary-background-color,#eee); }
   .sugg li.active { background:color-mix(in srgb, var(--sl-accent) 22%, transparent); box-shadow:inset 3px 0 0 var(--sl-accent); }
   .sugg .e { width:22px; text-align:center; }
+  .editwrap { position:relative; flex:1 1 100%; min-width:0; display:flex; }
+  .editwrap > input { flex:1; min-width:0; }
+  .sugg.editsugg { left:0; right:0; top:calc(100% + 4px); }
   .sugg .n { flex:1; min-width:0; }
   .sugg .n b { font-weight:600; }
   .sugg .u { font-size:.75rem; color:var(--secondary-text-color); }
@@ -3469,7 +3490,7 @@ class SmartListsCard extends HTMLElement {
         fill(listEl, r.entries.map((e) => h("div", { class: "ih" },
           h("span", { class: "a" }, t["ih_" + e.a] || e.a),
           h("span", { class: "w" }, e.a === "rename" ? `${e.old} → ${e.text}` : e.text,
-            h("small", {}, `${e.link ? t.ih_link : e.user_name || t.ih_auto} · ${fmtT(e.t)}`)))));
+            h("small", {}, `${e.link ? (e.by ? `${e.by} · ${t.ih_link}` : t.ih_link) : e.user_name || t.ih_auto} · ${fmtT(e.t)}`)))));
       }).catch(() => fill(listEl, t.error));
     } else if (m.view === "category") {
       body = [head(t.m_category, true), h("div", { class: "mgrid" }, d.categories.map((c) => item("", c.label, async () => {
@@ -3733,6 +3754,61 @@ class SmartListsCard extends HTMLElement {
     this._draft.active = -1;
   }
 
+  // Markt/Person/Schlagwort beim Bearbeiten: „@R“ → Auswahl wie im Eingabefeld (@REWE …). Gibt die Liste zurück,
+  // die unter das Feld gehört; Pfeiltasten, Tab/Enter übernehmen, Esc schließt nur die Auswahl.
+  _tagAutocomplete(input) {
+    const list = h("ul", { class: "sugg editsugg", role: "listbox", hidden: true });
+    let items = [], active = 0, seq = 0;
+    const close = () => { items = []; list.hidden = true; fill(list); };
+    const before = () => input.value.slice(0, input.selectionStart ?? input.value.length);
+    const draw = () => {
+      if (!items.length) return close();
+      fill(list, ...items.map((s, i) => h("li", { role: "option", class: i === active ? "active" : "",
+        onmousedown: (e) => { e.preventDefault(); apply(i); } }, badge(s))));
+      list.hidden = false;
+    };
+    const apply = (i) => {
+      const s = items[i];
+      if (!s) return;
+      const rule = ((this._cfg && this._cfg.tag_rules) || []).find((r) => r.kind === s.kind);
+      if (!rule) return close();
+      const pos = input.selectionStart ?? input.value.length;
+      const head = input.value.slice(0, pos).replace(/\S+$/, rule.prefix + s.value) + " ";
+      const tail = input.value.slice(pos).replace(/^\S*/, "").replace(/^ /, "");
+      input.value = head + tail;
+      input.setSelectionRange(head.length, head.length);
+      close();
+      input.focus();
+    };
+    const ask = debounce(async () => {
+      const q = before();
+      const word = (q.match(/\S+$/) || [""])[0];
+      const prefixes = ((this._cfg && this._cfg.tag_rules) || []).map((r) => r.prefix);
+      if (!word || !prefixes.includes(word[0])) return close();
+      const mine = ++seq;
+      try {
+        const r = await this._call("suggest", { query: q, limit: 6 });
+        if (mine !== seq) return;
+        items = r.mode === "tag" ? r.suggestions || [] : [];
+        active = 0;
+        draw();
+      } catch (e) { close(); }
+    }, 120);
+    input.addEventListener("input", ask);
+    input.addEventListener("blur", () => setTimeout(close, 150));
+    input.addEventListener("keydown", (e) => {
+      if (list.hidden || !items.length || e.isComposing) return;
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault(); active = (active + (e.key === "ArrowDown" ? 1 : items.length - 1)) % items.length; draw();
+      } else if (e.key === "Tab" || e.key === "Enter") {
+        e.preventDefault(); e.stopImmediatePropagation(); apply(active);  // nicht gleich speichern
+      } else if (e.key === "Escape") {
+        e.preventDefault(); e.stopImmediatePropagation(); close();       // Bearbeiten nicht abbrechen
+      }
+    });
+    return list;
+  }
+
   _applySugg(i) {
     const s = this._draft.sugg[i];
     if (!s) return;
@@ -3993,7 +4069,11 @@ class SmartListsCard extends HTMLElement {
           this._config.show_source && it.source && !tags.some((x) => x.implicit) ? h("span", { class: "chip" }, it.source) : null),
         it.offer && this._config.show_offer !== false ? this._offerLine(it, tags) : null,
         !it.offer && it.price && this._config.show_prices !== false ? this._priceLine(it) : null,
-        it.soft_checked && !it.checked ? h("div", { class: "softchk", title: t.soft_checked_help }, "✓ ", t.soft_checked) : null,
+        // über einen geteilten Link: mit dem Namen, den die Person dort angegeben hat („von Max markiert (Link)“)
+        it.soft_checked && !it.checked ? h("div", { class: "softchk", title: t.soft_checked_help }, "✓ ",
+          it.soft_by ? t.soft_checked_by.replace("{name}", it.soft_by) : t.soft_checked) : null,
+        it.link_added && !it.checked ? h("div", { class: "softchk", title: t.link_added_help }, "🔗 ",
+          it.link_by ? t.link_added_by.replace("{name}", it.link_by) : t.link_added) : null,
         this._config.show_note && it.note ? h("div", { class: "note" }, it.note) : null),
       h("span", { class: "qtycol" }, p.rename && !shop && it.quantity != null && this._config.show_stepper !== false
         ? h("span", { class: "stepper" },
@@ -4101,7 +4181,8 @@ class SmartListsCard extends HTMLElement {
 
   _editRow(it, d) {
     const t = this._t;
-    const text = h("input", { class: "text", value: it.clean_text || it.text || it.name, "aria-label": it.name });
+    const text = h("input", { class: "text", value: it.clean_text || it.text || it.name, "aria-label": it.name, autocomplete: "off" });
+    const tagSugg = this._tagAutocomplete(text);
     const cat = h("select", { class: "cat", "aria-label": t.category },
       d.categories.map((c) => h("option", { value: c.id, selected: c.id === it.category }, c.label)));
     // Notizen nur, wenn die Liste sie speichern kann (z.B. nicht bei der einfachen HA-Einkaufsliste)
@@ -4129,7 +4210,7 @@ class SmartListsCard extends HTMLElement {
     };
     [text, note, priceIn].filter(Boolean).forEach((el) => el.addEventListener("keydown", (e) => { if (e.key === "Enter") save(); if (e.key === "Escape") { this._editing = null; this._renderList(); } }));
     setTimeout(() => text.focus(), 0);
-    return h("div", { class: "edit" }, text, this._noCats ? null : cat, note, this._config.show_prices !== false ? priceIn : null,
+    return h("div", { class: "edit" }, h("div", { class: "editwrap" }, text, tagSugg), this._noCats ? null : cat, note, this._config.show_prices !== false ? priceIn : null,
       h("div", { class: "btns" },
         h("button", { class: "btn", type: "button", onclick: () => { this._editing = null; this._renderList(); } }, t.cancel),
         h("button", { class: "btn primary", type: "button", onclick: save }, t.save)));
@@ -4295,7 +4376,7 @@ class SmartListsCard extends HTMLElement {
       { g: "global", id: "look", label: t.a_look, sub: t.a_global_sub, kw: [t.naming, t.look, t.look_color], build: () => [this._namingSection(), this._appearanceSection()] },
       { g: "global", id: "stores", label: t.stores, sub: t.a_global_sub, kw: [t.zone, t.aisle], build: () => [this._storesSection()] },
       { g: "global", id: "cats", label: t.a_cats, sub: t.learned_help, kw: [t.packs, t.learned, t.category], build: () => [this._packsSection(), this._learnedSection()] },
-      { g: "global", id: "extras", label: t.x_title, sub: t.x_help, kw: [t.notes, t.mp_title, t.x_notes, t.x_mealplan], build: () => [this._extrasSection()] },
+      { g: "global", id: "extras", label: t.x_title, sub: t.x_help, kw: [t.notes, t.mp_title, t.x_notes, t.x_mealplan, t.x_stats, t.stats, t.exp], build: () => [this._extrasSection()] },
       { g: "global", id: "devices", label: t.a_devices, sub: t.devices_help, kw: [t.devices, t.notes, t.app_list], build: () => [this._devicesSection(), this._notesSection()] },
       { g: "global", id: "rights", label: t.a_rights, sub: t.a_rights_sub, kw: [t.share, t.rights_who, t.pub_title, t.pub_tunnel, t.pub_proxy, "cloudflared", "tunnel", "proxy"], build: () => [this._rightsShareSection(), this._publicSection(), this._rightsOtherSection()] },
       { g: "global", id: "data", label: t.a_data, sub: t.a_global_sub, kw: [t.automation, t.backup, t.barcode_providers, t.ui_house, t.w_restart], build: () => [
@@ -4308,7 +4389,8 @@ class SmartListsCard extends HTMLElement {
           h("button", { class: "btn2", type: "button", onclick: () => this._createDashboard(st) }, t.db_create), st)]); })(),
         this._sec("", t.ui_house, t.scope_help_household, [...this._controls("household"), reset("household")])] },
     ];
-    const stats = [{ g: "stats", id: "stats", label: t.a_stats, sub: null, kw: [t.stats, t.exp], build: () => [this._statsSection(), this._expensesSection()] }];
+    // Statistik und Ausgaben: optionales Extra (Einstellungen → Extras)
+    const stats = !this._feat("stats") ? [] : [{ g: "stats", id: "stats", label: t.a_stats, sub: null, kw: [t.stats, t.exp], build: () => [this._statsSection(), this._expensesSection()] }];
     return [...me, ...global, ...stats];
   }
 
@@ -4339,7 +4421,7 @@ class SmartListsCard extends HTMLElement {
     };
     const draw = () => fill(body,
       this._setRow(t.rights_who, pick("share_who", [["admins", t.rights_who_admins], ["owners", t.rights_who_owners], ["editors", t.rights_who_editors], ["nobody", t.rights_who_nobody]])),
-      this._setRow(t.rights_max, pick("share_max", [["off", t.share_view], ["soft", t.share_soft], ["on", t.rights_max_on]]), t.rights_limits_help),
+      this._setRow(t.rights_max, pick("share_max", [["off", t.share_view], ["soft", t.share_soft], ["soft_add", t.share_soft_add], ["on", t.rights_max_on]]), t.rights_limits_help),
       this._setRow(t.rights_max_hours, pick("share_max_hours", [["", t.share_forever], [24, t.share_1d], [168, t.share_7d], [720, t.share_30d]], (v) => (v ? Number(v) : null))),
       h("div", { class: "acts", style: "justify-content:flex-start" }, h("button", { class: "linkbtn", type: "button", onclick: showLinks }, t.rights_all_links), status),
       linksEl);
@@ -4515,6 +4597,7 @@ class SmartListsCard extends HTMLElement {
       // Extras: beim ersten Einrichten aus (aufgeräumt für Einsteiger), beim erneuten Starten wie eingestellt
       notes: !(this._cfg && this._cfg.setup_needed) && !!(this._cfg && this._cfg.features && this._cfg.features.notes),
       mealplan: !(this._cfg && this._cfg.setup_needed) && !!(this._cfg && this._cfg.features && this._cfg.features.mealplan),
+      stats: !(this._cfg && this._cfg.setup_needed) && !!(this._cfg && this._cfg.features && this._cfg.features.stats),
     };
     const steps = ["lists", "stores", "naming", "lang", "people", "extras", "done"];
     let i = 0;
@@ -4599,7 +4682,8 @@ class SmartListsCard extends HTMLElement {
         row(t.w_x_share, t.w_x_share_sub, this._switch(S.share, (v) => { S.share = v; }, t.w_x_share)),
         h("div", { class: "grp" }, t.w_x_optional),
         row(t.x_notes, t.w_x_notes_sub, this._switch(S.notes, (v) => { S.notes = v; }, t.x_notes)),
-        row(t.x_mealplan, t.w_x_mealplan_sub, this._switch(S.mealplan, (v) => { S.mealplan = v; }, t.x_mealplan))],
+        row(t.x_mealplan, t.w_x_mealplan_sub, this._switch(S.mealplan, (v) => { S.mealplan = v; }, t.x_mealplan)),
+        row(t.x_stats, t.w_x_stats_sub, this._switch(S.stats, (v) => { S.stats = v; }, t.x_stats))],
       done: () => {
         const listsTxt = S.lists.map(nameOf).join(", ");
         const sum = [
@@ -4609,7 +4693,7 @@ class SmartListsCard extends HTMLElement {
           fmt(t.w_sum_naming, { list: [S.rules.store && S.rules.store + t.kind_store, S.rules.person && S.rules.person + t.kind_person, S.rules.tag && S.rules.tag + t.kind_tag].filter(Boolean).join(", ") || t.w_off }),
           fmt(t.w_sum_lang, { list: packs.filter((p) => S.packs.includes(p.id)).map((p) => p.name).join(", ") || t.w_off }),
           S.mode === "new" && Object.keys(S.shares).length ? fmt(t.w_sum_people, { list: Object.entries(S.shares).map(([id, r]) => `${(users.find((u) => u.id === id) || {}).name}: ${t["role_" + r]}`).join(", ") }) : null,
-          fmt(t.w_sum_extras, { list: [S.notify && t.w_x_notify, S.voice && t.w_x_voice, S.prices && t.w_x_prices, S.barcode && t.w_x_barcode, S.share && t.w_x_share, S.notes && t.x_notes, S.mealplan && t.x_mealplan].filter(Boolean).join(", ") || t.w_off }),
+          fmt(t.w_sum_extras, { list: [S.notify && t.w_x_notify, S.voice && t.w_x_voice, S.prices && t.w_x_prices, S.barcode && t.w_x_barcode, S.share && t.w_x_share, S.notes && t.x_notes, S.mealplan && t.x_mealplan, S.stats && t.x_stats].filter(Boolean).join(", ") || t.w_off }),
         ].filter(Boolean);
         return [h("h2", {}, t.w_done_h), h("p", { class: "lead" }, t.w_done_lead), h("ul", { class: "wsum" }, sum.map((x) => h("li", {}, x))), h("p", { class: "m small" }, t.w_tip)];
       },
@@ -4637,7 +4721,7 @@ class SmartListsCard extends HTMLElement {
           new_list: S.mode === "new" ? (S.newName.trim() || t.w_combine_default) : null, shares: S.mode === "new" ? S.shares : {},
           stores: S.stores, tag_rules: [["store", r.store], ["person", r.person], ["tag", r.tag]].filter(([, p]) => p).map(([kind, prefix]) => ({ kind, prefix })),
           packs: S.packs.length ? S.packs : undefined, notify_service: S.notify || null, voice: S.voice, prices: S.prices, barcode: S.barcode, share_links: S.share,
-          notes: S.notes, mealplan: S.mealplan,
+          notes: S.notes, mealplan: S.mealplan, stats: S.stats,
         }, false);
         finished.v = true; status.textContent = "✓"; next.disabled = false; draw();
         window.dispatchEvent(new CustomEvent("smartlists-lists-changed"));
@@ -4796,7 +4880,7 @@ class SmartListsCard extends HTMLElement {
     const status = h("span", { class: "ok2" });
     const listEl = h("div", { class: "learned2" });
     const more = h("div", { class: "acts", style: "margin-top:6px" });
-    let query = "", offset = 0, rows = [], total = 0;
+    let query = "", offset = 0, rows = [], total = 0, seq = 0;
     const catSelect = (value, onchange, label) => h("select", { "aria-label": label || t.category, onchange: (e) => onchange(e.target.value) },
       cats.map((c) => h("option", { value: c.id, selected: c.id === value }, c.label)));
     const save = async (changes) => {
@@ -4808,8 +4892,10 @@ class SmartListsCard extends HTMLElement {
       } catch (err) { status.textContent = (err && err.message) || t.error; return false; }
     };
     const load = async (append) => {
+      const mine = ++seq;  // nur die Antwort zur letzten Suche zählt (ältere, langsamere Antworten verwerfen)
       try {
         const r = await this._call("pack_terms", { pack_id: pack.id, query, offset: append ? offset : 0, limit: 100 }, false);
+        if (mine !== seq) return;
         rows = append ? [...rows, ...r.terms] : r.terms;
         total = r.total; offset = rows.length;
         draw();
@@ -4838,8 +4924,21 @@ class SmartListsCard extends HTMLElement {
       if (await save(changes)) { term.value = ""; query = ""; search.value = ""; load(false); }
     };
     term.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); add(); } });
-    const search = h("input", { type: "search", class: "search2", placeholder: t.search_learned, "aria-label": t.search,
-      oninput: debounce((e) => { query = e.target.value; load(false); }, 250) });
+    // Suche: sofort im Geladenen filtern, dann beim Server nachfragen. Wert direkt aus dem Feld lesen (nicht aus dem
+    // Ereignis) und auch auf „search“ (✕) und keyup reagieren – auf manchen Handys kommt „input“ nicht zuverlässig.
+    const search = h("input", { type: "search", class: "search2", placeholder: t.search_learned, "aria-label": t.search, autocomplete: "off" });
+    const ask = debounce(() => load(false), 250);
+    const onSearch = () => {
+      const v = search.value.trim();
+      if (v === query) return;
+      query = v;
+      const q = v.toLowerCase();
+      rows = rows.filter((r) => r.term.toLowerCase().includes(q));
+      total = rows.length;
+      draw();
+      ask();
+    };
+    ["input", "search", "keyup", "change"].forEach((ev) => search.addEventListener(ev, onSearch));
     fill(body,
       h("div", { class: "srow2", style: "border-top:none" },
         iconBtn(ICON.back, t.p_back, () => { fill(body, ...saved); onClose && onClose(); }),
@@ -5105,6 +5204,7 @@ class SmartListsCard extends HTMLElement {
       fill(body,
         this._setRow(t.x_notes, this._switch(!!f.notes, (on) => set({ notes: on }), t.x_notes), t.x_notes_help),
         this._setRow(t.x_mealplan, this._switch(f.mealplan !== false, (on) => set({ mealplan: on }), t.x_mealplan), t.x_mealplan_help),
+        this._setRow(t.x_stats, this._switch(f.stats !== false, (on) => set({ stats: on }), t.x_stats), t.x_stats_help),
         h("div", { class: "acts" }, status));
     };
     draw();
@@ -5363,9 +5463,9 @@ class SmartListsCard extends HTMLElement {
     const config = { views: [
       { title: t.db_lists, path: "lists", icon: "mdi:cart", type: "panel", cards: [{ type: "custom:smartlists-card", entities: lists, layout: "tabs" }] },
       this._feat("mealplan") ? { title: t.db_plan, path: "plan", icon: "mdi:silverware-fork-knife", cards: [{ type: "calendar", entities: [cal], initial_view: "listWeek" }] } : null,
-      { title: t.db_stats, path: "stats", icon: "mdi:chart-bar", cards: [
+      this._feat("stats") ? { title: t.db_stats, path: "stats", icon: "mdi:chart-bar", cards: [
         { type: "entities", entities: [exp] },
-        { type: "custom:smartlists-card", entity: lists[0], settings_only: true, settings_scope: "stats" }] },
+        { type: "custom:smartlists-card", entity: lists[0], settings_only: true, settings_scope: "stats" }] } : null,
     ].filter(Boolean) };
     status.textContent = t.loading;
     try {
@@ -5816,10 +5916,13 @@ class SmartListsCard extends HTMLElement {
     const body = h("div", {}, h("div", { class: "shelp", style: "padding:6px 0" }, t.loading));
     const status = h("span", { class: "ok2" });
     let check = "off", add = false, hours = 168, links = [], pub = { public_mode: "ha", public_base: null };
+    // Stufen wie unter Teilen und Rechte: nur ansehen · „soft“ abhaken · „soft“ abhaken + hinzufügen · abhaken + hinzufügen
+    const LEVELS = [["off", "off", false, t.share_view], ["soft", "soft", false, t.share_soft], ["soft_add", "soft", true, t.share_soft_add], ["on", "on", true, t.rights_max_on]];
+    const levelOf = (c, a) => (c === "on" ? "on" : c === "soft" ? (a ? "soft_add" : "soft") : "off");
     const lang = this._hass.language;
     // Nicht-Admins: nur anbieten, was der Admin erlaubt (Global → Teilen und Rechte)
     const rights = this._isAdmin ? {} : (this._cfg && this._cfg.rights) || {};
-    const lvl = ["off", "soft", "on"];
+    const lvl = LEVELS.map((l) => l[0]);
     const maxLvl = lvl.indexOf(rights.share_max || "on");
     const maxHours = rights.share_max_hours || null;
     if (maxHours && hours > maxHours) hours = maxHours;
@@ -5828,13 +5931,13 @@ class SmartListsCard extends HTMLElement {
       return String(c.external_url || (this._hass.auth && this._hass.auth.data && this._hass.auth.data.hassUrl) || location.origin).replace(/\/$/, "");
     };
     const fmtDate = (ts) => new Date(ts * 1000).toLocaleString(lang || "de", { dateStyle: "short", timeStyle: "short" });
-    const modeLabel = (m) => ({ off: t.share_view, soft: t.share_soft, on: t.share_check }[m]);
+    const modeLabel = (c, a) => (c === "on" && !a ? t.share_check : (LEVELS.find((l) => l[0] === levelOf(c, a)) || LEVELS[0])[3]);
     const created = h("div");
     const draw = () => fill(body,
-      this._setRow(t.share_mode, h("select", { "aria-label": t.share_mode, onchange: (e) => { check = e.target.value; } },
-        [["off", t.share_view], ["soft", t.share_soft], ["on", t.share_check]].filter(([v]) => lvl.indexOf(v) <= maxLvl)
-          .map(([v, l]) => h("option", { value: v, selected: check === v }, l))), t.share_mode_help),
-      maxLvl === 2 ? this._setRow(t.share_add, this._switch(add, (v) => { add = v; }, t.share_add)) : null,
+      this._setRow(t.share_mode, h("select", { "aria-label": t.share_mode, onchange: (e) => {
+        const l = LEVELS.find((x) => x[0] === e.target.value) || LEVELS[0]; check = l[1]; add = l[2]; } },
+        LEVELS.filter((l, i) => i <= (maxLvl < 0 ? 3 : maxLvl))
+          .map(([v, , , l]) => h("option", { value: v, selected: levelOf(check, add) === v }, l))), t.share_mode_help),
       this._setRow(t.share_valid, h("select", { "aria-label": t.share_valid, onchange: (e) => { hours = e.target.value ? Number(e.target.value) : null; } },
         [[2, t.share_2h], [24, t.share_1d], [168, t.share_7d], [720, t.share_30d], ["", t.share_forever]]
           .filter(([v]) => !maxHours || (v !== "" && v <= maxHours)).map(([v, l]) =>
@@ -5846,7 +5949,7 @@ class SmartListsCard extends HTMLElement {
       h("div", { class: "acts" }, status, h("button", { class: "btn2 primary", type: "button", onclick: create }, "🔗 " + t.share_create)),
       created,
       links.length ? h("div", { class: "grp" }, t.share_active) : null,
-      ...links.map((l) => this._setRow(`${modeLabel(l.check)}${l.add ? " + " + t.share_add : ""}`,
+      ...links.map((l) => this._setRow(modeLabel(l.check, l.add),
         iconBtn(ICON.close, t.share_revoke, async () => { links = (await this._call("share_revoke", { link_id: l.id })).links; draw(); }, "danger"),
         `${l.expired ? "⚠️ " + t.share_expired : l.expires ? `${t.share_until} ${fmtDate(l.expires)}` : t.share_forever} · ${l.opens}× ${t.share_opened}`
         // Tunnel-Adresse inzwischen neu (Neustart) → dieser Link führt ins Leere
@@ -6521,6 +6624,10 @@ class SmartListsPanel extends HTMLElement {
         onclick: () => { this._prefs.tab = id; this._save(); this._render(); } }, label)));
     this._gearBtn.classList.toggle("on", this._settingsOpen === "global");
     this._gearBtn.setAttribute("aria-pressed", String(this._settingsOpen === "global"));
+    // 📊 nur, wenn Statistik und Ausgaben unter Extras an sind
+    const statsOn = !this._features || this._features.stats !== false;
+    this._statsBtn.hidden = !statsOn;
+    if (!statsOn && this._settingsOpen === "stats") this._settingsOpen = false;
     this._statsBtn.classList.toggle("on", this._settingsOpen === "stats");
     [this._newBtn, this._orderBtn, this._colBtn, this._wideBtn].forEach((b) => { b.hidden = !!this._settingsOpen || tab === "plan"; });
     this._orderBtn.classList.toggle("on", !!this._ordering);

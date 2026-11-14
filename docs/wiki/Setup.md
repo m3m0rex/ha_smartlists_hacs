@@ -27,8 +27,8 @@ Global → Voice, backup, defaults → Run setup again*.
 4. **Language** – which keyword packs recognise the categories.
 5. **People and app** – permissions for a new own list; how to pair the app.
 6. **Extras** – notifications to your device, Assist, prices and expenses, barcode lookup, sharing via
-   link for owners. **Optional**, off by default to keep things tidy for beginners: **notes** and the
-   **meal plan** (can be switched on later under *General settings → Global → Extras*).
+   link for owners. **Optional**, off by default to keep things tidy for beginners: **notes**, the
+   **meal plan** and **statistics and expenses** (can be switched on later under *General settings → Global → Extras*).
 7. **Done** – a summary; *Set up* applies everything at once.
 
 The assistant is available in all six languages of the interface.

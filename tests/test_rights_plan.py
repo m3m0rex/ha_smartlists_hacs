@@ -121,3 +121,12 @@ def test_notify_deliver_kinds():
     assert calls[1] == ("notify", "send_message", {"entity_id": "notify.speaker", "title": "Einkauf", "message": "Anna hat Milch auf Einkauf gesetzt"})
     assert calls[2] == ("telegram_bot", "send_message", {"target": 1, "message": "🛒 Einkauf: Anna hat Milch auf Einkauf gesetzt"})
     assert calls[3] == ("script", "notify_me", {"title": "Einkauf", "message": "Anna hat Milch auf Einkauf gesetzt", "prio": 2})
+
+
+def test_clamp_link_soft_add_level():
+    """Stufen: nur ansehen < soft < soft + hinzufügen < abhaken + hinzufügen."""
+    rights = {**RIGHTS_DEFAULT, "share_max": "soft_add"}
+    assert clamp_link(rights, "on", True, None)[:2] == ("soft", True)
+    assert clamp_link(rights, "soft", True, None)[:2] == ("soft", True)
+    assert clamp_link(rights, "soft", False, None)[:2] == ("soft", False)
+    assert clamp_link({**RIGHTS_DEFAULT, "share_max": "soft"}, "soft", True, None)[:2] == ("soft", False)

@@ -3,6 +3,34 @@
 All notable changes to SmartLists are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning follows [Semantic Versioning](https://semver.org/).
 
+## [3.9.11] – 2026-11-14
+
+### Added
+
+- **Statistics and expenses are an optional extra** (*Settings → Global → Extras*), off by default in the setup
+  assistant like notes and the meal plan. Off hides 📊 on the sidebar page, the *Insights* area, the dashboard view
+  and disables the sensor "Expenses this month"; counting and booking continue in the background, so nothing is
+  lost when you switch it on later. Existing installations keep it on.
+- **Names on shared links:** a link is often sent to several friends. Before the list opens, the shared page now
+  asks for a first name (**required** to check off or add; remembered long-term on that device – browser storage plus a cookie for the
+  share pages, about 400 days – and changeable). It appears in the list as
+  "✓ marked by Max (link)" / "🔗 added by Max via link", on the shared page and in the item history. Links that
+  only allow viewing do not ask.
+- **Share links: "soft" check and add.** The levels are now *view only* · *"soft" check* · *"soft" check and add* ·
+  *check off and add* – one choice when creating a link, and the same four as the admin's limit (*A link may at
+  most*). Items added via a link are marked **🔗 added via link** in the list.
+
+### Fixed
+
+- **Editing an item: typing `@R` now offers `@REWE`** (and persons/tags) like the input field – arrow keys, Tab or
+  Enter take a suggestion, Esc closes only the suggestions.
+- **Statistics "bought most often" counted items that were only added**, never checked off. Bought now means
+  checked off (from the card, the app, Home Assistant or a shared link); a mistap that is reopened within
+  10 minutes does not count. Earlier check-offs are taken over once from the item history.
+- **Category detection → edit keywords: the search sometimes kept showing old results.** Results now filter
+  immediately while typing, late answers of an older search are ignored, and the search also reacts to the clear
+  button and to keyboards that do not send every input event.
+
 ## [3.9.10] – 2026-11-14
 
 ### Added

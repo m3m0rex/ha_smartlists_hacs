@@ -58,13 +58,23 @@ USER_SETTINGS: dict[str, Any] = {
 }
 
 
+# Stufen eines Links (aufsteigend): nur ansehen · „soft“ abhaken · „soft“ abhaken + hinzufügen · abhaken + hinzufügen
+SHARE_LEVELS: dict[str, tuple[str, bool]] = {"off": ("off", False), "soft": ("soft", False), "soft_add": ("soft", True),
+                                             "on": ("on", True)}
+
+
+def link_level(check: str, add: bool) -> int:
+    """Rang einer Kombination (für den Vergleich mit der Grenze des Admins)."""
+    return {"off": 0, "soft": 2 if add else 1, "on": 3}.get(check, 0)
+
+
 def clamp_link(rights: dict[str, Any], check: str, add: bool, hours: int | None) -> tuple[str, bool, int | None]:
     """Grenzen des Admins für Nicht-Admins anwenden: höchstens erlaubte Rechte und Gültigkeit."""
-    order = ["off", "soft", "on"]
     top = rights.get("share_max", "on")
-    if order.index(check) > order.index(top):
-        check = top
-    if top != "on":
+    top_check, top_add = SHARE_LEVELS.get(top, SHARE_LEVELS["on"])
+    if link_level(check, add) > link_level(top_check, top_add):
+        check, add = top_check, top_add if add else False
+    if add and not top_add:
         add = False
     limit = rights.get("share_max_hours")
     if limit and (hours is None or hours > limit):
@@ -244,6 +254,55 @@ class Learning:
         self._prune()
         self._changed()
 
+    # ------------------------------------------------------------------
+    # Gekauft = abgehakt (für „Am häufigsten gekauft“). Hinzufügen allein ist noch kein Kauf.
+    # ------------------------------------------------------------------
+    @callback
+    def record_bought(self, text: str, entity_id: str | None = None, when: int | None = None, save: bool = True) -> None:
+        extras = (getattr(self.hass, "data", None) or {}).get(DOMAIN, {}).get("extras")
+        if extras is not None and hasattr(extras, "is_plain") and extras.is_plain(entity_id):
+            return  # einfache Liste: nichts merken
+        item = self.parse(text)
+        key = normalize(item.name)
+        if not key:
+            return
+        now = int(when or time.time())
+        entry = self.history.get(key) or {"name": item.name, "count": 0, "last": now}
+        bought = [int(t) for t in entry.get("bought", []) if isinstance(t, (int, float))]
+        # mehrfach am selben Tag abgehakt (z. B. ab/an) zählt einmal
+        if not bought or abs(now - bought[-1]) > 12 * 3600:
+            bought.append(now)
+        entry["bought"] = sorted(bought)[-TIMES_KEPT:]
+        self.history[key] = entry
+        if save:
+            self._prune()
+            self._changed()
+
+    @callback
+    def unrecord_bought(self, text: str) -> None:
+        """Gleich wieder geöffnet (Fehltipp, Rückgängig): den Kauf der letzten 10 Minuten zurücknehmen."""
+        key = normalize(self.parse(text).name)
+        entry = self.history.get(key)
+        if not entry or not entry.get("bought"):
+            return
+        if time.time() - int(entry["bought"][-1]) < 600:
+            entry["bought"] = entry["bought"][:-1]
+            self._changed()
+
+    def backfill_bought(self, log: dict[str, list[dict[str, Any]]]) -> int:
+        """Einmalig: Käufe aus dem Artikel-Verlauf (abgehakt) nachtragen – für Statistik nach dem Update."""
+        if self.automation.get("bought_backfilled"):
+            return 0
+        n = 0
+        for entity_id, rows in (log or {}).items():
+            for e in rows:
+                if e.get("a") == "check" and e.get("text"):
+                    self.record_bought(e["text"], entity_id, int(e.get("t") or 0) or None, save=False)
+                    n += 1
+        self.automation["bought_backfilled"] = True
+        self._changed()
+        return n
+
     def _prune(self) -> None:
         for data, limit in ((self.history, HISTORY_LIMIT), (self.tag_history, TAG_HISTORY_LIMIT)):
             if len(data) > limit:
@@ -285,7 +344,8 @@ class Learning:
 
     @callback
     def set_automation(self, settings: dict[str, Any]) -> None:
-        keep = {k: self.automation.get(k) for k in ("store_zones", "rights", "favorite_stores", "setup_done", "features", "migrated_lists")}
+        keep = {k: self.automation.get(k) for k in ("store_zones", "rights", "favorite_stores", "setup_done", "features", "migrated_lists",
+                                                    "bought_backfilled")}
         self.automation = {k: v for k, v in settings.items() if v not in (None, "", [], {})}
         for k, v in keep.items():  # Markt-Zonen und Rechte nicht versehentlich mitlöschen
             if v and k not in settings:
@@ -298,7 +358,7 @@ class Learning:
         out = dict(RIGHTS_DEFAULT)
         if raw.get("share_who") in ("admins", "owners", "editors", "nobody"):
             out["share_who"] = raw["share_who"]
-        if raw.get("share_max") in ("off", "soft", "on"):
+        if raw.get("share_max") in SHARE_LEVELS:
             out["share_max"] = raw["share_max"]
         if isinstance(raw.get("share_max_hours"), int) and raw["share_max_hours"] > 0:
             out["share_max_hours"] = raw["share_max_hours"]
