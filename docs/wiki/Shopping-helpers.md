@@ -49,7 +49,9 @@ active links of all lists.
 - **Security:** the link contains a random 256-bit key; only its SHA-256 hash is stored, so even
   someone reading `.storage` cannot rebuild a link. Without login only two addresses are reachable
   (`/smartlists-share/<key>` and `/api/smartlists/share/<key>`); they return the list name and the
-  item texts with checkmarks – no notes, no entities, no users, nothing else from Home Assistant.
+  items with checkmarks – no notes, no prices, no entities, no users, nothing else from Home Assistant. Since
+  3.9.9 the page shows the items like the card: name, quantity, store/person/tag badges in your colours and
+  category groups in store order.
   Writing is limited (30 actions per minute, 120 characters), wrong keys are answered slowly, the page
   is not indexed and cannot be framed. Note lists of the app cannot be shared.
 - By default the link uses the external address of Home Assistant (Nabu Casa or your own domain,

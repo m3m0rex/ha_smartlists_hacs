@@ -3,6 +3,25 @@
 All notable changes to SmartLists are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning follows [Semantic Versioning](https://semver.org/).
 
+## [3.9.9] – 2026-11-14
+
+### Changed
+
+- **Shared lists look like in Home Assistant:** the page behind a share link shows the item name with **store,
+  person and tag badges** in the household's colours and styles, the **quantity** on the right and the items
+  **grouped by category** in store order (as in the card) – instead of the raw text `… @REWE #bio *max`. Lists
+  sorted otherwise, plain lists and lists without categories are shown without groups. Still no notes, prices,
+  entities or users on that page.
+
+## [3.9.8] – 2026-11-14
+
+### Fixed
+
+- **Quick Tunnel: "cloudflared could not be started: Exec format error"** now explains what is wrong. SmartLists
+  looks into the file itself (not only its name) and says whether it is built for another processor (e.g. amd64
+  instead of arm64), is the Windows or macOS version, an archive (.tgz/.zip/.deb) or a saved web page – and which
+  file this system needs. Such a file is no longer started at all.
+
 ## [3.9.7] – 2026-11-14
 
 ### Fixed

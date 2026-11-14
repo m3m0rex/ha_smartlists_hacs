@@ -43,7 +43,7 @@ const ICON = {
 };
 
 // Wird beim Release mit manifest.json hochgezählt; weicht sie von der Integration ab, ist die Karte im Browser-Cache veraltet
-const CARD_VERSION = "3.9.7";
+const CARD_VERSION = "3.9.9";
 const SORT_MODES = ["category", "alpha", "added", "list"];
 // Darstellung pro Karte (Lovelace-Editor). Persönliche Bedienung steht dagegen in UI_DEFAULTS.
 const CARD_DEFAULTS = {
@@ -322,6 +322,7 @@ const TEXTS = {
     share_30d: "30 Tage",
     share_forever: "bis zum Widerruf",
     share_create: "Link erstellen",
+    pub_cf_arch: "{path} ist für einen anderen Prozessor ({found}). Dieses System braucht {file} – die alte Datei löschen oder ersetzen.", pub_cf_kind_windows: "{path} ist die Windows-Version. Für Home Assistant wird {file} gebraucht.", pub_cf_kind_mac: "{path} ist die macOS-Version. Für Home Assistant wird {file} gebraucht.", pub_cf_kind_archive: "{path} ist ein Archiv (.tgz/.zip/.deb), nicht das Programm. Bitte die Datei {file} ohne Endung laden.", pub_cf_kind_html: "{path} ist eine gespeicherte Webseite, nicht das Programm. Auf der Release-Seite die Datei {file} direkt herunterladen.", pub_cf_kind_not_executable: "{path} lässt sich nicht ausführen (Rechte). Datei neu ablegen oder Rechte prüfen.", pub_cf_kind_unknown: "{path} passt nicht zu diesem System. Gebraucht wird {file}.",
     shared_change_hint: "Ändern: Zahnrad dieser Liste → Freigaben.",
     l_plain: "Einfache Liste", l_plain_help: "Ohne Kategorien, Vorschläge, gemerkte Wörter und Preise. Was hier steht, merkt sich SmartLists nicht – es taucht in keiner anderen Liste auf (z. B. Baumarkt).",
     l_categories: "Kategorien automatisch", l_categories_help: "Aus: keine Einordnung in Kategorien – weder in der Liste noch beim Eintippen. Sortierung dann z. B. nach Hinzufügen.", l_suggest: "Häufig gekauft & Vorschläge", l_suggest_list: "nur aus dieser Liste", l_suggest_sources: "aus ihren Quell-Listen", l_suggest_all: "aus allen Listen", l_suggest_help: "Was in einer anderen Liste gekauft wurde, erscheint hier nicht. Ältere Einträge (vor 3.9.4) gelten weiter überall.",
@@ -567,6 +568,7 @@ const TEXTS = {
     share_30d: "30 days",
     share_forever: "until revoked",
     share_create: "Create link",
+    pub_cf_arch: "{path} is built for another processor ({found}). This system needs {file} – delete or replace the old file.", pub_cf_kind_windows: "{path} is the Windows version. Home Assistant needs {file}.", pub_cf_kind_mac: "{path} is the macOS version. Home Assistant needs {file}.", pub_cf_kind_archive: "{path} is an archive (.tgz/.zip/.deb), not the program. Please download the file {file} without extension.", pub_cf_kind_html: "{path} is a saved web page, not the program. Download the file {file} directly from the release page.", pub_cf_kind_not_executable: "{path} cannot be executed (permissions). Put the file there again or check its permissions.", pub_cf_kind_unknown: "{path} does not fit this system. It needs {file}.",
     shared_change_hint: "To change: gear of this list → Sharing.",
     l_plain: "Plain list", l_plain_help: "No categories, suggestions, remembered words or prices. SmartLists remembers nothing from this list – its items never show up in other lists (e.g. hardware store).",
     l_categories: "Categories automatically", l_categories_help: "Off: no sorting into categories – neither in the list nor while typing. Sort e.g. by added instead.", l_suggest: "Bought often & suggestions", l_suggest_list: "only from this list", l_suggest_sources: "from its source lists", l_suggest_all: "from all lists", l_suggest_help: "What was bought in another list does not show up here. Older entries (before 3.9.4) still apply everywhere.",
@@ -812,6 +814,7 @@ const TEXTS = {
     share_30d: "30 jours",
     share_forever: "jusqu'à révocation",
     share_create: "Créer un lien",
+    pub_cf_arch: "{path} est prévu pour un autre processeur ({found}). Ce système a besoin de {file} – supprime ou remplace l'ancien fichier.", pub_cf_kind_windows: "{path} est la version Windows. Home Assistant a besoin de {file}.", pub_cf_kind_mac: "{path} est la version macOS. Home Assistant a besoin de {file}.", pub_cf_kind_archive: "{path} est une archive (.tgz/.zip/.deb), pas le programme. Télécharge le fichier {file} sans extension.", pub_cf_kind_html: "{path} est une page web enregistrée, pas le programme. Télécharge directement le fichier {file} depuis la page des versions.", pub_cf_kind_not_executable: "{path} ne peut pas être exécuté (droits). Replace le fichier ou vérifie ses droits.", pub_cf_kind_unknown: "{path} ne convient pas à ce système. Il faut {file}.",
     shared_change_hint: "Pour modifier : engrenage de cette liste → Partage.",
     l_plain: "Liste simple", l_plain_help: "Sans catégories, suggestions, mots mémorisés ni prix. SmartLists ne retient rien de cette liste – ses articles n'apparaissent dans aucune autre (p. ex. bricolage).",
     l_categories: "Catégories automatiques", l_categories_help: "Désactivé : pas de classement par catégorie – ni dans la liste ni en tapant. Trier p. ex. par ajout.", l_suggest: "Achetés souvent & suggestions", l_suggest_list: "seulement de cette liste", l_suggest_sources: "de ses listes sources", l_suggest_all: "de toutes les listes", l_suggest_help: "Ce qui a été acheté dans une autre liste n'apparaît pas ici. Les anciennes entrées (avant 3.9.4) valent toujours partout.",
@@ -1057,6 +1060,7 @@ const TEXTS = {
     share_30d: "30 días",
     share_forever: "hasta revocarlo",
     share_create: "Crear enlace",
+    pub_cf_arch: "{path} es para otro procesador ({found}). Este sistema necesita {file} – borra o sustituye el archivo antiguo.", pub_cf_kind_windows: "{path} es la versión de Windows. Home Assistant necesita {file}.", pub_cf_kind_mac: "{path} es la versión de macOS. Home Assistant necesita {file}.", pub_cf_kind_archive: "{path} es un archivo comprimido (.tgz/.zip/.deb), no el programa. Descarga el archivo {file} sin extensión.", pub_cf_kind_html: "{path} es una página web guardada, no el programa. Descarga el archivo {file} directamente desde la página de versiones.", pub_cf_kind_not_executable: "{path} no se puede ejecutar (permisos). Vuelve a colocar el archivo o revisa sus permisos.", pub_cf_kind_unknown: "{path} no sirve para este sistema. Se necesita {file}.",
     shared_change_hint: "Para cambiar: engranaje de esta lista → Compartir.",
     l_plain: "Lista simple", l_plain_help: "Sin categorías, sugerencias, palabras recordadas ni precios. SmartLists no recuerda nada de esta lista – sus artículos no aparecen en otras (p. ej. ferretería).",
     l_categories: "Categorías automáticas", l_categories_help: "Desactivado: sin clasificar por categorías – ni en la lista ni al escribir. Ordena p. ej. por añadido.", l_suggest: "Comprado a menudo y sugerencias", l_suggest_list: "solo de esta lista", l_suggest_sources: "de sus listas de origen", l_suggest_all: "de todas las listas", l_suggest_help: "Lo comprado en otra lista no aparece aquí. Las entradas antiguas (antes de 3.9.4) siguen valiendo en todas.",
@@ -1302,6 +1306,7 @@ const TEXTS = {
     share_30d: "30 giorni",
     share_forever: "fino alla revoca",
     share_create: "Crea link",
+    pub_cf_arch: "{path} è per un altro processore ({found}). Questo sistema richiede {file} – elimina o sostituisci il vecchio file.", pub_cf_kind_windows: "{path} è la versione per Windows. Home Assistant richiede {file}.", pub_cf_kind_mac: "{path} è la versione per macOS. Home Assistant richiede {file}.", pub_cf_kind_archive: "{path} è un archivio (.tgz/.zip/.deb), non il programma. Scarica il file {file} senza estensione.", pub_cf_kind_html: "{path} è una pagina web salvata, non il programma. Scarica il file {file} direttamente dalla pagina delle release.", pub_cf_kind_not_executable: "{path} non è eseguibile (permessi). Rimetti il file o controlla i permessi.", pub_cf_kind_unknown: "{path} non è adatto a questo sistema. Serve {file}.",
     shared_change_hint: "Per modificare: ingranaggio di questa lista → Condivisione.",
     l_plain: "Lista semplice", l_plain_help: "Senza categorie, suggerimenti, parole memorizzate né prezzi. SmartLists non ricorda nulla di questa lista – i suoi articoli non compaiono in altre (ad es. fai da te).",
     l_categories: "Categorie automatiche", l_categories_help: "Disattivato: nessuna suddivisione in categorie – né nella lista né mentre scrivi. Ordina ad es. per aggiunta.", l_suggest: "Acquistati spesso e suggerimenti", l_suggest_list: "solo da questa lista", l_suggest_sources: "dalle sue liste di origine", l_suggest_all: "da tutte le liste", l_suggest_help: "Ciò che è stato comprato in un'altra lista non compare qui. Le voci più vecchie (prima della 3.9.4) valgono ancora ovunque.",
@@ -1547,6 +1552,7 @@ const TEXTS = {
     share_30d: "30 dni",
     share_forever: "do odwołania",
     share_create: "Utwórz link",
+    pub_cf_arch: "{path} jest dla innego procesora ({found}). Ten system potrzebuje {file} – usuń lub zastąp stary plik.", pub_cf_kind_windows: "{path} to wersja dla Windows. Home Assistant potrzebuje {file}.", pub_cf_kind_mac: "{path} to wersja dla macOS. Home Assistant potrzebuje {file}.", pub_cf_kind_archive: "{path} to archiwum (.tgz/.zip/.deb), a nie program. Pobierz plik {file} bez rozszerzenia.", pub_cf_kind_html: "{path} to zapisana strona internetowa, a nie program. Pobierz plik {file} bezpośrednio ze strony wydań.", pub_cf_kind_not_executable: "{path} nie da się uruchomić (uprawnienia). Umieść plik ponownie lub sprawdź uprawnienia.", pub_cf_kind_unknown: "{path} nie pasuje do tego systemu. Potrzebny jest {file}.",
     shared_change_hint: "Aby zmienić: koło zębate tej listy → Udostępnianie.",
     l_plain: "Prosta lista", l_plain_help: "Bez kategorii, podpowiedzi, zapamiętanych słów i cen. SmartLists nic z tej listy nie zapamiętuje – jej pozycje nie pojawiają się na innych listach (np. market budowlany).",
     l_categories: "Kategorie automatycznie", l_categories_help: "Wyłączone: brak podziału na kategorie – ani na liście, ani podczas wpisywania. Sortuj np. wg dodania.", l_suggest: "Często kupowane i podpowiedzi", l_suggest_list: "tylko z tej listy", l_suggest_sources: "z jej list źródłowych", l_suggest_all: "ze wszystkich list", l_suggest_help: "To, co kupiono na innej liście, nie pojawia się tutaj. Starsze wpisy (przed 3.9.4) nadal obowiązują wszędzie.",
@@ -4336,8 +4342,17 @@ class SmartListsCard extends HTMLElement {
     const status = h("span", { class: "ok2" });
     const body = h("div", {}, h("div", { class: "shelp" }, t.loading));
     let st = null, mode = "ha", port = 8126, url = "", polls = 0, portOpen = false;
+    // „<art>|<pfad>“ (siehe public.py binary_kind) → verständlicher Satz mit der passenden Datei
+    const wrongText = (code) => {
+      const i = code.indexOf("|");
+      const kind = i < 0 ? "unknown" : code.slice(0, i), path = i < 0 ? code : code.slice(i + 1);
+      const file = (st && st.cloudflared_file) || "cloudflared-linux-arm64";
+      const key = ["amd64", "arm64", "arm", "386"].includes(kind) ? "pub_cf_arch" : "pub_cf_kind_" + kind;
+      return fmt(t[key] || t.pub_cf_kind_unknown, { path, found: `cloudflared-linux-${kind}`, file });
+    };
     const errText = (e) => {
       if (!e) return "";
+      if (e.startsWith("cloudflared_wrong:")) return wrongText(e.slice("cloudflared_wrong:".length));
       const i = e.indexOf(":");
       const code = i < 0 ? e : e.slice(0, i), arg = i < 0 ? "" : e.slice(i + 1);
       return t["pub_err_" + code] ? fmt(t["pub_err_" + code], { port: arg, code: arg }) : e;
@@ -4358,7 +4373,7 @@ class SmartListsCard extends HTMLElement {
     };
     const a = (href, label) => h("a", { href, target: "_blank", rel: "noreferrer noopener" }, label);
     const cfHint = () => h("div", { class: "shelp", style: "padding:6px 0;color:var(--warning-color,#ff9800)" },
-      st.cloudflared_problem ? "⚠️ " + fmt(t.pub_cf_not_exec, { path: st.cloudflared_problem }) + " " : "⚠️ " + t.pub_cf_missing + " ",
+      st.cloudflared_problem ? "⚠️ " + wrongText(st.cloudflared_problem) + " " : "⚠️ " + t.pub_cf_missing + " ",
       a(st.download, fmt(t.pub_cf_download, { file: st.cloudflared_file || "cloudflared-linux-arm64" })), " · ",
       fmt(t.pub_cf_where, { paths: (st.cloudflared_dirs || []).join(", "), file: st.cloudflared_file || "cloudflared-linux-arm64" }), " ", t.pub_cf_or_proxy);
     const draw = () => {

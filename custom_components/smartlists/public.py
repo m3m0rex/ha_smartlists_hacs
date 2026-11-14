@@ -99,6 +99,36 @@ def cloudflared_candidates(config_dir: str) -> list[str]:
     return list(dict.fromkeys(out))
 
 
+_ELF_MACHINES = {0x3E: "amd64", 0xB7: "arm64", 0x28: "arm", 0x03: "386"}
+
+
+def binary_kind(path: str) -> str:
+    """Was für eine Datei das ist – damit „Exec format error“ eine verständliche Meldung bekommt:
+    "amd64"/"arm64"/"arm"/"386" (Linux-Programm), "windows", "mac", "archive", "html" oder "unknown"."""
+    try:
+        with open(path, "rb") as f:
+            head = f.read(64)
+    except OSError:
+        return "unknown"
+    if head[:4] == b"\x7fELF" and len(head) >= 20:
+        machine = int.from_bytes(head[18:20], "little" if head[5] == 1 else "big")
+        return _ELF_MACHINES.get(machine, "unknown")
+    if head[:2] == b"MZ":
+        return "windows"
+    if head[:4] in (b"\xcf\xfa\xed\xfe", b"\xce\xfa\xed\xfe", b"\xca\xfe\xba\xbe"):
+        return "mac"
+    if head[:2] == b"\x1f\x8b" or head[:4] == b"PK\x03\x04" or head[:7] == b"!<arch>":
+        return "archive"  # .tgz, .zip oder .deb statt des Programms
+    if head.lstrip()[:1] == b"<":
+        return "html"  # Webseite gespeichert statt der Datei
+    return "unknown"
+
+
+def problem_text(path: str) -> str:
+    """Problem-Code für die Karte: "<kind>|<pfad>" (kind siehe binary_kind)."""
+    return f"{binary_kind(path)}|{path}"
+
+
 def find_cloudflared(config_dir: str) -> tuple[str | None, str | None]:
     """(Pfad, Problem). Pfad = ausführbares cloudflared; Problem = gefunden, aber nicht ausführbar bzw. für eine
     andere Architektur (Pfad der Datei)."""
@@ -107,9 +137,11 @@ def find_cloudflared(config_dir: str) -> tuple[str | None, str | None]:
     for path in cloudflared_candidates(config_dir):
         if not os.path.isfile(path):
             continue
-        name = os.path.basename(path)
-        if name.startswith("cloudflared-linux-") and name != f"cloudflared-linux-{arch}":
-            problem = problem or path  # falsche Architektur
+        # Inhalt prüfen, nicht nur den Namen: eine umbenannte Datei für einen anderen Prozessor (amd64 statt arm64),
+        # ein .tgz/.deb oder eine gespeicherte Webseite führen sonst zu „Exec format error“
+        kind = binary_kind(path)
+        if kind != arch and not (kind == "unknown" and not os.path.basename(path).startswith("cloudflared-linux-")):
+            problem = problem or problem_text(path)
             continue
         if os.access(path, os.X_OK):
             return path, None
@@ -120,7 +152,7 @@ def find_cloudflared(config_dir: str) -> tuple[str | None, str | None]:
                 return path, None
         except OSError:
             pass
-        problem = path
+        problem = f"not_executable|{path}"
     return None, problem
 
 
@@ -230,7 +262,7 @@ class PublicShare:
             path, problem = await self.hass.async_add_executor_job(find_cloudflared, self.hass.config.config_dir)
             self.cloudflared = path
             if path is None:
-                self.error = "cloudflared_not_executable" if problem else "cloudflared_missing"
+                self.error = f"cloudflared_wrong:{problem}" if problem else "cloudflared_missing"
             else:
                 self._stopping = False
                 self._tunnel_task = self.hass.async_create_background_task(self._run_tunnel(path), f"{DOMAIN}_tunnel")
@@ -268,7 +300,12 @@ class PublicShare:
                     path, "tunnel", "--no-autoupdate", "--url", f"http://127.0.0.1:{self.port}",
                     stdin=asyncio.subprocess.DEVNULL, stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.PIPE)
             except OSError as err:
-                self.error = f"cloudflared_failed:{err}"
+                import errno
+
+                if err.errno == errno.ENOEXEC:  # Exec format error: Datei passt nicht zu diesem System
+                    self.error = f"cloudflared_wrong:{problem_text(path)}"
+                else:
+                    self.error = f"cloudflared_failed:{err}"
                 self._changed()
                 return
             assert self._proc.stderr is not None

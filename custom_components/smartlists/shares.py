@@ -5,9 +5,10 @@ Sicherheit (bewusst eng gefasst):
   sein SHA-256-Hash – wer .storage liest, kann daraus keinen gültigen Link bauen. Der Link wird deshalb
   nur direkt beim Erstellen angezeigt (danach: widerrufen und neu erstellen).
 - Ein Link gilt für genau EINE Liste, läuft ab (Standard 7 Tage) und ist jederzeit widerrufbar.
-- Ohne Anmeldung erreichbar sind nur zwei Adressen: die schlichte Seite /smartlists-share/<schlüssel> und
-  /api/smartlists/share/<schlüssel>. Sie liefern nur Name der Liste und Artikeltexte mit Häkchen – keine
-  Notizen, keine Entitäten, keine Benutzer, nichts anderes aus Home Assistant.
+- Ohne Anmeldung erreichbar sind nur zwei Adressen: die Seite /smartlists-share/<schlüssel> und
+  /api/smartlists/share/<schlüssel>. Sie liefern nur Name der Liste und Artikeltexte mit Häkchen (dazu, aus dem
+  Text abgeleitet, Name/Menge/Badges/Kategorie wie in der Karte und die Badge-Farben des Haushalts) – keine
+  Notizen, keine Preise, keine Entitäten, keine Benutzer, nichts anderes aus Home Assistant.
 - Erlaubt ist standardmäßig nur Ansehen. Optional beim Erstellen: „soft“ abhaken (sichtbar markiert, bleibt
   in der Liste offen), richtig abhaken, hinzufügen. Schreiben ist pro Link begrenzt (Anzahl/Minute, Länge).
 - Notizlisten der App lassen sich nicht teilen. Teilen dürfen Admins; bei eigenen Listen auch der Besitzer.
@@ -223,20 +224,48 @@ class ShareApiView(HomeAssistantView):
         if not shares.allow_read(h):
             return web.json_response({"error": "too_many"}, status=429, headers=SECURITY_HEADERS)
         shares.count_open(h)
-        return web.json_response(await self._payload(hass, shares, link), headers=SECURITY_HEADERS)
+        lang = str(request.query.get("lang") or "")[:5]
+        return web.json_response(await self._payload(hass, shares, link, lang), headers=SECURITY_HEADERS)
 
-    async def _payload(self, hass: HomeAssistant, shares: Shares, link: dict[str, Any]) -> dict[str, Any]:
+    async def _payload(self, hass: HomeAssistant, shares: Shares, link: dict[str, Any], lang: str = "") -> dict[str, Any]:
         from . import lists
 
         state = hass.states.get(link["entity_id"])
         items = await lists.raw_items(hass, link["entity_id"]) if state else []
         soft = link.get("soft") or {}
         name = state.attributes.get("friendly_name", "") if state else ""
+        # Darstellung wie in der Karte: Name, Menge, Badges (Markt/Person/Schlagwort in den Farben des Haushalts) und
+        # Kategorie-Gruppen. Alles stammt aus dem Artikeltext selbst – weiterhin keine Notizen, Preise, Entitäten
+        # oder Benutzer. Einfache Listen bzw. Listen ohne Kategorien werden ohne Gruppen gezeigt.
+        learning = hass.data.get(DOMAIN, {}).get("learning")
+        extras = hass.data.get(DOMAIN, {}).get("extras")
+        settings = (extras.list_settings.get(link["entity_id"]) if extras else None) or {}
+        grouped = learning is not None and not settings.get("plain") and settings.get("categories") is not False \
+            and settings.get("sort") in (None, "category")
+        out_items = []
+        for i in items:
+            entry = {"uid": i["uid"], "text": i["text"], "checked": bool(i["checked"]), "soft": i["uid"] in soft}
+            if learning is not None:
+                try:
+                    info = learning.describe(i["text"])
+                    qty = info.get("quantity")
+                    entry.update(
+                        name=info.get("name") or i["text"],
+                        qty=(f"{info['pack_count']}× " if (info.get("pack_count") or 1) > 1 else "")
+                        + (f"{qty:g}".replace(".", ",") if isinstance(qty, (int, float)) else "") if qty is not None else "",
+                        unit=info.get("unit") or "",
+                        tags=[{k: t.get(k) for k in ("kind", "value", "label", "color")} for t in info.get("tags") or []],
+                        cat=info.get("category") if grouped else None)
+                except Exception:  # noqa: BLE001 – im Zweifel nur der Text
+                    pass
+            out_items.append(entry)
         return {
             "name": name, "check": link["check"], "add": link["add"], "expires": link["expires"],
-            # bewusst nur Text + Häkchen: keine Notizen, keine Entitäten, keine Personen
-            "items": [{"uid": i["uid"], "text": i["text"], "checked": bool(i["checked"]), "soft": i["uid"] in soft}
-                      for i in items],
+            "items": out_items,
+            # Reihenfolge und Namen der Kategorien (wie im Markt) sowie Badge-Farben des Haushalts
+            "categories": learning.categories.as_list(lang or getattr(getattr(hass, "config", None), "language", None))
+            if grouped else [],
+            "look": dict(learning.appearance) if learning is not None else {},
         }
 
     async def post(self, request: web.Request, token: str) -> web.Response:
@@ -296,7 +325,8 @@ class ShareApiView(HomeAssistantView):
                 return web.json_response({"error": "forbidden"}, status=403, headers=SECURITY_HEADERS)
         except Exception:  # noqa: BLE001 – keine internen Details nach außen
             return web.json_response({"error": "failed"}, status=500, headers=SECURITY_HEADERS)
-        return web.json_response(await self._payload(hass, shares, link), headers=SECURITY_HEADERS)
+        return web.json_response(await self._payload(hass, shares, link, str(request.query.get("lang") or "")[:5]),
+                                 headers=SECURITY_HEADERS)
 
 
 class SharePageView(HomeAssistantView):
@@ -333,27 +363,52 @@ h1{font-size:1.3rem;margin:8px 4px 2px}.sub{color:var(--m);font-size:.85rem;marg
 .card{background:var(--card);border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.15);overflow:hidden}
 .row{display:flex;gap:12px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--d)}
 .row:last-child{border-bottom:none}.row input{width:22px;height:22px;accent-color:var(--a)}
-.row.done span,.row.soft span{color:var(--m)}.row.done span{text-decoration:line-through}
+.row.done .nm>span:first-child,.row.soft .nm>span:first-child{color:var(--m)}.row.done .nm>span:first-child{text-decoration:line-through}
 .row small{color:var(--a);font-size:.75rem;margin-left:auto}
 .add{display:flex;gap:8px;margin-top:12px}.add input{flex:1;height:42px;border-radius:10px;border:1px solid var(--d);background:var(--card);color:var(--t);padding:0 12px;font:inherit}
 .add button{height:42px;border-radius:21px;border:none;background:var(--a);color:#fff;padding:0 18px;font:inherit;font-weight:600}
 .msg{padding:24px;text-align:center;color:var(--m)}h2{font-size:.8rem;text-transform:uppercase;color:var(--m);margin:16px 6px 6px}
+h3{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--m);margin:14px 6px 6px;font-weight:600}h3:first-of-type{margin-top:4px}
+.nm{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px}.q{color:var(--t);white-space:nowrap;margin-left:auto;padding-left:8px}
+.tag{font-size:.7rem;font-weight:700;padding:1px 7px;border-radius:4px;white-space:nowrap;letter-spacing:.02em}
+.tag.store{color:#fff}.tag.person{background:color-mix(in srgb,#7b61ff 15%,transparent);color:#7b61ff;font-weight:600;border-radius:9px}
+.tag.tag{background:var(--d);color:var(--m);font-weight:600;border-radius:9px}.tag.s-filled.person,.tag.s-filled.tag{border-radius:4px}
+.tag.s-outline{background:none!important;border:1px solid currentColor;padding:0 6px}.tag.s-text{background:none!important;padding:0 2px}
+.row.done .tag{opacity:.55}
 </style></head><body><main id="app"><div class="msg">…</div></main>
 <script>
 (function(){
 var T=__TEXTS__[document.documentElement.lang]||__TEXTS__.en;
-var token=location.pathname.split("/").pop();var api="../api/smartlists/share/"+encodeURIComponent(token);
+var token=location.pathname.split("/").pop();var api="../api/smartlists/share/"+encodeURIComponent(token)+"?lang="+document.documentElement.lang;
 var app=document.getElementById("app");
 function el(tag,attrs,kids){var e=document.createElement(tag);for(var k in attrs||{}){if(k==="text")e.textContent=attrs[k];else if(k.slice(0,2)==="on")e.addEventListener(k.slice(2),attrs[k]);else e.setAttribute(k,attrs[k]);}(kids||[]).forEach(function(c){if(c)e.appendChild(c)});return e}
 function fail(){app.replaceChildren(el("div",{class:"msg",text:T.gone}))}
 function call(body){return fetch(api,body?{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}:{}).then(function(r){if(r.status===404)throw "gone";if(!r.ok)throw "err";return r.json()})}
+/* Badges wie in der Karte: Markt gefüllt in Markenfarbe, Person/Schlagwort dezent – mit den Farben des Haushalts */
+var DEF={store:{style:"filled",icon:""},person:{style:"soft",icon:"👤"},tag:{style:"soft",icon:"#"}};
+function hashColor(s){var x=0;s=String(s).toLowerCase();for(var k=0;k<s.length;k++)x=(x*31+s.charCodeAt(k))>>>0;return "hsl("+(x%360)+" 55% 42%)"}
+function textOn(c){var m=/^#([0-9a-f]{6})$/i.exec(c||"");if(!m)return "#fff";var n=parseInt(m[1],16);return 0.299*(n>>16)+0.587*((n>>8)&255)+0.114*(n&255)>170?"#1a1a1a":"#fff"}
+function badge(t,look){look=look||{};var kind=t.kind==="store"||t.kind==="person"?t.kind:"tag";
+  var k=Object.assign({},DEF[kind],(look.kinds||{})[kind]||{}),v=(look.values||{})[kind+":"+String(t.value).toLowerCase()]||{};
+  var label=(kind==="store"&&v.label)||t.label||t.value,color=v.color||(kind==="store"?t.color||k.color||hashColor(t.value):t.color||k.color),tx=v.text||k.text;
+  var b=el("span",{class:"tag "+kind+" s-"+k.style,text:(k.icon?(kind==="person"?k.icon+" ":k.icon):"")+label});
+  if(color){if(k.style==="filled"){b.style.background=color;b.style.color=tx||textOn(color)}else if(k.style==="soft"){b.style.background="color-mix(in srgb, "+color+" 18%, transparent)";b.style.color=tx||color}else b.style.color=tx||color}
+  else if(tx)b.style.color=tx;return b}
 function draw(d){
   var open=d.items.filter(function(i){return !i.checked}),done=d.items.filter(function(i){return i.checked});
   var row=function(i){var can=d.check!=="off";var box=el("input",{type:"checkbox"});box.checked=i.checked||i.soft;box.disabled=!can;
     box.addEventListener("change",function(){call({action:box.checked?"check":"uncheck",uid:i.uid}).then(draw,function(e){e==="gone"?fail():alert(T.error)})});
-    return el("label",{class:"row"+(i.checked?" done":i.soft?" soft":"")},[box,el("span",{text:i.text}),i.soft&&!i.checked?el("small",{text:"✓ "+T.soft}):null])};
-  var kids=[el("h1",{text:d.name}),el("p",{class:"sub",text:open.length+" "+T.open+(d.expires?" · "+T.until+" "+new Date(d.expires*1000).toLocaleDateString():"")}),
-    el("div",{class:"card"},open.map(row))];
+    var name=el("span",{class:"nm"},[el("span",{text:i.name||i.text})].concat((i.tags||[]).map(function(t){return badge(t,d.look)})));
+    return el("label",{class:"row"+(i.checked?" done":i.soft?" soft":"")},[box,name,i.soft&&!i.checked?el("small",{text:"✓ "+T.soft}):null,
+      i.qty?el("span",{class:"q",text:i.qty+(i.unit?" "+i.unit:"")}):null])};
+  /* nach Kategorie gruppiert (Reihenfolge wie im Markt), sofern die Liste so sortiert ist */
+  var body=[];
+  if(d.categories&&d.categories.length){
+    var groups={};open.forEach(function(i){var c=i.cat||"sonstiges";(groups[c]=groups[c]||[]).push(i)});
+    d.categories.forEach(function(c){if(groups[c.id]){body.push(el("h3",{text:c.label+" · "+groups[c.id].length}));body.push(el("div",{class:"card"},groups[c.id].map(row)));delete groups[c.id]}});
+    Object.keys(groups).forEach(function(c){body.push(el("div",{class:"card"},groups[c].map(row)))});
+  }else body.push(el("div",{class:"card"},open.map(row)));
+  var kids=[el("h1",{text:d.name}),el("p",{class:"sub",text:open.length+" "+T.open+(d.expires?" · "+T.until+" "+new Date(d.expires*1000).toLocaleDateString():"")})].concat(body);
   if(d.add){var inp=el("input",{placeholder:T.placeholder,maxlength:"120","aria-label":T.placeholder});
     var send=function(){var v=inp.value.trim();if(!v)return;call({action:"add",text:v}).then(function(x){inp.value="";draw(x)},function(e){e==="gone"?fail():alert(T.error)})};
     inp.addEventListener("keydown",function(e){if(e.key==="Enter")send()});

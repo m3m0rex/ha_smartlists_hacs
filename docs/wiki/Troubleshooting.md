@@ -40,6 +40,11 @@ SmartLists does not download `cloudflared` by itself. Put the binary at `/config
 `/config/bin/cloudflared` (see [Shopping helpers](Shopping-helpers#share-without-revealing-your-home-assistant-address))
 or choose *Own proxy or tunnel*.
 
+**"cloudflared could not be started: Exec format error"**
+The file does not fit the processor of your Home Assistant – usually `amd64` on a Raspberry Pi (needs `arm64`)
+or the other way round. Since 3.9.8 the setting says what the file is and which one is needed; replace it with
+that file (renaming is optional).
+
 **The 📲 button for the home screen is missing**
 It is hidden inside the Home Assistant companion app (use its widgets there) and when the page already runs as an app.
 Open `/smartlists` in Chrome (Android) or Safari (iPhone).

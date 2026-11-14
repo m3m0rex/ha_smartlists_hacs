@@ -154,3 +154,39 @@ def test_plain_list_remembers_nothing():
     # in der einfachen Liste selbst: keine Vorschläge (leerer Bereich)
     assert learning.suggest("", [], 8, set())["suggestions"] == []
     assert learning.suggest("Mi", [], 8, set())["suggestions"] == []
+
+
+def test_share_payload_looks_like_the_card():
+    """Geteilte Liste: Name, Menge und Badges wie in der Karte, gruppiert nach Kategorie – aber weiter ohne Notizen."""
+    import sys
+    import types
+
+    from smartlists import shares
+
+    learning = _learning()
+    items = [{"uid": "1", "text": "Meggle Baguette Kräuterbutter @REWE #bio *max", "note": "geheim", "checked": False},
+             {"uid": "2", "text": "Milch 2 l", "note": "", "checked": True}]
+    lists_mod = types.ModuleType("smartlists.lists")
+
+    async def raw_items(hass, eid):
+        return items
+
+    lists_mod.raw_items = raw_items
+    old = sys.modules.get("smartlists.lists")
+    sys.modules["smartlists.lists"] = lists_mod
+    try:
+        state = types.SimpleNamespace(attributes={"friendly_name": "Test share"})
+        hass = types.SimpleNamespace(data={"smartlists": {"learning": learning, "extras": None}},
+                                     states=types.SimpleNamespace(get=lambda e: state), config=types.SimpleNamespace(language="de"))
+        link = {"entity_id": "todo.test", "check": "off", "add": False, "expires": None, "soft": {}}
+        view = object.__new__(shares.ShareApiView)
+        d = asyncio.run(view._payload(hass, None, link, "de"))
+    finally:
+        if old is not None:
+            sys.modules["smartlists.lists"] = old
+    first = d["items"][0]
+    assert first["name"] == "Meggle Baguette Kräuterbutter"
+    assert {t["kind"] for t in first["tags"]} == {"store", "tag", "person"}
+    assert d["items"][1]["qty"] == "2" and d["items"][1]["unit"] == "l"
+    assert d["categories"] and first["cat"]
+    assert "geheim" not in str(d)  # Notizen bleiben privat

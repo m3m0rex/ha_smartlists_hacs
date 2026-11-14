@@ -84,6 +84,38 @@ def test_update_validates_without_starting():
     assert p._store.saved == {"mode": "proxy", "port": 8200, "url": "https://liste.example.org"}
 
 
+def _elf(path, arch):
+    """Kleine Datei mit ELF-Kopf für die Architektur (reicht für binary_kind)."""
+    machine = {"amd64": 0x3E, "arm64": 0xB7, "arm": 0x28, "386": 0x03}[arch]
+    with open(path, "wb") as f:
+        f.write(b"\x7fELF\x02\x01\x01" + bytes(11) + machine.to_bytes(2, "little") + bytes(44))
+
+
+def test_binary_kind_explains_exec_format_error():
+    from smartlists.public import _arch, binary_kind, find_cloudflared
+
+    other = "arm64" if _arch() != "arm64" else "amd64"
+    old_path = os.environ.get("PATH", "")
+    os.environ["PATH"] = ""
+    try:
+        with tempfile.TemporaryDirectory() as cfg:
+            os.makedirs(os.path.join(cfg, "bin"))
+            path = os.path.join(cfg, "bin", "cloudflared")
+            _elf(path, other)  # umbenannte Datei für den falschen Prozessor
+            assert binary_kind(path) == other
+            assert find_cloudflared(cfg) == (None, f"{other}|{path}")
+            for content, kind in ((b"MZ\x90\x00", "windows"), (b"\x1f\x8b\x08\x00", "archive"),
+                                  (b"<!DOCTYPE html><html>", "html")):
+                with open(path, "wb") as f:
+                    f.write(content)
+                assert binary_kind(path) == kind
+                assert find_cloudflared(cfg)[1] == f"{kind}|{path}"
+            _elf(path, _arch())
+            assert find_cloudflared(cfg)[0] == path
+    finally:
+        os.environ["PATH"] = old_path
+
+
 def test_find_cloudflared_original_name_and_nested_folder():
     """Originalname (cloudflared-linux-<arch>) und Ordner „cloudflared“ mit der Datei tief darin werden gefunden."""
     from smartlists.public import _arch
@@ -93,7 +125,7 @@ def test_find_cloudflared_original_name_and_nested_folder():
     try:
         with tempfile.TemporaryDirectory() as cfg:
             path = os.path.join(cfg, f"cloudflared-linux-{_arch()}")
-            open(path, "w").close()
+            _elf(path, _arch())
             assert find_cloudflared(cfg)[0] == path
         with tempfile.TemporaryDirectory() as cfg:
             nested = os.path.join(cfg, "cloudflared", "config", "bin")
@@ -104,7 +136,7 @@ def test_find_cloudflared_original_name_and_nested_folder():
         with tempfile.TemporaryDirectory() as cfg:
             other = "arm64" if _arch() != "arm64" else "amd64"
             path = os.path.join(cfg, f"cloudflared-linux-{other}")
-            open(path, "w").close()
-            assert find_cloudflared(cfg) == (None, path)  # falsche Architektur: Problem statt „fehlt“
+            _elf(path, other)
+            assert find_cloudflared(cfg) == (None, f"{other}|{path}")  # falsche Architektur: Problem statt „fehlt“
     finally:
         os.environ["PATH"] = old_path
