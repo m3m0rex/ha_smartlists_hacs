@@ -128,6 +128,8 @@ def _learning(hass: HomeAssistant) -> Learning:
 # ----------------------------------------------------------------------
 # Seite mit Einrichtungs-Assistent (Karte öffnet ihn bei ?setup=1)
 SETUP_URL = "/smartlists?setup=1"
+# Alle übrigen Einstellungen: auf der SmartLists-Seite (⚙), dort vollständiger und mit Suche
+SETTINGS_URL = "/smartlists?settings=global"
 
 class SmartListsConfigFlow(ConfigFlow, domain=DOMAIN):
     """SmartLists einmal einrichten."""
@@ -416,7 +418,15 @@ class SmartListsOptionsFlow(OptionsFlow):
     Karte ändern können) – nicht in den Optionen des Eintrags, damit beide Wege dasselbe zeigen."""
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        return self.async_show_menu(step_id="init", menu_options=["assistant", "overview", "restart", "naming", "packs", "controls", "learned", "automation", "devices", "app_lists"])
+        # Hier nur noch „Einrichtung erneut starten“; alles andere steht auf der SmartLists-Seite (⚙ Einstellungen) –
+        # vollständiger, mit Suche und für jede Liste. Die übrigen Schritte bleiben für ältere Links erhalten.
+        return self.async_show_menu(step_id="init", menu_options=["restart", "settings"], description_placeholders={"url": SETTINGS_URL})
+
+    async def async_step_settings(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Nur ein Link: Einstellungen auf der SmartLists-Seite öffnen."""
+        if user_input is not None:
+            return self._done()
+        return self.async_show_form(step_id="settings", data_schema=vol.Schema({}), description_placeholders={"url": SETTINGS_URL})
 
     # ---- Kategorie-Erkennung: Keyword-Packs (dasselbe wie in der Karte → Haushalt) ----------------
     def _packs(self):

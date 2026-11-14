@@ -2,7 +2,13 @@
 
 # SmartLists – combined to-do lists for Home Assistant
 
-🇩🇪 [Deutsche Version](README.de.md) · 📖 [Wiki](https://github.com/m3m0rex/ha_smartlists/wiki) · 🔒 [Security](SECURITY.md)
+🇩🇪 [Deutsche Version](README.de.md) · 📖 [Wiki](https://github.com/m3m0rex/ha_smartlists/wiki) · 🔒 [Security](SECURITY.md) · 📝 [Changelog](CHANGELOG.md)
+
+<p align="center"><img src="https://raw.githubusercontent.com/m3m0rex/ha_smartlists/main/docs/images/demo.gif" alt="Typing “Milk 2 l 1,19€ @REWE *Anna #organic”: SmartLists recognises quantity, price, store, person, tag and category and files the item under Chilled" width="640"></p>
+
+Type `Milk 2 l 1,19€ @REWE *Anna #organic` – SmartLists recognises **quantity, price, store, person, tag and
+category** while you type and files the item in the right place. (`@`, `*` and `#` are the defaults – you choose
+the characters yourself.)
 
 A standalone Home Assistant integration (HACS), independent of the HA SmartLists Android app.
 It brings the app's key feature straight into Home Assistant: **merge several to-do lists into one
@@ -10,6 +16,15 @@ shared list** – e.g. Anna's and Max's shopping lists into one list "Weekly sho
 
 A combined list is a regular to-do entity (`todo.weekly_shop`). It works in the to-do view, on
 dashboards, with voice assistants, in automations and in the HA SmartLists app.
+
+> ℹ️ **The HA SmartLists Android app is not published yet.** Everything described here works without it – in
+> Home Assistant, the card, the sidebar page and the official Home Assistant app. Parts that mention the app
+> (pairing, connected devices, app notes, lists from the app) only matter once it is available.
+
+> 📱 **Works directly with the official Home Assistant home-screen widgets!** Every SmartLists list is a
+> real `todo.*` entity, so the **To-do list widget** of the Home Assistant companion app shows it on your
+> Android or iOS home screen – quick access in the supermarket without opening anything (on Android you can
+> even check items off right in the widget). See [Home screen widgets](#home-screen-widgets).
 
 <p align="center"><img src="https://raw.githubusercontent.com/m3m0rex/ha_smartlists/main/docs/images/hero.svg" alt="SmartLists sidebar page with a combined list, categories, badges and prices"></p>
 
@@ -19,6 +34,22 @@ dashboards, with voice assistants, in automations and in the HA SmartLists app.
 <td width="38%" valign="top" align="center"><img src="https://raw.githubusercontent.com/m3m0rex/ha_smartlists/main/docs/images/shopping-mode.svg" alt="Shopping mode on the phone" width="240"><br><sub>Shopping mode: large rows, store bar.</sub></td>
 </tr>
 </table>
+
+## Highlights
+
+| | |
+|---|---|
+| 🧺 **Combine lists** | Anna's and Max's lists become one list "Weekly shop"; checking off acts on the original list. |
+| ⌨️ **One input field** | Quantity, unit, price, store, person and tag are recognised while typing – by default `@store`, `*person`, `#tag`; the characters can be changed or switched off (naming convention). Suggestions and "bought often" per list. |
+| 🗂️ **Categories** | Sorted like in the store – keyword packs in 6 languages, remembered corrections, aisle order per store; can be switched off per list. |
+| 🛒 **Shopping mode** | Large rows (optional), tap the whole row to check off with a 3-second undo, store bar, store picked by zone. |
+| 🔗 **Share** | With people in Home Assistant or via **link / QR code** – optionally through a Quick Tunnel or your own proxy, so your HA address stays private. |
+| 📲 **As an app** | Save the sidebar page as an icon on the phone's home screen – opens a list straight in shopping mode. |
+
+**New in 3.9:** share links via Cloudflare Quick Tunnel or your own proxy · notes and meal plan as optional
+*Extras* · shopping mode: tap the whole row, 3-second undo · app icon for the home screen · suggestions and
+"bought often" per list · **plain lists** that remember nothing (e.g. hardware store) · categories off per list ·
+app lists not yet taken over show up under *Repairs* · *Configure* of the integration links to the settings page.
 
 ## Features
 
@@ -49,13 +80,17 @@ Shared by all lists and all HA users, stored in `.storage/smartlists.learning`:
   ("Hafermilch" → chilled also matches "Hafermilch Barista" later). Order as in the app:
   remembered > learned > built-in pack > other.
 - **History & suggestions:** frequently and recently bought items, items on the list and the
-  products of the app's pack, plus the last used or usual unit.
+  products of the app's pack, plus the last used or usual unit. **Per list** by default (a combined list shows
+  what was bought in its source lists); switchable to *from all lists* in the list's settings.
+- **Plain list:** a list such as "Hardware store" can be marked as *plain list* – no categories, no suggestions,
+  and SmartLists remembers nothing from it, so "wood" never shows up in another list. Categories alone can also
+  be switched off per list.
 - **Naming convention:** `@REWE` becomes a store badge (known stores in their brand colour), `*Anna`
   a person, `#organic` a tag. Admins choose which character means what. Tags stay in the item name,
   so other interfaces still show them as text.
 - **Automations & voice:** "I'm at the store" notification, store reminder, recurring items, Assist sentences – see the [wiki](https://github.com/m3m0rex/ha_smartlists/wiki/Automations-and-voice).
 - **Own lists with sharing:** lists with an owner, shared per person to view, check off or edit; existing to-do lists can be taken over with all items – see the [wiki](https://github.com/m3m0rex/ha_smartlists/wiki/Own-lists-and-sharing).
-- **Connected devices:** every device with the app appears under *Configure → Connected devices* and as an HA device with *Last seen* and *App version* sensors.
+- **Connected devices:** every device with the app appears under *Settings → Global → Devices and notes* and as an HA device with *Last seen* and *App version* sensors.
 - **Controls:** default for everyone (admin) → per user → optionally per device.
 - **Shopping helpers:** aisle order per store/branch, prices & monthly expenses, templates/recipes with
   servings, barcode scan (Open Food Facts), statistics, notifications when others add items (to any notify service, notify entity or custom service such as Telegram), and
@@ -63,10 +98,13 @@ Shared by all lists and all HA users, stored in `.storage/smartlists.learning`:
   [wiki](https://github.com/m3m0rex/ha_smartlists/wiki/Shopping-helpers).
 - **Select several items** to move, copy, check off or delete them at once; prices typed into the item
   text (`Milk 2 l 1,19€ @REWE`) are recognised.
-- **Meal plan** (also as a tab on the sidebar page) with a calendar entity and optional **Mealie** import, **history per item**, a one-click
+- **Meal plan** (optional, *Settings → Global → Extras*; also as a tab on the sidebar page) with a calendar entity and optional **Mealie** import, **history per item**, a one-click
   **shopping dashboard**, **diagnostics** download and hints under **Repairs**.
 - **Sharing:** with people in Home Assistant (view, check off, edit) or **via link / QR code** – only this list,
-  limited in time, revocable:
+  limited in time, revocable. Links can go through a **Cloudflare Quick Tunnel or your own proxy** instead of
+  your Home Assistant address, so nobody you share with learns that address – see the
+  [wiki](https://github.com/m3m0rex/ha_smartlists/wiki/Shopping-helpers#share-without-revealing-your-home-assistant-address).
+  Tap 👥 *shared* in a list's header to see who it is shared with:
 
   <img src="https://raw.githubusercontent.com/m3m0rex/ha_smartlists/main/docs/images/share.svg" alt="Share window with QR code, permissions and expiry" width="620">
 
@@ -78,6 +116,25 @@ Shared by all lists and all HA users, stored in `.storage/smartlists.learning`:
 Quantities are stored in the name, as in the app ("Milch 2 l @REWE"). "2 kg apples" is recognised
 while typing, too.
 
+**Extras – optional, off for beginners:** **notes** (note lists as their own 📝 section) and the **meal plan**
+are not needed to get started. The setup assistant leaves them off; switch them on any time under
+*Settings → Global → Extras*.
+
+## Home screen widgets
+
+SmartLists lists – combined lists, own lists, everything you see in SmartLists – are ordinary to-do
+entities. The official Home Assistant companion apps therefore show them in their **To-do list widget**,
+no extra setup in SmartLists needed:
+
+- **Android:** long-press the home screen → *Widgets* → *Home Assistant* → **To-do list**, pick e.g.
+  `todo.weekly_shop`. Items can be checked off right in the widget.
+- **iOS / iPadOS:** home screen → *Edit* → *Add widget* → *Home Assistant* → **To-do List**, choose the list.
+
+See the companion app docs for [Android widgets](https://companion.home-assistant.io/docs/integrations/android-widgets/)
+and [iOS widgets](https://companion.home-assistant.io/docs/integrations/ios-widgets/). The widget shows the
+plain item text (e.g. `Milk 2 l @REWE`); badges, categories and the shopping mode are in the card, the sidebar
+page and the HA SmartLists app.
+
 ## Sidebar page "SmartLists"
 
 After setup there is a **SmartLists** entry in the HA sidebar: all to-do lists (combined lists first)
@@ -88,10 +145,14 @@ normal and **wide** layout; with several lists you can **drag items** from one l
 mouse (Ctrl = copy). Home Assistant's built-in to-do page shows items as plain text only
 ("Milch 2 l @REWE"). Hide the entry like any other via *Edit sidebar*.
 
+📲 **As an app on the home screen, without installing anything:** the phone button in the toolbar saves an
+icon that opens a list directly – optionally straight in shopping mode, full screen (*Install* in Chrome,
+*Share → Add to Home Screen* in Safari). See the [wiki](https://github.com/m3m0rex/ha_smartlists/wiki/Sidebar-page).
+
 <table>
 <tr>
-<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/m3m0rex/ha_smartlists/main/docs/images/mealplan.svg" alt="Meal plan tab"><br><sub>Tab <b>Meal plan</b>: dishes per day, ingredients to the list in one go.</sub></td>
-<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/m3m0rex/ha_smartlists/main/docs/images/notes.svg" alt="Notes of the app as note cards"><br><sub><b>Notes</b> of the app as note cards – only for their owner.</sub></td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/m3m0rex/ha_smartlists/main/docs/images/mealplan.svg" alt="Meal plan tab"><br><sub>Tab <b>Meal plan</b> (optional extra): dishes per day, ingredients to the list in one go.</sub></td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/m3m0rex/ha_smartlists/main/docs/images/notes.svg" alt="Notes of the app as note cards"><br><sub><b>Notes</b> of the app as note cards – only for their owner (optional extra).</sub></td>
 </tr>
 </table>
 
@@ -146,6 +207,8 @@ items from foreign sources can only be checked off. Changes from other devices a
 
 ### Interface for the app
 
+*(The app is not published yet.)*
+
 The HA SmartLists app can pair with the integration (`smartlists/info`) and then shows the same badges,
 categories and suggestions. All commands, responses and the text format:
 [docs/app-api.md](docs/app-api.md).
@@ -182,13 +245,15 @@ integration offers:
 
 - **"Add combined list"** – name, lists, default list, mode, source display, sorting, foreign lists,
   source as person. Each list can be changed or deleted later via ⋮ → *Reconfigure*.
-- **"Configure"** – global settings for all users:
-  - *Naming convention:* which character starts a store, person or tag (or off)
-  - *Controls – default for everyone:* gesture for the item menu, menu entries, shopping mode
-  - *Remembered categories & history:* forget single assignments, clear history
+- **"Configure"** – *Run setup again / start from scratch* and **Open settings**, which jumps to the settings
+  on the SmartLists page (`/smartlists?settings=global`). All global settings – naming convention, controls
+  for everyone, categories and history, stores, sharing, extras … – are there.
 
 Personal differences (per user, or on one device only) are set by everyone themselves via the gear
 icon in the card; admins can change the global settings there as well – both show the same values.
+
+**Lists of the app** (`todo.ha_smartlists_*`) that are not SmartLists lists yet show up under
+*Settings → Repairs*; *Fix* takes them over as own lists (the old list stays).
 
 **Updating from 1.1:** existing SmartLists helpers are moved automatically to lists under the single
 "SmartLists" entry on first start. entity_id, dashboards, automations and local checkmarks are kept.
@@ -218,11 +283,15 @@ custom_components/smartlists/
   todo.py            to-do entities: combined lists and own lists
   categories.py/json category pack (generated from the app, with products + units)
   itemtext.py        parse item text: quantity, unit, tags (@REWE …)
-  learning.py        memory: categories, history, suggestions, tag rules, controls
+  learning.py        memory: categories, history (per list), suggestions, tag rules, controls
   own.py             own lists: roles and permissions
   own_groups.py      own lists grouped per owner (one entry per owner), move of old entries
   automation.py      shopping event, get_items, Assist intents, due items
   lists.py           read/change lists (combined and regular to-do lists)
+  shares.py, public.py   share links; share server, Quick Tunnel, own proxy
+  features.py        extras (notes, meal plan)
+  pwa.py             web-app manifest for the home-screen icon
+  repairs.py         hints and fixes under Settings → Repairs
   websocket.py       commands for card and app (see docs/app-api.md)
   www/smartlists-card.js   Lovelace card and sidebar page
   strings.json, translations/   texts (de, en, fr, es, it, pl)
@@ -230,4 +299,5 @@ custom_components/smartlists/
 blueprints/automation/smartlists/   ready-made automations
 tests/                          tests (pytest, no HA needed)
 scripts/build_categories.py     generate categories.json from the app's pack
+scripts/make_demo_gif.py        generate the demo GIF at the top of this README
 ```

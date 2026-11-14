@@ -16,7 +16,7 @@ Joghurt 4× 150 g *Anna #bio
 | Tag | `#bio` | #bio |
 
 - A marker needs a space in front (`Milch@REWE` is not a tag). Use a hyphen for spaces (`@Bio-Markt`).
-- The characters can be changed under *Configure → Naming convention* (allowed: `@ * # ! + ~ $ & % ^ =`).
+- The characters can be changed under *General settings → Global → Badges and colours* (naming convention) (allowed: `@ * # ! + ~ $ & % ^ =`).
 - "2 kg Äpfel" (quantity first) is recognised while typing and stored as "Äpfel 2 kg".
 - In combined lists the source list counts as a person (`todo.peter` → 👤 Peter) unless the item names
   a person.

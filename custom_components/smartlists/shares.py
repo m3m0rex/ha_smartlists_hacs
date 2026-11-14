@@ -80,8 +80,11 @@ class Shares:
             self.links.pop(h)
 
     @callback
-    def create(self, entity_id: str, user_id: str, check: str = "off", add: bool = False, hours: int | None = 168) -> dict[str, Any]:
-        """Neuer Link. hours = Gültigkeit (z. B. 2, 24, 168, 720), None = unbegrenzt bis zum Widerruf."""
+    def create(self, entity_id: str, user_id: str, check: str = "off", add: bool = False, hours: int | None = 168,
+               base: str | None = None) -> dict[str, Any]:
+        """Neuer Link. hours = Gültigkeit (z. B. 2, 24, 168, 720), None = unbegrenzt bis zum Widerruf.
+        base = öffentliche Adresse (Tunnel/Proxy, siehe public.py) – gemerkt, um später zu zeigen, wenn sich die
+        Tunnel-Adresse geändert hat und der Link deshalb nicht mehr geht. None = Adresse von Home Assistant."""
         if check not in CHECK_MODES:
             raise ValueError("check: off, soft, on")
         self._cleanup()
@@ -92,7 +95,7 @@ class Shares:
         now = int(time.time())
         self.links[h] = {"entity_id": entity_id, "check": check, "add": bool(add),
                          "expires": now + int(hours) * 3600 if hours else None, "created": now,
-                         "created_by": user_id, "opens": 0, "soft": {}}
+                         "created_by": user_id, "opens": 0, "soft": {}, "base": base}
         self._save()
         return {"id": h[:16], "token": token, **self.describe(h)}
 
@@ -100,7 +103,7 @@ class Shares:
         link = self.links[h]
         return {"id": h[:16], "entity_id": link["entity_id"], "check": link["check"], "add": link["add"],
                 "expires": link["expires"], "created": link["created"], "opens": link.get("opens", 0),
-                "expired": bool(link["expires"] and link["expires"] < time.time())}
+                "expired": bool(link["expires"] and link["expires"] < time.time()), "base": link.get("base")}
 
     @callback
     def revoke_all(self) -> int:
@@ -339,7 +342,7 @@ h1{font-size:1.3rem;margin:8px 4px 2px}.sub{color:var(--m);font-size:.85rem;marg
 <script>
 (function(){
 var T=__TEXTS__[document.documentElement.lang]||__TEXTS__.en;
-var token=location.pathname.split("/").pop();var api="/api/smartlists/share/"+encodeURIComponent(token);
+var token=location.pathname.split("/").pop();var api="../api/smartlists/share/"+encodeURIComponent(token);
 var app=document.getElementById("app");
 function el(tag,attrs,kids){var e=document.createElement(tag);for(var k in attrs||{}){if(k==="text")e.textContent=attrs[k];else if(k.slice(0,2)==="on")e.addEventListener(k.slice(2),attrs[k]);else e.setAttribute(k,attrs[k]);}(kids||[]).forEach(function(c){if(c)e.appendChild(c)});return e}
 function fail(){app.replaceChildren(el("div",{class:"msg",text:T.gone}))}

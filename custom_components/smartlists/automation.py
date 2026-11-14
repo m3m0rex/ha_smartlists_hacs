@@ -374,7 +374,7 @@ async def async_add_due_items(hass: HomeAssistant) -> int:
     except lists.ListError:
         return 0
     added = 0
-    for due in learning.due_items(present):
+    for due in learning.due_items(present, lists.suggest_scope(hass, target)):
         entry = learning.history.get(normalize_key(due["name"]))
         # pro Kaufzyklus nur einmal – wer den Vorschlag löscht, bekommt ihn erst nach dem nächsten Kauf wieder
         if entry is None or entry.get("auto_added_for") == due["last"]:

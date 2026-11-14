@@ -186,7 +186,7 @@
     "step": {
       "init": {
         "title": "SmartLists – settings for everyone",
-        "description": "Each user can set personal differences via the gear icon in the card.",
+        "description": "All settings – lists, stores, categories, sharing, devices, extras and more – are on the SmartLists page under ⚙ Settings: [➜ Open settings]({url})\n\nPersonal differences are set by every user there under *For me*.",
         "menu_options": {
           "assistant": "Setup assistant",
           "naming": "Naming convention (@store, *person, #tag)",
@@ -197,7 +197,8 @@
           "app_lists": "Lists from the app (take over combined lists)",
           "packs": "Category detection (keyword packs)",
           "overview": "All SmartLists lists",
-          "restart": "Run setup again / start from scratch"
+          "restart": "Run setup again / start from scratch",
+          "settings": "Open settings (SmartLists page)"
         }
       },
       "naming": {
@@ -325,6 +326,10 @@
       "restart_done": {
         "title": "Reset done",
         "description": "Done. [➜ Open the setup assistant now]({url}) – it also appears the next time an admin opens the SmartLists page or card."
+      },
+      "settings": {
+        "title": "Settings",
+        "description": "[➜ Open the settings on the SmartLists page]({url})\n\nThere you find everything in one place, with search: *For me*, *Global* (admins), *Insights* and – in the gear of each list – the settings of that list."
       }
     },
     "error": {
@@ -501,6 +506,25 @@
     "stale_device": {
       "title": "Device “{device}” has not synced for {days} days",
       "description": "The HA SmartLists app on **{device}** has not synced for {days} days. If the device is no longer used, remove it under SmartLists → Configure → Connected devices and delete its token in the profile. If it is still used, open the app once to sync."
+    },
+    "unmigrated_list": {
+      "title": "App list “{list}” is not yet in SmartLists",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Take over “{list}” into SmartLists",
+            "description": "**{entity_id}** is a list of the HA SmartLists app that is not yet a SmartLists list. Taking it over creates the own list **{title}** with all items, notes and checkmarks; the owner can share it with others.\n\nThe old list stays unchanged – delete it yourself later if you no longer need it. Combined lists that use it keep using the old list.",
+            "data": {
+              "owner": "Owner"
+            }
+          }
+        },
+        "abort": {
+          "list_gone": "The list no longer exists.",
+          "no_owner": "Please choose an owner.",
+          "failed": "Taking over failed: {error}"
+        }
+      }
     }
   }
 }

@@ -35,6 +35,7 @@ from .packs import async_get_packs
 from .notes import async_get_notes
 from .extras import async_get_extras
 from .shares import async_get_shares, async_register_views
+from .public import async_get_public, async_setup_public
 from .notify import async_get_notifier
 from .itemlog import async_get_itemlog
 from . import repairs
@@ -58,6 +59,9 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     await async_get_extras(hass)
     await async_get_shares(hass)
     async_register_views(hass)  # geteilte Links (ohne Anmeldung, nur mit 256-Bit-Schlüssel)
+    # Teilen ohne die HA-Adresse zu verraten: eigener kleiner Server + Quick Tunnel / eigener Proxy
+    await async_get_public(hass)
+    async_setup_public(hass)
 
     @callback
     def _entity_removed(event) -> None:
@@ -79,10 +83,15 @@ async def _async_register_card(hass: HomeAssistant) -> None:
     """Karte automatisch laden – keine manuelle Dashboard-Ressource nötig.
     Die Version im URL-Parameter sorgt nach Updates für frisches Laden statt Browser-Cache."""
     path = Path(__file__).parent / "www" / "smartlists-card.js"
+    from .pwa import BRAND_URL, ManifestView
+
     try:
-        await hass.http.async_register_static_paths([StaticPathConfig(CARD_URL, str(path), True)])
+        await hass.http.async_register_static_paths([StaticPathConfig(CARD_URL, str(path), True),
+                                                     # Symbole für „Als App auf dem Startbildschirm“ (pwa.py)
+                                                     StaticPathConfig(BRAND_URL, str(Path(__file__).parent / "brand"), True)])
     except RuntimeError:
         return  # bereits registriert (z.B. Neuladen der Integration)
+    hass.http.register_view(ManifestView())
     version = (await async_get_integration(hass, DOMAIN)).version
     hass.data[DOMAIN]["card_url"] = f"{CARD_URL}?v={version}"
     add_extra_js_url(hass, hass.data[DOMAIN]["card_url"])

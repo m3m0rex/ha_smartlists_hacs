@@ -205,8 +205,13 @@ class Learning:
     # Verlauf
     # ------------------------------------------------------------------
     @callback
-    def record(self, text: str) -> None:
-        """Nach jedem Hinzufügen aufrufen – merkt Name, Einheit und Tags."""
+    def record(self, text: str, entity_id: str | None = None) -> None:
+        """Nach jedem Hinzufügen aufrufen – merkt Name, Einheit und Tags; mit entity_id auch, in welcher Liste
+        (für „häufig gekauft“ und Vorschläge je Liste)."""
+        # einfache Liste (z. B. Baumarkt): nichts merken – erscheint so in keiner anderen Liste
+        extras = (getattr(self.hass, "data", None) or {}).get(DOMAIN, {}).get("extras")
+        if extras is not None and hasattr(extras, "is_plain") and extras.is_plain(entity_id):
+            return
         item = self.parse(text)
         key = normalize(item.name)
         if not key:
@@ -217,7 +222,17 @@ class Learning:
         times = [int(t) for t in entry.get("times", []) if isinstance(t, (int, float))]
         if not times or now - times[-1] > 12 * 3600:
             times.append(now)
+        # je Liste zählen. Einträge von vor 3.9.4 wissen ihre Liste nicht → "*" (gilt in jeder Liste)
+        per_list = dict(entry.get("lists") or {})
+        if not per_list and int(entry.get("count", 0)) > 0:
+            per_list["*"] = int(entry.get("count", 0))
+        if entity_id:
+            per_list[entity_id] = int(per_list.get(entity_id, 0)) + 1
+        elif per_list:
+            per_list["*"] = int(per_list.get("*", 0)) + 1
         entry.update(name=item.name, count=int(entry.get("count", 0)) + 1, last=now, times=times[-TIMES_KEPT:])
+        if per_list:
+            entry["lists"] = dict(sorted(per_list.items(), key=lambda kv: -kv[1])[:20])
         if item.unit:
             entry["unit"] = item.unit
         self.history[key] = entry
@@ -254,12 +269,13 @@ class Learning:
         return {"name": entry["name"], "every_days": round(median / 86400, 1), "last": times[-1],
                 "next_due": int(next_due), "due": time.time() >= next_due, "unit": entry.get("unit")}
 
-    def due_items(self, present_names: list[str] | None = None) -> list[dict[str, Any]]:
-        """Fällige Artikel (Rhythmus erreicht), die gerade nicht offen auf der Liste stehen."""
+    def due_items(self, present_names: list[str] | None = None, scope: set[str] | None = None) -> list[dict[str, Any]]:
+        """Fällige Artikel (Rhythmus erreicht), die gerade nicht offen auf der Liste stehen.
+        scope = nur Artikel, die in diesen Listen gekauft wurden (None = alle)."""
         present = {normalize(self.parse(n).name) for n in present_names or []}
         out = []
         for key, entry in self.history.items():
-            if key in present:
+            if key in present or not scoped_count(entry, scope):
                 continue
             r = self.rhythm(entry["name"])
             if r and r["due"]:
@@ -269,7 +285,7 @@ class Learning:
 
     @callback
     def set_automation(self, settings: dict[str, Any]) -> None:
-        keep = {k: self.automation.get(k) for k in ("store_zones", "rights", "favorite_stores", "setup_done")}
+        keep = {k: self.automation.get(k) for k in ("store_zones", "rights", "favorite_stores", "setup_done", "features", "migrated_lists")}
         self.automation = {k: v for k, v in settings.items() if v not in (None, "", [], {})}
         for k, v in keep.items():  # Markt-Zonen und Rechte nicht versehentlich mitlöschen
             if v and k not in settings:
@@ -424,17 +440,20 @@ class Learning:
     # ------------------------------------------------------------------
     # Vorschläge
     # ------------------------------------------------------------------
-    def suggest(self, query: str, list_names: list[str] | None = None, limit: int = 8) -> dict[str, Any]:
-        """Vorschläge fürs Eingabefeld. Tippt man gerade einen Tag ("@Re"), kommen Märkte/Tags."""
+    def suggest(self, query: str, list_names: list[str] | None = None, limit: int = 8, scope: set[str] | None = None) -> dict[str, Any]:
+        """Vorschläge fürs Eingabefeld. Tippt man gerade einen Tag ("@Re"), kommen Märkte/Tags.
+        scope: Verlauf nur aus diesen Listen (Einstellung der Liste, kombinierte Liste = ihre Quell-Listen); None = alle."""
         if (open_tag := itemtext.open_tag_query(query, self.tag_rules)) is not None:
             return {"mode": "tag", "kind": open_tag[0], "suggestions": self._suggest_tags(*open_tag, limit)}
 
+        if scope is not None and not scope:
+            return {"mode": "frequent" if not query.strip() else "name", "suggestions": []}  # einfache Liste
         typed = self.parse(query, typed=True)
         q = normalize(typed.name)
         if not q:
-            due = [{**self._entry(d["name"], "due"), "every_days": d["every_days"]} for d in self.due_items(list_names or [])][:limit]
+            due = [{**self._entry(d["name"], "due"), "every_days": d["every_days"]} for d in self.due_items(list_names or [], scope)][:limit]
             seen = {normalize(d["name"]) for d in due}
-            rest = [e for e in self._frequent(list_names or [], limit) if normalize(e["name"]) not in seen]
+            rest = [e for e in self._frequent(list_names or [], limit, scope) if normalize(e["name"]) not in seen]
             return {"mode": "frequent", "suggestions": (due + rest)[:limit]}
         scores: dict[str, tuple[int, str, str]] = {}
 
@@ -452,8 +471,9 @@ class Learning:
                 scores[key] = (score, name.strip(), source)
 
         for entry in self.history.values():
-            count = int(entry.get("count", 1))
-            consider(entry["name"], 10_000 + count, 1_000 + count, "history")
+            count = scoped_count(entry, scope)
+            if count:
+                consider(entry["name"], 10_000 + count, 1_000 + count, "history")
         for name in list_names or []:
             consider(self.parse(name).name, 50, 10, "list")
         if len(q) >= 2:
@@ -474,7 +494,7 @@ class Learning:
             "source": source,
         }
 
-    def _frequent(self, list_names: list[str], limit: int) -> list[dict[str, Any]]:
+    def _frequent(self, list_names: list[str], limit: int, scope: set[str] | None = None) -> list[dict[str, Any]]:
         """Leeres Eingabefeld: oft gekaufte Artikel, die gerade nicht auf der Liste stehen."""
         present = {normalize(self.parse(n).name) for n in list_names}
         now = time.time()
@@ -482,10 +502,10 @@ class Learning:
         def score(e: dict[str, Any]) -> float:
             # Häufigkeit zählt, lange nicht Gekauftes verliert langsam an Gewicht (Halbwert ~60 Tage)
             age_days = max(0.0, (now - float(e.get("last", now))) / 86400)
-            return int(e.get("count", 1)) * 0.5 ** (age_days / 60)
+            return scoped_count(e, scope) * 0.5 ** (age_days / 60)
 
         ranked = sorted(
-            (e for k, e in self.history.items() if k not in present and int(e.get("count", 0)) >= 2),
+            (e for k, e in self.history.items() if k not in present and scoped_count(e, scope) >= 2),
             key=score,
             reverse=True,
         )
@@ -597,6 +617,18 @@ class Learning:
 
 _COLOR = re.compile(r"^#[0-9a-fA-F]{6}$")
 BADGE_STYLES = ("filled", "soft", "outline", "text")
+
+
+def scoped_count(entry: dict[str, Any], scope: set[str] | None) -> int:
+    """Wie oft ein Artikel in den Listen `scope` hinzugefügt wurde. None = überall. Ohne Angabe je Liste (Verlauf
+    von vor 3.9.4) bzw. unter "*" Gezähltes gilt in jeder Liste – so verschwinden alte Vorschläge nicht."""
+    total = int(entry.get("count", 1) or 0)
+    if scope is None:
+        return total
+    per_list = entry.get("lists")
+    if not isinstance(per_list, dict) or not per_list:
+        return total
+    return sum(int(v) for k, v in per_list.items() if k == "*" or k in scope)
 
 
 def validate_appearance(raw: Any) -> dict[str, Any]:

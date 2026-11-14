@@ -602,6 +602,11 @@ class CombinedTodoListEntity(_AccessMixin, TodoListEntity):
     def _save(self) -> None:
         self._store.async_delay_save(lambda: {"overrides": self._overrides}, 1.0)
 
+    def _learning_off(self) -> bool:
+        """Kombinierte Liste als „einfache Liste“ eingestellt → aus ihr nichts merken."""
+        extras = self.hass.data.get(DOMAIN, {}).get("extras")
+        return bool(extras and extras.is_plain(self.entity_id))
+
     async def _call(self, service: str, data: dict[str, Any]) -> None:
         # Kontext weitergeben: so wissen Benachrichtigungen und Verlauf, wer die Änderung gemacht hat
         await self.hass.services.async_call(TODO_DOMAIN, service, data, blocking=True, context=self._context)
@@ -615,7 +620,9 @@ class CombinedTodoListEntity(_AccessMixin, TodoListEntity):
         if item.description:
             data["description"] = item.description
         await self._call("add_item", data)
-        self._learning.record(item.summary or "")
+        # gezählt bei der Liste, in der der Artikel landet (Vorschläge je Liste; die kombinierte sieht ihre Quellen)
+        if not self._learning_off():
+            self._learning.record(item.summary or "", self._default_add)
         await self._async_refresh()
 
     async def async_update_todo_item(self, item: TodoItem) -> None:
@@ -764,7 +771,7 @@ class OwnTodoListEntity(_AccessMixin, TodoListEntity):
 
         self._items.append({"uid": uuid.uuid4().hex, "summary": item.summary or "",
                             "status": _status_text(item.status) or "needs_action", "description": item.description or ""})
-        self._learning.record(item.summary or "")
+        self._learning.record(item.summary or "", self.entity_id)
         self._save()
 
     async def async_update_todo_item(self, item: TodoItem) -> None:

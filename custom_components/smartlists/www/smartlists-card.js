@@ -110,6 +110,16 @@ const BARCODE_PROVIDERS = [["off", "Open Food Facts"], ["obf", "Open Beauty Fact
 // Notizlisten der App: keine Kategorien/Einkaufsfunktionen (nur wenn in der Karte nicht anders eingestellt)
 const NOTES_DEFAULTS = { sort: "added", show_category_titles: false, show_frequent: false, show_shopping: false, show_stepper: false, show_import: false, show_filter_chips: false, show_sort: false };
 // Erkennung wie notes.py (für Auswahlfelder, ohne Rückfrage bei der Integration)
+// Name für die Chips der Seite: die Gruppe („Listen“, „Notizen“) steht schon darüber – „HA Smartlists“, „Liste“,
+// „Notes“ usw. vorne weglassen („Liste Max“ → „Max“). Bleibt nichts übrig, der volle Name.
+// „Lista zakupów“ / „Lista de la compra“ bleiben: weggelassen wird „Liste“ nur vor einem Namen (Großbuchstabe/Ziffer).
+const chipName = (name) => {
+  const s = String(name || "").trim();
+  let r = s.replace(/^ha[ _]?smartlists[ _]+/i, "");
+  const m = r.match(/^(list[ea]?|listy|notes?|notizen?|notatki)[ _]+(.+)$/i);
+  if (m && /^[\p{Lu}\d]/u.test(m[2])) r = m[2];
+  return r.trim() || s;
+};
 const isNotesEntity = (id, name) => /^todo\.(ha_smartlists_note|notiz_)/i.test(id) || /^ha smartlists notes/i.test(String(name || "").trim());
 const UI_KEY = "smartlists-ui";
 const LONG_PRESS_MS = 500;
@@ -137,7 +147,7 @@ const TEXTS = {
     install_sentences: "Assist-Sätze installieren", sentences_installed: "installiert",
     devices: "Verbundene Geräte", devices_help: "Geräte mit der HA-SmartLists-App. ⚠️ = über 7 Tage nicht abgeglichen. Zugang sperren: Token im Profil löschen.",
     no_devices: "Noch kein Gerät verbunden.", remove_device: "Aus der Liste nehmen", last_seen: "zuletzt",
-    role_all: "alle Rechte", admin_always: "Admin – darf immer alles", shop_large_help: "Leichter mit dem Daumen zu treffen",
+    role_all: "alle Rechte", admin_always: "Admin – darf immer alles", shop_large_help: "Leichter mit dem Daumen zu treffen. Aus: so groß wie in der normalen Ansicht.",
     new_list_help: "Du bist Besitzer und kannst sie danach für andere freigeben.", new_list_placeholder: "z. B. Drogerie", create: "Anlegen",
     p_columns: "Mehrere Listen nebeneinander", p_wide: "Breite Ansicht", p_settings: "Einstellungen", p_back: "Zurück zu den Listen",
     p_hint: "Listen antippen, um sie nebeneinander zu zeigen (mehr als 3 werden umgebrochen). Artikel mit der Maus in eine andere Liste ziehen = verschieben (Strg = kopieren).",
@@ -312,6 +322,11 @@ const TEXTS = {
     share_30d: "30 Tage",
     share_forever: "bis zum Widerruf",
     share_create: "Link erstellen",
+    shared_change_hint: "Ändern: Zahnrad dieser Liste → Freigaben.",
+    l_plain: "Einfache Liste", l_plain_help: "Ohne Kategorien, Vorschläge, gemerkte Wörter und Preise. Was hier steht, merkt sich SmartLists nicht – es taucht in keiner anderen Liste auf (z. B. Baumarkt).",
+    l_categories: "Kategorien automatisch", l_categories_help: "Aus: keine Einordnung in Kategorien – weder in der Liste noch beim Eintippen. Sortierung dann z. B. nach Hinzufügen.", l_suggest: "Häufig gekauft & Vorschläge", l_suggest_list: "nur aus dieser Liste", l_suggest_sources: "aus ihren Quell-Listen", l_suggest_all: "aus allen Listen", l_suggest_help: "Was in einer anderen Liste gekauft wurde, erscheint hier nicht. Ältere Einträge (vor 3.9.4) gelten weiter überall.",
+    zone_dup_title: "Zone gibt es schon", zone_dup_text: "Es gibt schon eine Zone „{name}“. Du kannst den Namen behalten (dann gibt es zwei Zonen mit gleichem Namen, z. B. zwei Filialen) oder die neue Zone umbenennen, z. B. „{name} Innenstadt“.", zone_dup_keep: "Namen behalten", zone_dup_rename: "Umbenennen", zone_dup_rename_help: "Name der neuen Zone, z. B. mit Ort oder Straße der Filiale.", app_title: "Als App auf dem Startbildschirm speichern", app_lead: "Ein Symbol auf dem Handy, das direkt diese Liste öffnet – ohne extra App. Läuft im Vollbild wie eine App.", app_list: "Liste", app_shop: "Direkt im Einkaufsmodus öffnen", app_install: "Installieren", app_close: "Schließen", app_ios: "In Safari unten auf Teilen (□↑) tippen\nZum Home-Bildschirm wählen\nHinzufügen tippen – fertig", app_android: "In Chrome oben rechts auf ⋮ tippen\nZum Startbildschirm hinzufügen bzw. App installieren wählen\nInstallieren bestätigen – fertig", app_other: "Im Browser-Menü App installieren bzw. Zum Startbildschirm hinzufügen wählen\nAm Handy: diese Seite in Chrome (Android) oder Safari (iPhone) öffnen",
+    x_title: "Extras", x_help: "Optionale Bereiche. Für den Einstieg nicht nötig – bei Bedarf hier einschalten.", x_notes: "Notizen", x_notes_help: "Notizlisten (z. B. aus der HA-SmartLists-App) als eigener Bereich 📝. Wer sie sieht, legst du unter Geräte und Notizen fest.", x_mealplan: "Wochenplan", x_mealplan_help: "Gerichte je Tag, Zutaten auf die Liste, Kalender „Essensplan“. Aus: Tab, Menüpunkt und Kalender verschwinden, eingetragene Gerichte bleiben gespeichert.", w_x_optional: "Optional – auch später unter Einstellungen → Extras", w_x_notes_sub: "Notizlisten als eigener Bereich, z. B. aus der App", w_x_mealplan_sub: "Gerichte je Tag planen und Zutaten auf die Liste setzen", share_leak: "Der Link enthält die Adresse deines Home Assistant. Ohne sie zu verraten: Quick Tunnel oder eigener Proxy (Einstellungen → Teilen und Rechte → Öffentliche Adresse).", share_old_address: "Adresse hat sich geändert, Link geht nicht mehr", pub_title: "Öffentliche Adresse für Links", pub_help: "Worüber geteilte Links erreichbar sind. Mit Tunnel oder eigenem Proxy erfährt niemand die Adresse deines Home Assistant.", pub_mode: "Links über", pub_ha: "Adresse von Home Assistant", pub_tunnel: "Cloudflare Quick Tunnel", pub_proxy: "Eigener Proxy oder Tunnel", pub_ha_help: "Wie bisher: Der Link zeigt auf die externe Adresse von Home Assistant – wer ihn bekommt, kennt diese Adresse.", pub_tunnel_help: "SmartLists startet cloudflared und bekommt eine zufällige Adresse (…trycloudflare.com). Der Tunnel führt nur zu einem eigenen kleinen Server, der ausschließlich geteilte Listen ausliefert – nicht zu Home Assistant. Kein Konto und keine Portfreigabe nötig.", pub_proxy_help: "Leite deine Adresse an http://<IP von Home Assistant>:{port} weiter (Caddy, nginx, Cloudflare-Tunnel mit eigener Domain …). Dort läuft nur der Teilen-Server von SmartLists, nicht Home Assistant.", pub_url: "Öffentliche Adresse", pub_port: "Port", pub_port_change: "ändern (optional)", pub_port_help: "Port des Teilen-Servers (Standard 8126).", pub_starting: "Tunnel startet …", pub_server_ok: "Teilen-Server läuft auf Port {port}.", pub_not_ready: "noch nicht bereit", pub_tunnel_note: "Die Tunnel-Adresse ändert sich bei jedem Neustart von Home Assistant – vorher erstellte Links funktionieren dann nicht mehr. Für dauerhafte Links: eigener Proxy oder Tunnel.", pub_cf_missing: "cloudflared wurde nicht gefunden. SmartLists lädt es nicht selbst herunter.", pub_cf_not_exec: "{path} ist nicht ausführbar.", pub_cf_download: "cloudflared herunterladen (Linux: cloudflared-linux-amd64 bzw. -arm64)", pub_cf_where: "Datei umbenennen in cloudflared und ablegen unter {paths}, dann Speichern.", pub_cf_or_proxy: "Oder einen eigenen Proxy nutzen.", pub_err_cloudflared_missing: "cloudflared fehlt.", pub_err_cloudflared_not_executable: "cloudflared ist nicht ausführbar.", pub_err_port_in_use: "Port {port} ist belegt – bitte einen anderen wählen.", pub_err_cloudflared_exit: "cloudflared wurde beendet (Code {code}) – startet gleich neu.", pub_err_cloudflared_failed: "cloudflared ließ sich nicht starten: {code}",
     share_active: "Aktive Links",
     share_revoke: "Widerrufen",
     share_expired: "abgelaufen",
@@ -377,7 +392,7 @@ const TEXTS = {
     install_sentences: "Install Assist sentences", sentences_installed: "installed",
     devices: "Connected devices", devices_help: "Devices with the HA SmartLists app. ⚠️ = not synced for 7+ days. To revoke access, delete the token in the profile.",
     no_devices: "No device connected yet.", remove_device: "Remove from list", last_seen: "last seen",
-    role_all: "all rights", admin_always: "Admin – can always do everything", shop_large_help: "Easier to hit with your thumb",
+    role_all: "all rights", admin_always: "Admin – can always do everything", shop_large_help: "Easier to hit with your thumb. Off: same size as the normal view.",
     new_list_help: "You are the owner and can share it with others afterwards.", new_list_placeholder: "e.g. Drugstore", create: "Create",
     p_columns: "Several lists side by side", p_wide: "Wide layout", p_settings: "Settings", p_back: "Back to the lists",
     p_hint: "Tap lists to show them side by side (more than 3 wrap into rows). Drag items with the mouse into another list to move them (Ctrl = copy).",
@@ -552,6 +567,11 @@ const TEXTS = {
     share_30d: "30 days",
     share_forever: "until revoked",
     share_create: "Create link",
+    shared_change_hint: "To change: gear of this list → Sharing.",
+    l_plain: "Plain list", l_plain_help: "No categories, suggestions, remembered words or prices. SmartLists remembers nothing from this list – its items never show up in other lists (e.g. hardware store).",
+    l_categories: "Categories automatically", l_categories_help: "Off: no sorting into categories – neither in the list nor while typing. Sort e.g. by added instead.", l_suggest: "Bought often & suggestions", l_suggest_list: "only from this list", l_suggest_sources: "from its source lists", l_suggest_all: "from all lists", l_suggest_help: "What was bought in another list does not show up here. Older entries (before 3.9.4) still apply everywhere.",
+    zone_dup_title: "Zone already exists", zone_dup_text: "There already is a zone “{name}”. You can keep the name (then there are two zones with the same name, e.g. two branches) or rename the new zone, e.g. “{name} Downtown”.", zone_dup_keep: "Keep name", zone_dup_rename: "Rename", zone_dup_rename_help: "Name of the new zone, e.g. with the area or street of the branch.", app_title: "Save as app on the home screen", app_lead: "An icon on your phone that opens this list directly – no extra app. Runs full screen like an app.", app_list: "List", app_shop: "Open straight in shopping mode", app_install: "Install", app_close: "Close", app_ios: "In Safari tap Share (□↑) at the bottom\nChoose Add to Home Screen\nTap Add – done", app_android: "In Chrome tap ⋮ at the top right\nChoose Add to Home screen or Install app\nConfirm Install – done", app_other: "In the browser menu choose Install app or Add to Home screen\nOn the phone: open this page in Chrome (Android) or Safari (iPhone)",
+    x_title: "Extras", x_help: "Optional areas. Not needed to get started – switch them on here when you want them.", x_notes: "Notes", x_notes_help: "Note lists (e.g. from the HA SmartLists app) as a separate 📝 section. Who sees them is set under Devices and notes.", x_mealplan: "Meal plan", x_mealplan_help: "Dishes per day, ingredients onto the list, “Meal plan” calendar. Off: tab, menu entry and calendar disappear, planned dishes stay saved.", w_x_optional: "Optional – also later under Settings → Extras", w_x_notes_sub: "Note lists as a separate section, e.g. from the app", w_x_mealplan_sub: "Plan dishes per day and put the ingredients on the list", share_leak: "The link contains the address of your Home Assistant. To keep it private: Quick Tunnel or your own proxy (Settings → Sharing and permissions → Public address).", share_old_address: "address has changed, link no longer works", pub_title: "Public address for links", pub_help: "How shared links are reached. With a tunnel or your own proxy nobody learns the address of your Home Assistant.", pub_mode: "Links via", pub_ha: "Home Assistant address", pub_tunnel: "Cloudflare Quick Tunnel", pub_proxy: "Own proxy or tunnel", pub_ha_help: "As before: the link points to the external address of Home Assistant – whoever gets it knows that address.", pub_tunnel_help: "SmartLists starts cloudflared and gets a random address (…trycloudflare.com). The tunnel only leads to a small server of its own that serves nothing but shared lists – not to Home Assistant. No account and no port forwarding needed.", pub_proxy_help: "Forward your address to http://<IP of Home Assistant>:{port} (Caddy, nginx, Cloudflare Tunnel with your own domain …). Only the SmartLists share server runs there, not Home Assistant.", pub_url: "Public address", pub_port: "Port", pub_port_change: "change (optional)", pub_port_help: "Port of the share server (default 8126).", pub_starting: "Tunnel is starting …", pub_server_ok: "Share server is running on port {port}.", pub_not_ready: "not ready yet", pub_tunnel_note: "The tunnel address changes every time Home Assistant restarts – links created before then stop working. For lasting links: your own proxy or tunnel.", pub_cf_missing: "cloudflared was not found. SmartLists does not download it by itself.", pub_cf_not_exec: "{path} is not executable.", pub_cf_download: "Download cloudflared (Linux: cloudflared-linux-amd64 or -arm64)", pub_cf_where: "Rename the file to cloudflared and put it at {paths}, then Save.", pub_cf_or_proxy: "Or use your own proxy.", pub_err_cloudflared_missing: "cloudflared is missing.", pub_err_cloudflared_not_executable: "cloudflared is not executable.", pub_err_port_in_use: "Port {port} is in use – please choose another one.", pub_err_cloudflared_exit: "cloudflared stopped (code {code}) – restarting shortly.", pub_err_cloudflared_failed: "cloudflared could not be started: {code}",
     share_active: "Active links",
     share_revoke: "Revoke",
     share_expired: "expired",
@@ -617,7 +637,7 @@ const TEXTS = {
     install_sentences: "Installer les phrases Assist", sentences_installed: "installées",
     devices: "Appareils connectés", devices_help: "Appareils avec l'app HA SmartLists. ⚠️ = pas synchronisé depuis plus de 7 jours. Pour retirer l'accès, supprime le jeton dans le profil.",
     no_devices: "Aucun appareil connecté.", remove_device: "Retirer de la liste", last_seen: "vu",
-    role_all: "tous les droits", admin_always: "Admin – peut toujours tout faire", shop_large_help: "Plus facile à toucher avec le pouce",
+    role_all: "tous les droits", admin_always: "Admin – peut toujours tout faire", shop_large_help: "Plus facile à toucher avec le pouce. Désactivé : même taille que la vue normale.",
     new_list_help: "Tu en es le propriétaire et peux la partager ensuite.", new_list_placeholder: "p. ex. Droguerie", create: "Créer",
     p_columns: "Plusieurs listes côte à côte", p_wide: "Affichage large", p_settings: "Paramètres", p_back: "Retour aux listes",
     p_hint: "Touche des listes pour les afficher côte à côte (au-delà de 3, elles passent à la ligne). Glisse un article à la souris vers une autre liste pour le déplacer (Ctrl = copier).",
@@ -792,6 +812,11 @@ const TEXTS = {
     share_30d: "30 jours",
     share_forever: "jusqu'à révocation",
     share_create: "Créer un lien",
+    shared_change_hint: "Pour modifier : engrenage de cette liste → Partage.",
+    l_plain: "Liste simple", l_plain_help: "Sans catégories, suggestions, mots mémorisés ni prix. SmartLists ne retient rien de cette liste – ses articles n'apparaissent dans aucune autre (p. ex. bricolage).",
+    l_categories: "Catégories automatiques", l_categories_help: "Désactivé : pas de classement par catégorie – ni dans la liste ni en tapant. Trier p. ex. par ajout.", l_suggest: "Achetés souvent & suggestions", l_suggest_list: "seulement de cette liste", l_suggest_sources: "de ses listes sources", l_suggest_all: "de toutes les listes", l_suggest_help: "Ce qui a été acheté dans une autre liste n'apparaît pas ici. Les anciennes entrées (avant 3.9.4) valent toujours partout.",
+    zone_dup_title: "La zone existe déjà", zone_dup_text: "Il existe déjà une zone « {name} ». Tu peux garder le nom (il y aura alors deux zones du même nom, p. ex. deux magasins) ou renommer la nouvelle zone, p. ex. « {name} Centre ».", zone_dup_keep: "Garder le nom", zone_dup_rename: "Renommer", zone_dup_rename_help: "Nom de la nouvelle zone, p. ex. avec le quartier ou la rue du magasin.", app_title: "Enregistrer comme app sur l'écran d'accueil", app_lead: "Une icône sur ton téléphone qui ouvre directement cette liste – sans app supplémentaire. En plein écran comme une app.", app_list: "Liste", app_shop: "Ouvrir directement en mode courses", app_install: "Installer", app_close: "Fermer", app_ios: "Dans Safari, touche Partager (□↑) en bas\nChoisis Sur l'écran d'accueil\nTouche Ajouter – c'est fait", app_android: "Dans Chrome, touche ⋮ en haut à droite\nChoisis Ajouter à l'écran d'accueil ou Installer l'application\nConfirme Installer – c'est fait", app_other: "Dans le menu du navigateur, choisis Installer l'application ou Ajouter à l'écran d'accueil\nSur le téléphone : ouvre cette page dans Chrome (Android) ou Safari (iPhone)",
+    x_title: "Extras", x_help: "Fonctions optionnelles. Pas nécessaires pour commencer – à activer ici au besoin.", x_notes: "Notes", x_notes_help: "Listes de notes (p. ex. de l'app HA SmartLists) dans une section 📝 à part. Qui les voit se règle sous Appareils et notes.", x_mealplan: "Menu de la semaine", x_mealplan_help: "Plats par jour, ingrédients sur la liste, calendrier « Menu ». Désactivé : l'onglet, l'entrée du menu et le calendrier disparaissent, les plats restent enregistrés.", w_x_optional: "Optionnel – aussi plus tard sous Paramètres → Extras", w_x_notes_sub: "Listes de notes dans une section à part, p. ex. de l'app", w_x_mealplan_sub: "Planifier les plats par jour et mettre les ingrédients sur la liste", share_leak: "Le lien contient l'adresse de ton Home Assistant. Pour la garder privée : Quick Tunnel ou ton propre proxy (Paramètres → Partage et droits → Adresse publique).", share_old_address: "l'adresse a changé, le lien ne marche plus", pub_title: "Adresse publique des liens", pub_help: "Par où les liens partagés sont accessibles. Avec un tunnel ou ton propre proxy, personne n'apprend l'adresse de ton Home Assistant.", pub_mode: "Liens via", pub_ha: "Adresse de Home Assistant", pub_tunnel: "Cloudflare Quick Tunnel", pub_proxy: "Propre proxy ou tunnel", pub_ha_help: "Comme avant : le lien pointe vers l'adresse externe de Home Assistant – qui le reçoit connaît cette adresse.", pub_tunnel_help: "SmartLists lance cloudflared et obtient une adresse aléatoire (…trycloudflare.com). Le tunnel mène uniquement à un petit serveur séparé qui ne sert que les listes partagées – pas à Home Assistant. Ni compte ni redirection de port nécessaires.", pub_proxy_help: "Redirige ton adresse vers http://<IP de Home Assistant>:{port} (Caddy, nginx, Cloudflare Tunnel avec ton domaine …). Seul le serveur de partage de SmartLists y tourne, pas Home Assistant.", pub_url: "Adresse publique", pub_port: "Port", pub_port_change: "modifier (facultatif)", pub_port_help: "Port du serveur de partage (par défaut 8126).", pub_starting: "Le tunnel démarre …", pub_server_ok: "Le serveur de partage tourne sur le port {port}.", pub_not_ready: "pas encore prêt", pub_tunnel_note: "L'adresse du tunnel change à chaque redémarrage de Home Assistant – les liens créés avant ne marchent plus. Pour des liens durables : ton propre proxy ou tunnel.", pub_cf_missing: "cloudflared est introuvable. SmartLists ne le télécharge pas lui-même.", pub_cf_not_exec: "{path} n'est pas exécutable.", pub_cf_download: "Télécharger cloudflared (Linux : cloudflared-linux-amd64 ou -arm64)", pub_cf_where: "Renomme le fichier en cloudflared et place-le sous {paths}, puis Enregistrer.", pub_cf_or_proxy: "Ou utilise ton propre proxy.", pub_err_cloudflared_missing: "cloudflared manque.", pub_err_cloudflared_not_executable: "cloudflared n'est pas exécutable.", pub_err_port_in_use: "Le port {port} est occupé – choisis-en un autre.", pub_err_cloudflared_exit: "cloudflared s'est arrêté (code {code}) – redémarrage imminent.", pub_err_cloudflared_failed: "Impossible de lancer cloudflared : {code}",
     share_active: "Liens actifs",
     share_revoke: "Révoquer",
     share_expired: "expiré",
@@ -857,7 +882,7 @@ const TEXTS = {
     install_sentences: "Instalar frases de Assist", sentences_installed: "instaladas",
     devices: "Dispositivos conectados", devices_help: "Dispositivos con la app HA SmartLists. ⚠️ = sin sincronizar desde hace más de 7 días. Para quitar el acceso, borra el token en el perfil.",
     no_devices: "Ningún dispositivo conectado todavía.", remove_device: "Quitar de la lista", last_seen: "visto",
-    role_all: "todos los permisos", admin_always: "Admin – siempre puede hacerlo todo", shop_large_help: "Más fácil de tocar con el pulgar",
+    role_all: "todos los permisos", admin_always: "Admin – siempre puede hacerlo todo", shop_large_help: "Más fácil de tocar con el pulgar. Desactivado: mismo tamaño que la vista normal.",
     new_list_help: "Eres el propietario y luego puedes compartirla con otros.", new_list_placeholder: "p. ej. Droguería", create: "Crear",
     p_columns: "Varias listas una al lado de otra", p_wide: "Vista ancha", p_settings: "Ajustes", p_back: "Volver a las listas",
     p_hint: "Toca listas para verlas una al lado de otra (con más de 3 pasan a otra fila). Arrastra artículos con el ratón a otra lista para moverlos (Ctrl = copiar).",
@@ -1032,6 +1057,11 @@ const TEXTS = {
     share_30d: "30 días",
     share_forever: "hasta revocarlo",
     share_create: "Crear enlace",
+    shared_change_hint: "Para cambiar: engranaje de esta lista → Compartir.",
+    l_plain: "Lista simple", l_plain_help: "Sin categorías, sugerencias, palabras recordadas ni precios. SmartLists no recuerda nada de esta lista – sus artículos no aparecen en otras (p. ej. ferretería).",
+    l_categories: "Categorías automáticas", l_categories_help: "Desactivado: sin clasificar por categorías – ni en la lista ni al escribir. Ordena p. ej. por añadido.", l_suggest: "Comprado a menudo y sugerencias", l_suggest_list: "solo de esta lista", l_suggest_sources: "de sus listas de origen", l_suggest_all: "de todas las listas", l_suggest_help: "Lo comprado en otra lista no aparece aquí. Las entradas antiguas (antes de 3.9.4) siguen valiendo en todas.",
+    zone_dup_title: "La zona ya existe", zone_dup_text: "Ya existe una zona «{name}». Puedes mantener el nombre (habrá dos zonas con el mismo nombre, p. ej. dos tiendas) o renombrar la nueva zona, p. ej. «{name} Centro».", zone_dup_keep: "Mantener nombre", zone_dup_rename: "Renombrar", zone_dup_rename_help: "Nombre de la nueva zona, p. ej. con el barrio o la calle de la tienda.", app_title: "Guardar como app en la pantalla de inicio", app_lead: "Un icono en el móvil que abre esta lista directamente – sin app adicional. Pantalla completa como una app.", app_list: "Lista", app_shop: "Abrir directamente en modo compra", app_install: "Instalar", app_close: "Cerrar", app_ios: "En Safari toca Compartir (□↑) abajo\nElige Añadir a pantalla de inicio\nToca Añadir – listo", app_android: "En Chrome toca ⋮ arriba a la derecha\nElige Añadir a pantalla de inicio o Instalar aplicación\nConfirma Instalar – listo", app_other: "En el menú del navegador elige Instalar aplicación o Añadir a pantalla de inicio\nEn el móvil: abre esta página en Chrome (Android) o Safari (iPhone)",
+    x_title: "Extras", x_help: "Funciones opcionales. No hacen falta para empezar – actívalas aquí cuando las quieras.", x_notes: "Notas", x_notes_help: "Listas de notas (p. ej. de la app HA SmartLists) como sección 📝 propia. Quién las ve se ajusta en Dispositivos y notas.", x_mealplan: "Plan semanal", x_mealplan_help: "Platos por día, ingredientes a la lista, calendario «Menú». Desactivado: la pestaña, la entrada del menú y el calendario desaparecen, los platos se conservan.", w_x_optional: "Opcional – también más tarde en Ajustes → Extras", w_x_notes_sub: "Listas de notas como sección propia, p. ej. de la app", w_x_mealplan_sub: "Planificar platos por día y poner los ingredientes en la lista", share_leak: "El enlace contiene la dirección de tu Home Assistant. Para no revelarla: Quick Tunnel o tu propio proxy (Ajustes → Compartir y permisos → Dirección pública).", share_old_address: "la dirección ha cambiado, el enlace ya no funciona", pub_title: "Dirección pública de los enlaces", pub_help: "Por dónde se accede a los enlaces compartidos. Con un túnel o tu propio proxy nadie conoce la dirección de tu Home Assistant.", pub_mode: "Enlaces por", pub_ha: "Dirección de Home Assistant", pub_tunnel: "Cloudflare Quick Tunnel", pub_proxy: "Proxy o túnel propio", pub_ha_help: "Como antes: el enlace apunta a la dirección externa de Home Assistant – quien lo recibe conoce esa dirección.", pub_tunnel_help: "SmartLists inicia cloudflared y obtiene una dirección aleatoria (…trycloudflare.com). El túnel solo lleva a un pequeño servidor propio que únicamente sirve listas compartidas – no a Home Assistant. Sin cuenta ni redirección de puertos.", pub_proxy_help: "Redirige tu dirección a http://<IP de Home Assistant>:{port} (Caddy, nginx, Cloudflare Tunnel con tu dominio …). Allí solo corre el servidor de compartir de SmartLists, no Home Assistant.", pub_url: "Dirección pública", pub_port: "Puerto", pub_port_change: "cambiar (opcional)", pub_port_help: "Puerto del servidor de compartir (por defecto 8126).", pub_starting: "El túnel se está iniciando …", pub_server_ok: "El servidor de compartir funciona en el puerto {port}.", pub_not_ready: "aún no está listo", pub_tunnel_note: "La dirección del túnel cambia con cada reinicio de Home Assistant – los enlaces creados antes dejan de funcionar. Para enlaces duraderos: proxy o túnel propio.", pub_cf_missing: "No se encontró cloudflared. SmartLists no lo descarga por sí mismo.", pub_cf_not_exec: "{path} no es ejecutable.", pub_cf_download: "Descargar cloudflared (Linux: cloudflared-linux-amd64 o -arm64)", pub_cf_where: "Renombra el archivo a cloudflared y colócalo en {paths}, luego Guardar.", pub_cf_or_proxy: "O usa tu propio proxy.", pub_err_cloudflared_missing: "Falta cloudflared.", pub_err_cloudflared_not_executable: "cloudflared no es ejecutable.", pub_err_port_in_use: "El puerto {port} está ocupado – elige otro.", pub_err_cloudflared_exit: "cloudflared se detuvo (código {code}) – se reinicia en breve.", pub_err_cloudflared_failed: "No se pudo iniciar cloudflared: {code}",
     share_active: "Enlaces activos",
     share_revoke: "Revocar",
     share_expired: "caducado",
@@ -1097,7 +1127,7 @@ const TEXTS = {
     install_sentences: "Installa frasi Assist", sentences_installed: "installate",
     devices: "Dispositivi collegati", devices_help: "Dispositivi con l'app HA SmartLists. ⚠️ = non sincronizzato da oltre 7 giorni. Per revocare l'accesso, elimina il token nel profilo.",
     no_devices: "Nessun dispositivo collegato.", remove_device: "Rimuovi dalla lista", last_seen: "visto",
-    role_all: "tutti i permessi", admin_always: "Admin – può sempre fare tutto", shop_large_help: "Più facile da toccare con il pollice",
+    role_all: "tutti i permessi", admin_always: "Admin – può sempre fare tutto", shop_large_help: "Più facile da toccare con il pollice. Disattivato: stessa dimensione della vista normale.",
     new_list_help: "Sei il proprietario e poi puoi condividerla con altri.", new_list_placeholder: "es. Drogheria", create: "Crea",
     p_columns: "Più liste affiancate", p_wide: "Vista larga", p_settings: "Impostazioni", p_back: "Torna alle liste",
     p_hint: "Tocca le liste per affiancarle (oltre 3 vanno a capo). Trascina gli articoli col mouse in un'altra lista per spostarli (Ctrl = copia).",
@@ -1272,6 +1302,11 @@ const TEXTS = {
     share_30d: "30 giorni",
     share_forever: "fino alla revoca",
     share_create: "Crea link",
+    shared_change_hint: "Per modificare: ingranaggio di questa lista → Condivisione.",
+    l_plain: "Lista semplice", l_plain_help: "Senza categorie, suggerimenti, parole memorizzate né prezzi. SmartLists non ricorda nulla di questa lista – i suoi articoli non compaiono in altre (ad es. fai da te).",
+    l_categories: "Categorie automatiche", l_categories_help: "Disattivato: nessuna suddivisione in categorie – né nella lista né mentre scrivi. Ordina ad es. per aggiunta.", l_suggest: "Acquistati spesso e suggerimenti", l_suggest_list: "solo da questa lista", l_suggest_sources: "dalle sue liste di origine", l_suggest_all: "da tutte le liste", l_suggest_help: "Ciò che è stato comprato in un'altra lista non compare qui. Le voci più vecchie (prima della 3.9.4) valgono ancora ovunque.",
+    zone_dup_title: "La zona esiste già", zone_dup_text: "Esiste già una zona «{name}». Puoi mantenere il nome (ci saranno due zone con lo stesso nome, ad es. due filiali) o rinominare la nuova zona, ad es. «{name} Centro».", zone_dup_keep: "Mantieni nome", zone_dup_rename: "Rinomina", zone_dup_rename_help: "Nome della nuova zona, ad es. con quartiere o via della filiale.", app_title: "Salva come app nella schermata Home", app_lead: "Un'icona sul telefono che apre direttamente questa lista – senza app aggiuntive. A schermo intero come un'app.", app_list: "Lista", app_shop: "Apri direttamente in modalità spesa", app_install: "Installa", app_close: "Chiudi", app_ios: "In Safari tocca Condividi (□↑) in basso\nScegli Aggiungi alla schermata Home\nTocca Aggiungi – fatto", app_android: "In Chrome tocca ⋮ in alto a destra\nScegli Aggiungi a schermata Home o Installa app\nConferma Installa – fatto", app_other: "Nel menu del browser scegli Installa app o Aggiungi a schermata Home\nSul telefono: apri questa pagina in Chrome (Android) o Safari (iPhone)",
+    x_title: "Extra", x_help: "Funzioni opzionali. Non servono per iniziare – attivale qui quando vuoi.", x_notes: "Note", x_notes_help: "Liste di note (ad es. dall'app HA SmartLists) come sezione 📝 a parte. Chi le vede si imposta in Dispositivi e note.", x_mealplan: "Piano settimanale", x_mealplan_help: "Piatti per giorno, ingredienti sulla lista, calendario «Menu». Disattivato: scheda, voce di menu e calendario spariscono, i piatti restano salvati.", w_x_optional: "Opzionale – anche dopo in Impostazioni → Extra", w_x_notes_sub: "Liste di note come sezione a parte, ad es. dall'app", w_x_mealplan_sub: "Pianificare i piatti per giorno e mettere gli ingredienti sulla lista", share_leak: "Il link contiene l'indirizzo del tuo Home Assistant. Per non rivelarlo: Quick Tunnel o un tuo proxy (Impostazioni → Condivisione e permessi → Indirizzo pubblico).", share_old_address: "l'indirizzo è cambiato, il link non funziona più", pub_title: "Indirizzo pubblico dei link", pub_help: "Da dove si raggiungono i link condivisi. Con un tunnel o un tuo proxy nessuno scopre l'indirizzo del tuo Home Assistant.", pub_mode: "Link tramite", pub_ha: "Indirizzo di Home Assistant", pub_tunnel: "Cloudflare Quick Tunnel", pub_proxy: "Proxy o tunnel proprio", pub_ha_help: "Come prima: il link punta all'indirizzo esterno di Home Assistant – chi lo riceve conosce quell'indirizzo.", pub_tunnel_help: "SmartLists avvia cloudflared e ottiene un indirizzo casuale (…trycloudflare.com). Il tunnel porta solo a un piccolo server separato che serve esclusivamente le liste condivise – non a Home Assistant. Nessun account né port forwarding.", pub_proxy_help: "Inoltra il tuo indirizzo a http://<IP di Home Assistant>:{port} (Caddy, nginx, Cloudflare Tunnel con il tuo dominio …). Lì gira solo il server di condivisione di SmartLists, non Home Assistant.", pub_url: "Indirizzo pubblico", pub_port: "Porta", pub_port_change: "cambia (facoltativo)", pub_port_help: "Porta del server di condivisione (predefinita 8126).", pub_starting: "Il tunnel si avvia …", pub_server_ok: "Il server di condivisione è attivo sulla porta {port}.", pub_not_ready: "non ancora pronto", pub_tunnel_note: "L'indirizzo del tunnel cambia a ogni riavvio di Home Assistant – i link creati prima non funzionano più. Per link duraturi: un tuo proxy o tunnel.", pub_cf_missing: "cloudflared non trovato. SmartLists non lo scarica da solo.", pub_cf_not_exec: "{path} non è eseguibile.", pub_cf_download: "Scarica cloudflared (Linux: cloudflared-linux-amd64 o -arm64)", pub_cf_where: "Rinomina il file in cloudflared e mettilo in {paths}, poi Salva.", pub_cf_or_proxy: "Oppure usa un tuo proxy.", pub_err_cloudflared_missing: "Manca cloudflared.", pub_err_cloudflared_not_executable: "cloudflared non è eseguibile.", pub_err_port_in_use: "La porta {port} è occupata – scegline un'altra.", pub_err_cloudflared_exit: "cloudflared si è fermato (codice {code}) – riparte a breve.", pub_err_cloudflared_failed: "Impossibile avviare cloudflared: {code}",
     share_active: "Link attivi",
     share_revoke: "Revoca",
     share_expired: "scaduto",
@@ -1337,7 +1372,7 @@ const TEXTS = {
     install_sentences: "Zainstaluj zdania Assist", sentences_installed: "zainstalowane",
     devices: "Połączone urządzenia", devices_help: "Urządzenia z aplikacją HA SmartLists. ⚠️ = brak synchronizacji od ponad 7 dni. Aby odebrać dostęp, usuń token w profilu.",
     no_devices: "Nie połączono jeszcze żadnego urządzenia.", remove_device: "Usuń z listy", last_seen: "ostatnio",
-    role_all: "wszystkie prawa", admin_always: "Admin – zawsze może wszystko", shop_large_help: "Łatwiej trafić kciukiem",
+    role_all: "wszystkie prawa", admin_always: "Admin – zawsze może wszystko", shop_large_help: "Łatwiej trafić kciukiem. Wyłączone: rozmiar jak w zwykłym widoku.",
     new_list_help: "Jesteś właścicielem i możesz potem udostępnić ją innym.", new_list_placeholder: "np. Drogeria", create: "Utwórz",
     p_columns: "Kilka list obok siebie", p_wide: "Szeroki widok", p_settings: "Ustawienia", p_back: "Wróć do list",
     p_hint: "Dotknij list, aby pokazać je obok siebie (więcej niż 3 przechodzą do kolejnego rzędu). Przeciągnij produkt myszą na inną listę, aby go przenieść (Ctrl = kopiuj).",
@@ -1512,6 +1547,11 @@ const TEXTS = {
     share_30d: "30 dni",
     share_forever: "do odwołania",
     share_create: "Utwórz link",
+    shared_change_hint: "Aby zmienić: koło zębate tej listy → Udostępnianie.",
+    l_plain: "Prosta lista", l_plain_help: "Bez kategorii, podpowiedzi, zapamiętanych słów i cen. SmartLists nic z tej listy nie zapamiętuje – jej pozycje nie pojawiają się na innych listach (np. market budowlany).",
+    l_categories: "Kategorie automatycznie", l_categories_help: "Wyłączone: brak podziału na kategorie – ani na liście, ani podczas wpisywania. Sortuj np. wg dodania.", l_suggest: "Często kupowane i podpowiedzi", l_suggest_list: "tylko z tej listy", l_suggest_sources: "z jej list źródłowych", l_suggest_all: "ze wszystkich list", l_suggest_help: "To, co kupiono na innej liście, nie pojawia się tutaj. Starsze wpisy (przed 3.9.4) nadal obowiązują wszędzie.",
+    zone_dup_title: "Strefa już istnieje", zone_dup_text: "Istnieje już strefa „{name}”. Możesz zachować nazwę (będą wtedy dwie strefy o tej samej nazwie, np. dwa sklepy) albo zmienić nazwę nowej strefy, np. „{name} Centrum”.", zone_dup_keep: "Zachowaj nazwę", zone_dup_rename: "Zmień nazwę", zone_dup_rename_help: "Nazwa nowej strefy, np. z dzielnicą lub ulicą sklepu.", app_title: "Zapisz jako aplikację na ekranie głównym", app_lead: "Ikona na telefonie, która od razu otwiera tę listę – bez dodatkowej aplikacji. Pełny ekran jak aplikacja.", app_list: "Lista", app_shop: "Otwieraj od razu w trybie zakupów", app_install: "Zainstaluj", app_close: "Zamknij", app_ios: "W Safari stuknij Udostępnij (□↑) na dole\nWybierz Do ekranu początkowego\nStuknij Dodaj – gotowe", app_android: "W Chrome stuknij ⋮ w prawym górnym rogu\nWybierz Dodaj do ekranu głównego lub Zainstaluj aplikację\nPotwierdź Zainstaluj – gotowe", app_other: "W menu przeglądarki wybierz Zainstaluj aplikację lub Dodaj do ekranu głównego\nNa telefonie: otwórz tę stronę w Chrome (Android) lub Safari (iPhone)",
+    x_title: "Dodatki", x_help: "Funkcje opcjonalne. Na start niepotrzebne – włącz je tutaj, gdy zechcesz.", x_notes: "Notatki", x_notes_help: "Listy notatek (np. z aplikacji HA SmartLists) jako osobna sekcja 📝. Kto je widzi, ustawisz w Urządzenia i notatki.", x_mealplan: "Plan tygodnia", x_mealplan_help: "Dania na każdy dzień, składniki na listę, kalendarz „Jadłospis”. Wyłączone: karta, pozycja menu i kalendarz znikają, zaplanowane dania zostają zapisane.", w_x_optional: "Opcjonalnie – także później w Ustawienia → Dodatki", w_x_notes_sub: "Listy notatek jako osobna sekcja, np. z aplikacji", w_x_mealplan_sub: "Planuj dania na każdy dzień i dodawaj składniki do listy", share_leak: "Link zawiera adres twojego Home Assistant. Aby go nie ujawniać: Quick Tunnel lub własny proxy (Ustawienia → Udostępnianie i uprawnienia → Adres publiczny).", share_old_address: "adres się zmienił, link już nie działa", pub_title: "Adres publiczny linków", pub_help: "Przez co dostępne są udostępnione linki. Z tunelem lub własnym proxy nikt nie pozna adresu twojego Home Assistant.", pub_mode: "Linki przez", pub_ha: "Adres Home Assistant", pub_tunnel: "Cloudflare Quick Tunnel", pub_proxy: "Własny proxy lub tunel", pub_ha_help: "Jak dotąd: link wskazuje na zewnętrzny adres Home Assistant – kto go dostanie, zna ten adres.", pub_tunnel_help: "SmartLists uruchamia cloudflared i dostaje losowy adres (…trycloudflare.com). Tunel prowadzi tylko do małego osobnego serwera, który udostępnia wyłącznie udostępnione listy – nie do Home Assistant. Bez konta i bez przekierowania portów.", pub_proxy_help: "Przekieruj swój adres na http://<IP Home Assistant>:{port} (Caddy, nginx, Cloudflare Tunnel z własną domeną …). Działa tam tylko serwer udostępniania SmartLists, nie Home Assistant.", pub_url: "Adres publiczny", pub_port: "Port", pub_port_change: "zmień (opcjonalnie)", pub_port_help: "Port serwera udostępniania (domyślnie 8126).", pub_starting: "Tunel się uruchamia …", pub_server_ok: "Serwer udostępniania działa na porcie {port}.", pub_not_ready: "jeszcze niegotowy", pub_tunnel_note: "Adres tunelu zmienia się przy każdym restarcie Home Assistant – wcześniej utworzone linki przestają działać. Dla trwałych linków: własny proxy lub tunel.", pub_cf_missing: "Nie znaleziono cloudflared. SmartLists nie pobiera go samodzielnie.", pub_cf_not_exec: "{path} nie jest wykonywalny.", pub_cf_download: "Pobierz cloudflared (Linux: cloudflared-linux-amd64 lub -arm64)", pub_cf_where: "Zmień nazwę pliku na cloudflared i umieść go w {paths}, potem Zapisz.", pub_cf_or_proxy: "Albo użyj własnego proxy.", pub_err_cloudflared_missing: "Brak cloudflared.", pub_err_cloudflared_not_executable: "cloudflared nie jest wykonywalny.", pub_err_port_in_use: "Port {port} jest zajęty – wybierz inny.", pub_err_cloudflared_exit: "cloudflared zakończył działanie (kod {code}) – zaraz uruchomi się ponownie.", pub_err_cloudflared_failed: "Nie udało się uruchomić cloudflared: {code}",
     share_active: "Aktywne linki",
     share_revoke: "Odwołaj",
     share_expired: "wygasł",
@@ -2128,6 +2168,8 @@ const STYLE = `
   .badge { font-size:.7rem; padding:2px 8px; border-radius:10px; background:var(--sl-accent); color:var(--text-primary-color,#fff); white-space:nowrap; }
   .badge.foreign { background:var(--warning-color,#f5a623); }
   .badge.own { background:var(--secondary-background-color,#eee); color:var(--primary-text-color); }
+  button.badge { border:none; font:inherit; font-size:.7rem; cursor:pointer; line-height:inherit; }
+  button.badge:hover { filter:brightness(1.1); }
   .badge.combined { background:var(--info-color,#2196f3); }
   .count { color:var(--secondary-text-color); font-size:.85rem; white-space:nowrap; }
   .sort { display:flex; align-items:center; gap:2px; color:var(--secondary-text-color); }
@@ -2345,7 +2387,7 @@ const STYLE = `
   .progress > div { height:100%; background:var(--success-color,#43a047); transition:width .3s; }
   .shopping .row.large { min-height:54px; font-size:1.08rem; }
   .shopping .row.large .box { width:28px; height:28px; }
-  .shopping .row.tap { cursor:pointer; }
+  .shopping .row.tap { cursor:pointer; user-select:none; -webkit-user-select:none; -webkit-tap-highlight-color:transparent; }
   .snack { position:sticky; bottom:8px; margin:8px 16px; display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px;
     background:#323232; color:#fff; font-size:.9rem; z-index:4; }
   .snack span { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -2564,6 +2606,9 @@ const LIST_DIALOG_STYLE = `
   .lfoot { display:flex; align-items:center; gap:10px; padding:10px 18px 14px; border-top:1px solid var(--divider-color,#e0e0e0); }
   .lfoot .shelp { flex:1; margin:0; }
   .dlg.lsheet input, .dlg.lsheet select { width:auto; margin:0; height:36px; }
+  /* Farbwähler (z. B. Farbe je Quell-Liste): sonst schrumpft er im Listen-Fenster auf einen Strich */
+  .dlg.lsheet .look-row input[type=color], .dlg .look-row input[type=color] { width:44px; min-width:44px; height:32px; padding:2px; margin:0;
+    border:1px solid var(--divider-color,#ccc); border-radius:8px; background:none; cursor:pointer; flex:none; box-sizing:border-box; }
   .dlg.lsheet .srow2 select { width:180px; }
   .dlg.lsheet button { height:auto; }
   .dlg.lsheet .btn2 { height:36px; } .dlg.lsheet .icon-btn { border:none; padding:0; }
@@ -2726,6 +2771,10 @@ class SmartListsCard extends HTMLElement {
         this._listSettingsApplied = JSON.stringify(ls);
         const raw = this._rawConfig || {};
         if (!("show_prices" in raw)) this._config.show_prices = ls.show_prices !== false;
+        // Kategorien je Liste ausgeschaltet: keine Gruppen, kein Symbol, keine Kategorie beim Eintippen
+        // „Einfache Liste“ (z. B. Baumarkt): keine Kategorien, keine Vorschläge, nichts gemerkt
+        this._plain = ls.plain === true;
+        this._noCats = ls.categories === false || this._plain;
         let saved = null;
         try { saved = localStorage.getItem(`smartlists-sort:${this._config.entity}`); } catch (e) { /* */ }
         if (!SORT_MODES.includes(saved) && !("sort" in raw) && ls.sort) this._sortMode = ls.sort;
@@ -2752,13 +2801,13 @@ class SmartListsCard extends HTMLElement {
   /* ---------------- Rückgängig ----------------
    * Jede Änderung merkt sich, wie sie sich zurücknehmen lässt. Die letzte bleibt über den
    * ↶-Knopf im Kopf erreichbar (bis zur nächsten Änderung), zusätzlich kurz als Leiste unten. */
-  async _change(label, type, extra, makeUndo, { snack = true } = {}) {
+  async _change(label, type, extra, makeUndo, { snack = true, snackMs = 5000 } = {}) {
     const before = this._error;
     const result = await this._act(type, extra);
     if (this._error && this._error !== before) return result;
     this._undo = makeUndo ? { label, run: makeUndo(result || {}) } : null;
     this._render();
-    if (snack) this._showSnack(label, this._undo ? () => this._runUndo() : null);
+    if (snack) this._showSnack(label, this._undo ? () => this._runUndo() : null, snackMs);
     return result;
   }
   async _runUndo() {
@@ -2844,7 +2893,9 @@ class SmartListsCard extends HTMLElement {
     fill(this._headEl, 
       h("div", { class: "title" }, this._config.title || d.name),
       d.type === "combined" ? h("span", { class: "badge combined" }, t.combined) : null,
-      d.own ? h("span", { class: "badge own", title: `${t.owner}: ${d.own.owner || "?"}` },
+      // Antippen: mit wem die Liste geteilt ist (nur Anzeige; ändern im Zahnrad der Liste)
+      d.own ? h("button", { type: "button", class: "badge own", title: `${t.owner}: ${d.own.owner || "?"} – ${t.sharing}`,
+        "aria-haspopup": "dialog", onclick: () => this._sharedWithDialog(d) },
         d.own.role === "owner" ? (Object.keys(d.own.shares || {}).length ? `👥 ${t.shared}` : `🔒 ${t.private}`) : `👤 ${d.own.owner || "?"} · ${t["role_" + d.own.role]}`) : null,
       d.foreign ? h("span", { class: "badge foreign" }, t.foreign) : null,
       !this._config.show_count ? null : h("span", { class: "count" }, this._searchQuery
@@ -3036,7 +3087,7 @@ class SmartListsCard extends HTMLElement {
    * Liste auf einen Artikel ziehen = davor einsortieren (nur bei Sortierung „Hinzugefügt“ und Listen,
    * die das können). Auf Touch-Geräten geht Verschieben über langes Drücken → Menü. */
   _bindDrag(row, it, d) {
-    if (this._config.drag_drop === false) return;
+    if (this._config.drag_drop === false || this._shopping) return;
     row.setAttribute("draggable", "true");
     row.addEventListener("dragstart", (e) => {
       SL_DRAG = { entity: this._config.entity, uid: it.uid, name: it.name, canRemove: !!it.permissions.delete };
@@ -3199,6 +3250,7 @@ class SmartListsCard extends HTMLElement {
 
   async _toggleShopping() {
     this._shopping = !this._shopping;
+    if (this._shopping) { this._editing = null; this._closeMenu && this._closeMenu(); }  // offene Bearbeitung beenden
     this._shopStore = this._shopping && this._ui && this._ui.shop_auto_store !== false ? this._storeHere() : null;
     this._card.classList.toggle("shopping", this._shopping);
     if (this._shopping && this._ui.shop_keep_awake) await this._wake(true);
@@ -3283,16 +3335,16 @@ class SmartListsCard extends HTMLElement {
 
   async _toggleItem(it) {
     const checked = !it.checked;
-    // Leiste nur, wenn der Artikel dabei aus dem Blick verschwindet (Einkaufsmodus) – sonst reicht ↶ im Kopf
-    const vanishes = checked && this._shopping && this._ui.shop_hide_checked;
+    // Einkaufsmodus: jedes Abhaken mit Rückgängig-Leiste unten (3 s) – fängt Fehltipper auf der ganzen Zeile auf.
+    // Sonst reicht ↶ im Kopf.
     await this._change(`${it.name} ${checked ? this._t.checked_off : this._t.unchecked}`, "update_item", { uid: it.uid, checked },
-      () => () => this._call("update_item", { uid: it.uid, checked: !checked }), { snack: vanishes });
+      () => () => this._call("update_item", { uid: it.uid, checked: !checked }), { snack: this._shopping, snackMs: 3000 });
   }
-  _showSnack(text, undo) {
+  _showSnack(text, undo, ms = 5000) {
     clearTimeout(this._snackTimer);
     this._snack = { text, undo };
     this._renderSnack();
-    this._snackTimer = setTimeout(() => { this._snack = null; this._renderSnack(); }, 5000);
+    this._snackTimer = setTimeout(() => { this._snack = null; this._renderSnack(); }, ms);
   }
   _renderSnack() {
     if (!this._snackEl) return;
@@ -3304,7 +3356,7 @@ class SmartListsCard extends HTMLElement {
   // Geste (lange drücken / Doppelklick / Rechtsklick) an Zeile oder Namen binden
   _bindPress(el, it, row) {
     const ui = this._ui;
-    if (ui.press_gesture === "off") return;
+    if (ui.press_gesture === "off" || this._shopping) return;  // Einkaufsmodus: kein Menü/Bearbeiten per Geste
     const fire = () => this._pressAction(it, row);
     if (ui.press_gesture === "double") { el.addEventListener("dblclick", (e) => { e.preventDefault(); fire(); }); return; }
     el.addEventListener("contextmenu", (e) => { e.preventDefault(); fire(); });
@@ -3362,7 +3414,7 @@ class SmartListsCard extends HTMLElement {
     let body;
     if (m.view === "main") {
       const allowed = {
-        rename: p.rename, move: p.delete, copy: true, category: true, delete: p.delete,
+        rename: p.rename, move: p.delete, copy: true, category: !this._noCats, delete: p.delete,
       };
       const icons = { rename: ICON.pencil, move: ICON.move, copy: ICON.copy, category: ICON.tagIcon, delete: ICON.trash };
       const actions = (this._ui.menu_actions || MENU_ACTIONS).filter((a) => allowed[a]);
@@ -3493,7 +3545,7 @@ class SmartListsCard extends HTMLElement {
 
   _sortSelect(d) {
     const t = this._t;
-    const modes = SORT_MODES.filter((m) => m !== "list" || d.type === "combined");
+    const modes = SORT_MODES.filter((m) => (m !== "list" || d.type === "combined") && !(m === "category" && this._noCats));
     return h("label", { class: "sort", title: t.sort },
       svg(ICON.sort, 16),
       h("select", { "aria-label": t.sort, onchange: (e) => {
@@ -3599,14 +3651,14 @@ class SmartListsCard extends HTMLElement {
     const catId = this._draft.pickedCat || (info && info.category);
     const cat = catId && this._cfg ? this._cfg.categories.find((c) => c.id === catId) : null;
     const source = this._draft.pickedCat ? "manual" : info ? info.category_source : null;
-    const unit = p.unit || (p.quantity != null && info && info.unit_hint) || null;
+    const unit = p.unit || (p.quantity != null && info && info.unit_hint && !this._plain) || null;
     fill(el, 
       h("span", {}, p.name),
       p.quantity != null ? h("span", { class: "chip qty" }, `${p.pack_count > 1 ? p.pack_count + "× " : ""}${fmtQty(p.quantity)}${unit ? " " + unit : ""}`) : null,
-      h("button", { class: `catchip ${source === "manual" ? "manual" : ""}`, type: "button", title: t.category,
+      this._noCats ? null : h("button", { class: `catchip ${source === "manual" ? "manual" : ""}`, type: "button", title: t.category,
         onmousedown: (e) => e.preventDefault(), onclick: () => this._togglePicker() },
         cat ? cat.label : "…", source ? h("span", { class: "src" }, "· " + t["src_" + source]) : null),
-      p.quantity == null && info && info.unit_hint ? h("span", { class: "hint" }, `${t.unit_hint}: ${info.unit_hint}`) : null,
+      p.quantity == null && info && info.unit_hint && !this._plain ? h("span", { class: "hint" }, `${t.unit_hint}: ${info.unit_hint}`) : null,
       this._draft.price != null && this._config.show_prices !== false ? h("span", { class: "chip qty" }, fmtMoney(this._draft.price, this._hass.language)) : null,
       p.tags.map(badge)
     );
@@ -3648,7 +3700,7 @@ class SmartListsCard extends HTMLElement {
       const isTag = this._draft.suggMode === "tag";
       return h("li", { role: "option", class: i === this._draft.active ? "active" : "",
         onmousedown: (e) => { e.preventDefault(); this._applySugg(i); } },
-        isTag ? badge(s) : h("span", { class: "e" }, emojiOf(s.category_label)),
+        isTag ? badge(s) : h("span", { class: "e" }, this._noCats ? "" : emojiOf(s.category_label)),
         h("span", { class: "n" }, isTag ? "" : bold(s.name)),
         !isTag && present.has(s.name.toLowerCase()) ? h("span", { class: "in" }, t.in_list) : null,
         !isTag && s.unit ? h("span", { class: "u" }, s.unit) : null,
@@ -3702,8 +3754,8 @@ class SmartListsCard extends HTMLElement {
     if (!p || !p.name) return;
     const info = this._draft.info && this._draft.info.name === p.name ? this._draft.info : null;
     // Nur Zahl getippt ("Äpfel 2")? → gemerkte bzw. übliche Einheit ergänzen
-    if (p.quantity != null && !p.unit && info && info.unit_hint) p.unit = info.unit_hint;
-    const picked = textOverride ? null : this._draft.pickedCat;
+    if (p.quantity != null && !p.unit && info && info.unit_hint && !this._plain) p.unit = info.unit_hint;
+    const picked = textOverride || this._noCats ? null : this._draft.pickedCat;
     // Karte mit festem Filter „@REWE“ / „*Anna“: neue Artikel bekommen den Tag automatisch, sonst wären sie unsichtbar
     if (this._config.filter_tags_new_items !== false) {
       const f = this._fixedFilters();
@@ -3730,7 +3782,7 @@ class SmartListsCard extends HTMLElement {
     const el = this._freqEl;
     if (!el) return;
     const items = (this._frequent || []).slice(0, 8);
-    const show = this._config.show_frequent && this._config.show_add && items.length && this._data && this._data.permissions.add && !this._draft.text.trim();
+    const show = this._config.show_frequent && !this._plain && this._config.show_add && items.length && this._data && this._data.permissions.add && !this._draft.text.trim();
     if (!show) return fill(el, );
     fill(el, h("div", { class: "frequent" },
       h("span", { class: "lbl" }, this._t.frequent),
@@ -3738,7 +3790,7 @@ class SmartListsCard extends HTMLElement {
         onmousedown: (e) => e.preventDefault(), onclick: () => this._submit(s.name) },
         // fällig nach eurem Rhythmus → ⏰ vorne, Tooltip mit Abstand
         s.source === "due" ? h("span", { title: `${this._t.due_every} ${s.every_days} ${this._t.days}` }, "⏰ ") : null,
-        `${emojiOf(s.category_label)} ${s.name}`))));
+        this._noCats ? s.name : `${emojiOf(s.category_label)} ${s.name}`))));
   }
 
   /* ---------------- Liste ---------------- */
@@ -3811,7 +3863,7 @@ class SmartListsCard extends HTMLElement {
     const done = visible.filter((i) => i.checked);
     const out = [];
     if (this._sel) out.push(this._selBar(d, visible));
-    const mode = this._sortMode;
+    const mode = this._noCats && this._sortMode === "category" ? "added" : this._sortMode;
     const byName = (a, b) => a.name.localeCompare(b.name, this._hass.language || "de", { sensitivity: "base", numeric: true });
     const rows = [];
     let emoji = false;
@@ -3888,8 +3940,10 @@ class SmartListsCard extends HTMLElement {
   }
 
   _row(it, d, showEmoji) {
+    if (this._noCats) showEmoji = false;
     if (this._sel) return this._selRow(it, d, showEmoji);
-    if (this._editing === it.uid) return this._editRow(it, d);
+    // Einkaufsmodus: Bearbeiten gesperrt (kein Umbenennen per Fehltipp) – die Zeile hakt nur ab
+    if (this._editing === it.uid && !this._shopping) return this._editRow(it, d);
     const t = this._t;
     const p = it.permissions;
     const qty = it.quantity != null ? `${it.pack_count > 1 ? it.pack_count + "× " : ""}${fmtQty(it.quantity)}` : "";
@@ -3901,7 +3955,9 @@ class SmartListsCard extends HTMLElement {
     const ui = this._ui;
     const shop = this._shopping;
     const buttons = ui.row_buttons && !shop;
-    const tapRow = shop && ui.shop_tap_row && p.toggle;
+    // Einkaufsmodus: Tipp irgendwo auf die Zeile hakt ab (nicht nur das kleine Kästchen); Fehltipper fängt
+    // die Rückgängig-Leiste unten auf (3 s)
+    const tapRow = shop && ui.shop_tap_row !== false && p.toggle;
     const nameEl = h("span", { class: "iname" }, this._highlight(it.name));
     const row = h("div", { class: `row ${showEmoji ? "emoji" : ""} ${it.checked ? "checked" : ""} ${shop && ui.shop_large ? "large" : ""} ${tapRow ? "tap" : ""} ${shop && buttons ? "btns" : ""}`,
       onclick: (e) => {
@@ -3921,7 +3977,7 @@ class SmartListsCard extends HTMLElement {
         !it.offer && it.price && this._config.show_prices !== false ? this._priceLine(it) : null,
         it.soft_checked && !it.checked ? h("div", { class: "softchk", title: t.soft_checked_help }, "✓ ", t.soft_checked) : null,
         this._config.show_note && it.note ? h("div", { class: "note" }, it.note) : null),
-      h("span", { class: "qtycol" }, p.rename && it.quantity != null && this._config.show_stepper !== false
+      h("span", { class: "qtycol" }, p.rename && !shop && it.quantity != null && this._config.show_stepper !== false
         ? h("span", { class: "stepper" },
           h("button", { class: "sbtn", type: "button", title: t.qty_less, "aria-label": t.qty_less, onclick: () => this._stepQty(it, -1) }, svg(ICON.minus, 14)),
           h("span", { class: "sval" }, qty),
@@ -4047,7 +4103,7 @@ class SmartListsCard extends HTMLElement {
       if (nowP !== before && !(nowP != null && Number.isNaN(nowP))) {
         try { await this._call("set_price", { name: parsed.name || it.name, price: nowP, store: (parsed.tags.find((x) => x.kind === "store") || {}).value || null }, false); } catch (e) { /* */ }
       }
-      if (cat.value !== it.category) {
+      if (!this._noCats && cat.value !== it.category) {
         try { await this._call("set_category", { name: parsed.name || it.name, category: cat.value }, false); } catch (e) { /* */ }
       }
       this._change(`${it.name} ${t.changed}`, "update_item", { uid: it.uid, text: encodeText(parsed, this._cfg.tag_rules) || it.text, note: note ? note.value : it.note || "" },
@@ -4055,7 +4111,7 @@ class SmartListsCard extends HTMLElement {
     };
     [text, note, priceIn].filter(Boolean).forEach((el) => el.addEventListener("keydown", (e) => { if (e.key === "Enter") save(); if (e.key === "Escape") { this._editing = null; this._renderList(); } }));
     setTimeout(() => text.focus(), 0);
-    return h("div", { class: "edit" }, text, cat, note, this._config.show_prices !== false ? priceIn : null,
+    return h("div", { class: "edit" }, text, this._noCats ? null : cat, note, this._config.show_prices !== false ? priceIn : null,
       h("div", { class: "btns" },
         h("button", { class: "btn", type: "button", onclick: () => { this._editing = null; this._renderList(); } }, t.cancel),
         h("button", { class: "btn primary", type: "button", onclick: save }, t.save)));
@@ -4221,8 +4277,9 @@ class SmartListsCard extends HTMLElement {
       { g: "global", id: "look", label: t.a_look, sub: t.a_global_sub, kw: [t.naming, t.look, t.look_color], build: () => [this._namingSection(), this._appearanceSection()] },
       { g: "global", id: "stores", label: t.stores, sub: t.a_global_sub, kw: [t.zone, t.aisle], build: () => [this._storesSection()] },
       { g: "global", id: "cats", label: t.a_cats, sub: t.learned_help, kw: [t.packs, t.learned, t.category], build: () => [this._packsSection(), this._learnedSection()] },
+      { g: "global", id: "extras", label: t.x_title, sub: t.x_help, kw: [t.notes, t.mp_title, t.x_notes, t.x_mealplan], build: () => [this._extrasSection()] },
       { g: "global", id: "devices", label: t.a_devices, sub: t.devices_help, kw: [t.devices, t.notes, t.app_list], build: () => [this._devicesSection(), this._notesSection()] },
-      { g: "global", id: "rights", label: t.a_rights, sub: t.a_rights_sub, kw: [t.share, t.rights_who], build: () => [this._rightsShareSection(), this._rightsOtherSection()] },
+      { g: "global", id: "rights", label: t.a_rights, sub: t.a_rights_sub, kw: [t.share, t.rights_who, t.pub_title, t.pub_tunnel, t.pub_proxy, "cloudflared", "tunnel", "proxy"], build: () => [this._rightsShareSection(), this._publicSection(), this._rightsOtherSection()] },
       { g: "global", id: "data", label: t.a_data, sub: t.a_global_sub, kw: [t.automation, t.backup, t.barcode_providers, t.ui_house, t.w_restart], build: () => [
         this._automationSection(), this._exportImport(),
         this._sec("", t.mg_title, t.mg_sub, [h("button", { class: "btn2", type: "button", onclick: () => this._migrateDialog() }, "📥 " + t.mg_title + " …")]),
@@ -4271,6 +4328,66 @@ class SmartListsCard extends HTMLElement {
     draw();
     return this._sec("", t.share, t.rights_share_help, [body]);
   }
+  // Global → Teilen und Rechte → Öffentliche Adresse: Links über Quick Tunnel oder eigenen Proxy statt über die
+  // Adresse von Home Assistant (public.py). SmartLists lädt cloudflared nie selbst herunter – nur Hinweis.
+  _publicSection() {
+    const t = this._t;
+    const fmt = (str, vars) => String(str).replace(/\{(\w+)\}/g, (_, k) => (vars[k] != null ? vars[k] : ""));
+    const status = h("span", { class: "ok2" });
+    const body = h("div", {}, h("div", { class: "shelp" }, t.loading));
+    let st = null, mode = "ha", port = 8126, url = "", polls = 0, portOpen = false;
+    const errText = (e) => {
+      if (!e) return "";
+      const i = e.indexOf(":");
+      const code = i < 0 ? e : e.slice(0, i), arg = i < 0 ? "" : e.slice(i + 1);
+      return t["pub_err_" + code] ? fmt(t["pub_err_" + code], { port: arg, code: arg }) : e;
+    };
+    const load = async () => {
+      try { st = await this._call("share_public", {}, false); } catch (err) { fill(body, h("div", { class: "shelp" }, (err && err.message) || t.error)); return; }
+      if (polls === 0) { mode = st.mode; port = st.port; url = st.url; }
+      draw();
+      // Tunnel startet: ein paar Mal nachfragen, bis die Adresse da ist
+      if (st.mode === "tunnel" && !st.tunnel_url && !st.error && polls < 15) { polls++; setTimeout(load, 2000); } else polls = 0;
+    };
+    const save = async () => {
+      status.textContent = t.loading;
+      try { st = await this._call("set_share_public", { mode, port: Number(port) || 8126, url }, false); status.textContent = "✓ " + t.saved; polls = 0; }
+      catch (err) { status.textContent = (err && err.message) || t.error; return; }
+      if (st.mode === "tunnel" && !st.tunnel_url && !st.error) { polls = 1; setTimeout(load, 2000); }
+      draw();
+    };
+    const a = (href, label) => h("a", { href, target: "_blank", rel: "noreferrer noopener" }, label);
+    const cfHint = () => h("div", { class: "shelp", style: "padding:6px 0;color:var(--warning-color,#ff9800)" },
+      st.cloudflared_problem ? "⚠️ " + fmt(t.pub_cf_not_exec, { path: st.cloudflared_problem }) + " " : "⚠️ " + t.pub_cf_missing + " ",
+      a(st.download, t.pub_cf_download), " · ", fmt(t.pub_cf_where, { paths: (st.cloudflared_paths || []).join(" · ") }), " ", t.pub_cf_or_proxy);
+    const draw = () => {
+      if (!st) return;
+      const live = st.mode === mode;  // gespeicherter Zustand gehört zur gewählten Art
+      const state = !live ? null
+        : mode === "tunnel" ? (st.tunnel_url ? h("div", { class: "sharelink" }, "✓ " + st.tunnel_url) : st.error ? h("div", { class: "shelp", style: "color:var(--error-color,#db4437)" }, "⚠️ " + errText(st.error))
+          : h("div", { class: "shelp" }, "⏳ " + t.pub_starting))
+        : mode === "proxy" ? (st.server ? h("div", { class: "shelp" }, "✓ " + fmt(t.pub_server_ok, { port: st.port })) : h("div", { class: "shelp", style: "color:var(--error-color,#db4437)" }, "⚠️ " + errText(st.error)))
+        : null;
+      fill(body,
+        this._setRow(t.pub_mode, h("select", { "aria-label": t.pub_mode, onchange: (e) => { mode = e.target.value; draw(); } },
+          [["ha", t.pub_ha], ["tunnel", t.pub_tunnel], ["proxy", t.pub_proxy]].map(([v, l]) => h("option", { value: v, selected: mode === v }, l)))),
+        h("div", { class: "shelp", style: "padding:4px 0" }, mode === "ha" ? "ℹ️ " + t.pub_ha_help : mode === "tunnel" ? t.pub_tunnel_help : fmt(t.pub_proxy_help, { port })),
+        mode === "tunnel" && !st.cloudflared ? cfHint() : null,
+        mode === "tunnel" && st.cloudflared ? h("div", { class: "shelp" }, "✓ cloudflared: " + st.cloudflared) : null,
+        mode === "proxy" ? this._setRow(t.pub_url, h("input", { class: "search2", style: "width:240px;margin:0", type: "url", value: url, placeholder: "https://liste.example.org",
+          "aria-label": t.pub_url, oninput: (e) => { url = e.target.value.trim(); } })) : null,
+        // Port optional: Standard 8126, nur auf Wunsch ändern
+        mode !== "ha" && !portOpen && Number(port) === 8126 ? h("div", { class: "acts", style: "justify-content:flex-start" },
+          h("button", { class: "linkbtn", type: "button", onclick: () => { portOpen = true; draw(); } }, `${t.pub_port}: 8126 · ${t.pub_port_change}`)) : null,
+        mode !== "ha" && (portOpen || Number(port) !== 8126) ? this._setRow(t.pub_port, h("input", { class: "search2", style: "width:100px;margin:0", type: "number", min: "1024", max: "65535", value: String(port),
+          "aria-label": t.pub_port, oninput: (e) => { port = e.target.value; } }), t.pub_port_help) : null,
+        state,
+        mode === "tunnel" ? h("div", { class: "shelp", style: "padding:4px 0" }, "ℹ️ " + t.pub_tunnel_note, " ", a(st.docs, "trycloudflare")) : null,
+        h("div", { class: "acts" }, status, h("button", { class: "btn2 primary", type: "button", onclick: save }, t.save)));
+    };
+    load();
+    return this._sec("🛡️", t.pub_title, t.pub_help, [body]);
+  }
   _rightsOtherSection() {
     const t = this._t;
     const body = h("div");
@@ -4285,6 +4402,21 @@ class SmartListsCard extends HTMLElement {
     return this._sec("", t.rights_other, null, [body]);
   }
 
+  // „geteilt“ antippen: Besitzer und Freigaben anzeigen (nur lesen). Ändern: Zahnrad → Freigaben (Besitzer/Admins).
+  async _sharedWithDialog(d) {
+    const t = this._t;
+    let users = [];
+    try { users = (await this._call("users", {}, false)).users || []; } catch (e) { /* Namen fehlen dann */ }
+    const nameOf = (id) => (users.find((u) => u.id === id) || {}).name || "?";
+    const shares = Object.entries((d.own && d.own.shares) || {});
+    const rows = [`👑 ${d.own.owner || nameOf(d.own.owner_id)} · ${t.role_owner}`,
+      ...shares.map(([id, role]) => `👤 ${nameOf(id)} · ${t["role_" + role] || role}`)];
+    const canChange = this._isAdmin || d.own.role === "owner";
+    await slDialog(this.shadowRoot, { title: `${t.sharing}: ${d.name}`,
+      text: [...rows, ...(shares.length ? [] : ["", "🔒 " + t.private]), ...(canChange ? ["", t.shared_change_hint] : [])].join("\n"),
+      ok: "OK" });
+  }
+
   // Einstellungen dieser Liste – als Fenster über der Liste (breit: zwei Spalten, Handy: Blatt von unten)
   _listSections() {
     const t = this._t;
@@ -4297,13 +4429,19 @@ class SmartListsCard extends HTMLElement {
       catch (err) { status.textContent = (err && err.message) || t.error; }
     };
     const cur = (d && d.settings) || {};
-    const modes = SORT_MODES.filter((m) => m !== "list" || (d && d.type === "combined"));
+    const modes = SORT_MODES.filter((m) => (m !== "list" || (d && d.type === "combined")) && !(m === "category" && this._noCats));
     const listSec = this._sec("", t.ls_list, canEdit ? t.ls_list_help : null, [
       canEdit ? this._setRow(t.ls_name, h("input", { class: "search2", style: "width:180px;margin:0", value: d.name, maxlength: "60", "aria-label": t.ls_name,
         onchange: (e) => { const v = e.target.value.trim(); if (v && v !== d.name) set({ name: v }); } })) : null,
       canEdit && d.type !== "notes" ? this._setRow(t.ls_sort, h("select", { "aria-label": t.ls_sort, onchange: (e) => set({ sort: e.target.value || null }) },
         h("option", { value: "", selected: !cur.sort }, t.ls_default), modes.map((m) => h("option", { value: m, selected: cur.sort === m }, t["sort_" + m])))) : null,
       canEdit && d.type !== "notes" ? this._setRow(t.l_show_prices, this._switch(cur.show_prices !== false, (v) => set({ show_prices: v }), t.l_show_prices)) : null,
+      // je Liste: einfache Liste (nichts merken), Kategorien aus, woher „häufig gekauft“/Vorschläge kommen
+      canEdit && d.type !== "notes" ? this._setRow(t.l_plain, this._switch(cur.plain === true, (v) => set({ plain: v }), t.l_plain), t.l_plain_help) : null,
+      canEdit && d.type !== "notes" && !cur.plain ? this._setRow(t.l_categories, this._switch(cur.categories !== false, (v) => set({ categories: v }), t.l_categories), t.l_categories_help) : null,
+      canEdit && d.type !== "notes" && !cur.plain ? this._setRow(t.l_suggest, h("select", { "aria-label": t.l_suggest, onchange: (e) => set({ suggest_scope: e.target.value }) },
+        [["list", d.type === "combined" ? t.l_suggest_sources : t.l_suggest_list], ["all", t.l_suggest_all]]
+          .map(([v, l]) => h("option", { value: v, selected: (cur.suggest_scope || "list") === v }, l))), t.l_suggest_help) : null,
       this._setRow(t.type, h("span", { class: "val" }, type)),
       this._setRow(t.entity, h("code", { class: "val" }, this._config.entity)),
       d && (d.type === "combined" || d.type === "own") && (this._isAdmin || (d.own && d.own.role === "owner"))
@@ -4346,6 +4484,9 @@ class SmartListsCard extends HTMLElement {
       rules: { store: rules0.store ?? "@", person: rules0.person ?? "*", tag: rules0.tag ?? "#" },
       packs: packs.filter((p) => p.active).map((p) => p.id), shares: {},
       notify: services.find((x) => x.startsWith("mobile_app_")) || "", voice: true, prices: true, barcode: true, share: false,
+      // Extras: beim ersten Einrichten aus (aufgeräumt für Einsteiger), beim erneuten Starten wie eingestellt
+      notes: !(this._cfg && this._cfg.setup_needed) && !!(this._cfg && this._cfg.features && this._cfg.features.notes),
+      mealplan: !(this._cfg && this._cfg.setup_needed) && !!(this._cfg && this._cfg.features && this._cfg.features.mealplan),
     };
     const steps = ["lists", "stores", "naming", "lang", "people", "extras", "done"];
     let i = 0;
@@ -4427,7 +4568,10 @@ class SmartListsCard extends HTMLElement {
         row(t.w_x_voice, t.w_x_voice_sub, this._switch(S.voice, (v) => { S.voice = v; }, t.w_x_voice)),
         row(t.w_x_prices, t.w_x_prices_sub, this._switch(S.prices, (v) => { S.prices = v; }, t.w_x_prices)),
         row(t.w_x_barcode, t.w_x_barcode_sub, this._switch(S.barcode, (v) => { S.barcode = v; }, t.w_x_barcode)),
-        row(t.w_x_share, t.w_x_share_sub, this._switch(S.share, (v) => { S.share = v; }, t.w_x_share))],
+        row(t.w_x_share, t.w_x_share_sub, this._switch(S.share, (v) => { S.share = v; }, t.w_x_share)),
+        h("div", { class: "grp" }, t.w_x_optional),
+        row(t.x_notes, t.w_x_notes_sub, this._switch(S.notes, (v) => { S.notes = v; }, t.x_notes)),
+        row(t.x_mealplan, t.w_x_mealplan_sub, this._switch(S.mealplan, (v) => { S.mealplan = v; }, t.x_mealplan))],
       done: () => {
         const listsTxt = S.lists.map(nameOf).join(", ");
         const sum = [
@@ -4437,7 +4581,7 @@ class SmartListsCard extends HTMLElement {
           fmt(t.w_sum_naming, { list: [S.rules.store && S.rules.store + t.kind_store, S.rules.person && S.rules.person + t.kind_person, S.rules.tag && S.rules.tag + t.kind_tag].filter(Boolean).join(", ") || t.w_off }),
           fmt(t.w_sum_lang, { list: packs.filter((p) => S.packs.includes(p.id)).map((p) => p.name).join(", ") || t.w_off }),
           S.mode === "new" && Object.keys(S.shares).length ? fmt(t.w_sum_people, { list: Object.entries(S.shares).map(([id, r]) => `${(users.find((u) => u.id === id) || {}).name}: ${t["role_" + r]}`).join(", ") }) : null,
-          fmt(t.w_sum_extras, { list: [S.notify && t.w_x_notify, S.voice && t.w_x_voice, S.prices && t.w_x_prices, S.barcode && t.w_x_barcode, S.share && t.w_x_share].filter(Boolean).join(", ") || t.w_off }),
+          fmt(t.w_sum_extras, { list: [S.notify && t.w_x_notify, S.voice && t.w_x_voice, S.prices && t.w_x_prices, S.barcode && t.w_x_barcode, S.share && t.w_x_share, S.notes && t.x_notes, S.mealplan && t.x_mealplan].filter(Boolean).join(", ") || t.w_off }),
         ].filter(Boolean);
         return [h("h2", {}, t.w_done_h), h("p", { class: "lead" }, t.w_done_lead), h("ul", { class: "wsum" }, sum.map((x) => h("li", {}, x))), h("p", { class: "m small" }, t.w_tip)];
       },
@@ -4465,6 +4609,7 @@ class SmartListsCard extends HTMLElement {
           new_list: S.mode === "new" ? (S.newName.trim() || t.w_combine_default) : null, shares: S.mode === "new" ? S.shares : {},
           stores: S.stores, tag_rules: [["store", r.store], ["person", r.person], ["tag", r.tag]].filter(([, p]) => p).map(([kind, prefix]) => ({ kind, prefix })),
           packs: S.packs.length ? S.packs : undefined, notify_service: S.notify || null, voice: S.voice, prices: S.prices, barcode: S.barcode, share_links: S.share,
+          notes: S.notes, mealplan: S.mealplan,
         }, false);
         finished.v = true; status.textContent = "✓"; next.disabled = false; draw();
         window.dispatchEvent(new CustomEvent("smartlists-lists-changed"));
@@ -4790,8 +4935,14 @@ class SmartListsCard extends HTMLElement {
     const t = this._t;
     const body = h("div", {}, h("div", { class: "shelp", style: "padding:6px 0" }, t.loading));
     const status = h("span", { class: "ok2" });
-    const zones = () => Object.values(this._hass.states).filter((s) => s.entity_id.startsWith("zone."))
-      .map((s) => [s.entity_id, s.attributes.friendly_name || s.entity_id]).sort((a, b) => a[1].localeCompare(b[1]));
+    // gleichnamige Zonen (zwei Filialen „REWE“) unterscheidbar machen: dann mit Entitäts-ID dahinter
+    const zones = () => {
+      const all = Object.values(this._hass.states).filter((s) => s.entity_id.startsWith("zone."))
+        .map((s) => [s.entity_id, s.attributes.friendly_name || s.entity_id]);
+      const count = {};
+      all.forEach(([, n]) => { const k = n.trim().toLowerCase(); count[k] = (count[k] || 0) + 1; });
+      return all.map(([id, n]) => [id, count[n.trim().toLowerCase()] > 1 ? `${n} (${id})` : n]).sort((a, b) => a[1].localeCompare(b[1]));
+    };
     const link = async (store, zones) => {
       try {
         const r = await this._call("set_store_zone", { store, zones }, false);
@@ -4804,14 +4955,28 @@ class SmartListsCard extends HTMLElement {
       // fragt Name, Ort (Standort / Zuhause / Karte / Koordinaten) und Radius
       const z = await slZoneDialog(this.shadowRoot, this._hass, t, store || "");
       if (!z) return;
-      const name = z.name;
+      let name = z.name;
+      // Gibt es schon eine Zone mit diesem Namen (z. B. zweite REWE-Filiale)? Warnen – behalten oder umbenennen
+      const zoneNames = () => Object.values(this._hass.states).filter((s) => s.entity_id.startsWith("zone."))
+        .map((s) => String(s.attributes.friendly_name || "").trim().toLowerCase());
+      const taken = (n) => zoneNames().includes(String(n).trim().toLowerCase());
+      while (taken(name)) {
+        const keep = await slDialog(this.shadowRoot, { title: t.zone_dup_title, text: t.zone_dup_text.split("{name}").join(name), ok: t.zone_dup_keep, cancel: t.zone_dup_rename });
+        if (keep) break;
+        let k = 2;
+        while (taken(`${name} ${k}`)) k++;
+        const renamed = await slDialog(this.shadowRoot, { title: t.zone_dup_rename, text: t.zone_dup_rename_help, input: true, value: `${name} ${k}`, ok: t.create, cancel: t.cancel });
+        if (!renamed) return;
+        name = renamed;
+      }
       try {
+        const before = new Set(Object.keys(this._hass.states).filter((e) => e.startsWith("zone.")));
         await this._hass.callWS({ type: "zone/create", name, icon: "mdi:cart", latitude: z.latitude, longitude: z.longitude, radius: z.radius, passive: false });
-        // auf die neue Zone warten (Entität erscheint kurz danach)
+        // auf die neue Zone warten (Entität erscheint kurz danach) – die NEUE, nicht eine gleichnamige vorhandene
         let zone = null;
         for (let i = 0; i < 20 && !zone; i++) {
           await new Promise((r) => setTimeout(r, 250));
-          const hit = Object.values(this._hass.states).find((s) => s.entity_id.startsWith("zone.") && s.attributes.friendly_name === name);
+          const hit = Object.values(this._hass.states).find((s) => s.entity_id.startsWith("zone.") && !before.has(s.entity_id) && s.attributes.friendly_name === name);
           zone = hit && hit.entity_id;
         }
         if (!zone) { status.textContent = t.zone_wait; return; }
@@ -4822,7 +4987,7 @@ class SmartListsCard extends HTMLElement {
     };
     const draw = (stores) => {
       const zs = zones();
-      const nameOf = (id) => (this._hass.states[id] ? this._hass.states[id].attributes.friendly_name || id : `⚠️ ${id}`);
+      const nameOf = (id) => { const hit = zs.find(([z]) => z === id); return hit ? hit[1] : this._hass.states[id] ? id : `⚠️ ${id}`; };
       // je Markt beliebig viele Zonen (Filialen): Chips mit ×, dazu Auswahl „＋ Zone“
       fill(body, ...stores.map((st) => {
         const linked = st.zones || (st.zone ? [st.zone] : []);
@@ -4859,7 +5024,8 @@ class SmartListsCard extends HTMLElement {
     const body = h("div", {}, h("div", { class: "shelp", style: "padding:6px 0" }, t.loading));
     const status = h("span", { class: "ok2" });
     const set = async (patch) => {
-      try { const r = await this._call("set_notes", patch, false); status.textContent = "✓ " + t.saved; draw(r); this._refreshPanel(); }
+      try { const r = await this._call("set_notes", patch, false); status.textContent = "✓ " + t.saved; draw(r); this._refreshPanel();
+        if (this._cfg && patch.mode) this._cfg = { ...this._cfg, features: { ...(this._cfg.features || {}), notes: patch.mode === "section" } }; }
       catch (err) { status.textContent = (err && err.message) || t.error; }
     };
     let users = [];
@@ -4889,6 +5055,33 @@ class SmartListsCard extends HTMLElement {
   }
   // Seitenleisten-Seite neu laden lassen (Notizen ein/aus ändert die Listen-Auswahl)
   _refreshPanel() { window.dispatchEvent(new CustomEvent("smartlists-lists-changed")); }
+  // Extras (Notizen, Wochenplan): an, solange die Integration nichts anderes meldet
+  _feat(name) { const f = this._cfg && this._cfg.features; return !f || f[name] !== false; }
+
+  // Global → Extras: optionale Bereiche, die Einsteiger nicht brauchen (im Assistenten standardmäßig aus)
+  _extrasSection() {
+    const t = this._t;
+    const status = h("span", { class: "ok2" });
+    const body = h("div");
+    const set = async (patch) => {
+      try {
+        const r = await this._call("set_features", patch, false);
+        this._cfg = { ...this._cfg, features: r.features };
+        status.textContent = "✓ " + t.saved;
+        this._refreshPanel();
+      } catch (err) { status.textContent = (err && err.message) || t.error; }
+      draw();
+    };
+    const draw = () => {
+      const f = (this._cfg && this._cfg.features) || {};
+      fill(body,
+        this._setRow(t.x_notes, this._switch(!!f.notes, (on) => set({ notes: on }), t.x_notes), t.x_notes_help),
+        this._setRow(t.x_mealplan, this._switch(f.mealplan !== false, (on) => set({ mealplan: on }), t.x_mealplan), t.x_mealplan_help),
+        h("div", { class: "acts" }, status));
+    };
+    draw();
+    return this._sec("🧩", t.x_title, t.x_help, [body]);
+  }
 
   /* ---------------- 2.8: Markt-Reihenfolge, Preise, Vorlagen, Scannen, Statistik, Teilen, Benachrichtigungen ---------------- */
   // Reihenfolge der Kategorien: im Einkaufsmodus für einen Markt dessen Gänge (Filiale vor Markt), sonst Standard
@@ -5141,11 +5334,11 @@ class SmartListsCard extends HTMLElement {
     const exp = Object.keys(st).find((e) => e.startsWith("sensor.smartlists") && st[e].attributes.unit_of_measurement === "€") || "sensor.smartlists_expenses_this_month";
     const config = { views: [
       { title: t.db_lists, path: "lists", icon: "mdi:cart", type: "panel", cards: [{ type: "custom:smartlists-card", entities: lists, layout: "tabs" }] },
-      { title: t.db_plan, path: "plan", icon: "mdi:silverware-fork-knife", cards: [{ type: "calendar", entities: [cal], initial_view: "listWeek" }] },
+      this._feat("mealplan") ? { title: t.db_plan, path: "plan", icon: "mdi:silverware-fork-knife", cards: [{ type: "calendar", entities: [cal], initial_view: "listWeek" }] } : null,
       { title: t.db_stats, path: "stats", icon: "mdi:chart-bar", cards: [
         { type: "entities", entities: [exp] },
         { type: "custom:smartlists-card", entity: lists[0], settings_only: true, settings_scope: "stats" }] },
-    ] };
+    ].filter(Boolean) };
     status.textContent = t.loading;
     try {
       try { await this._hass.callWS({ type: "lovelace/dashboards/create", url_path: "smartlists-shopping", title: t.db_title, icon: "mdi:cart-outline", show_in_sidebar: true, require_admin: false, mode: "storage" }); }
@@ -5594,7 +5787,7 @@ class SmartListsCard extends HTMLElement {
     const t = this._t;
     const body = h("div", {}, h("div", { class: "shelp", style: "padding:6px 0" }, t.loading));
     const status = h("span", { class: "ok2" });
-    let check = "off", add = false, hours = 168, links = [];
+    let check = "off", add = false, hours = 168, links = [], pub = { public_mode: "ha", public_base: null };
     const lang = this._hass.language;
     // Nicht-Admins: nur anbieten, was der Admin erlaubt (Global → Teilen und Rechte)
     const rights = this._isAdmin ? {} : (this._cfg && this._cfg.rights) || {};
@@ -5619,19 +5812,24 @@ class SmartListsCard extends HTMLElement {
           .filter(([v]) => !maxHours || (v !== "" && v <= maxHours)).map(([v, l]) =>
           h("option", { value: String(v), selected: String(hours ?? "") === String(v) }, l)))),
       this._data && this._data.type === "combined" ? h("div", { class: "shelp", style: "padding:6px 0" }, "⚠️ " + t.share_combined) : null,
+      // Wohin zeigt der Link? Tunnel/Proxy verraten die HA-Adresse nicht (Global → Teilen und Rechte → Öffentliche Adresse)
+      h("div", { class: "shelp", style: "padding:6px 0" }, pub.public_mode === "ha" ? "ℹ️ " + t.share_leak
+        : `🛡️ ${pub.public_mode === "tunnel" ? t.pub_tunnel : t.pub_proxy}${pub.public_base ? ": " + pub.public_base : " – " + t.pub_not_ready}`),
       h("div", { class: "acts" }, status, h("button", { class: "btn2 primary", type: "button", onclick: create }, "🔗 " + t.share_create)),
       created,
       links.length ? h("div", { class: "grp" }, t.share_active) : null,
       ...links.map((l) => this._setRow(`${modeLabel(l.check)}${l.add ? " + " + t.share_add : ""}`,
         iconBtn(ICON.close, t.share_revoke, async () => { links = (await this._call("share_revoke", { link_id: l.id })).links; draw(); }, "danger"),
-        `${l.expired ? "⚠️ " + t.share_expired : l.expires ? `${t.share_until} ${fmtDate(l.expires)}` : t.share_forever} · ${l.opens}× ${t.share_opened}`)));
+        `${l.expired ? "⚠️ " + t.share_expired : l.expires ? `${t.share_until} ${fmtDate(l.expires)}` : t.share_forever} · ${l.opens}× ${t.share_opened}`
+        // Tunnel-Adresse inzwischen neu (Neustart) → dieser Link führt ins Leere
+        + (l.base && l.base !== pub.public_base ? ` · ⚠️ ${t.share_old_address}` : ""))));
     const create = async () => {
       try {
         const r = await this._call("share_create", { check, add, hours });
-        const url = base() + r.path;
-        links = (await this._call("share_links", {})).links;
+        const url = (r.base || base()) + r.path;
+        ({ links, ...pub } = { ...pub, ...(await this._call("share_links", {})) });
         draw();
-        const isLocal = /\/\/(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|[^/]*\.local)/i.test(url);
+        const isLocal = !r.base && /\/\/(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|[^/]*\.local)/i.test(url);
         let svgText = "";
         try { svgText = qrSvg(url, 4); } catch (e) { svgText = ""; }
         const qrBox = h("div", { class: "qr" });
@@ -5643,9 +5841,9 @@ class SmartListsCard extends HTMLElement {
           h("div", { class: "acts" },
             h("button", { class: "btn2", type: "button", onclick: async () => { try { await navigator.clipboard.writeText(url); status.textContent = "✓ " + t.share_copied; } catch (e) { status.textContent = url; } } }, t.share_copy),
             navigator.share ? h("button", { class: "btn2 primary", type: "button", onclick: () => navigator.share({ title: this._data ? this._data.name : "SmartLists", url }).catch(() => {}) }, t.share_send) : null))));
-      } catch (err) { status.textContent = (err && err.message) || t.error; }
+      } catch (err) { status.textContent = err && err.code === "public_unavailable" ? `⚠️ ${t.pub_not_ready} (${err.message})` : (err && err.message) || t.error; }
     };
-    this._call("share_links", {}).then((r) => { links = r.links; draw(); }).catch((err) => fill(body, h("div", { class: "shelp" }, (err && err.message) || t.error)));
+    this._call("share_links", {}).then((r) => { ({ links, ...pub } = { ...pub, ...r }); draw(); }).catch((err) => fill(body, h("div", { class: "shelp" }, (err && err.message) || t.error)));
     return this._sec("🔗", t.share, t.share_help, [body]);
   }
 
@@ -5897,7 +6095,7 @@ class SmartListsCard extends HTMLElement {
       out.push([ICON.importIcon, t.imp, () => { closeAll(); this._showImport = true; this._renderSettings(); this._renderImport(); this._render(); }]);
     if (d.type !== "notes" && d.permissions.add && c.show_templates !== false) {
       out.push([ICON.template, t.tpl, () => { closeAll(); this._showTpl = true; this._renderTemplates(); this._render(); }]);
-      out.push([ICON.calendar, t.mp_title, () => { this._moreOpen = false; this._renderMore(); this._mealPlanDialog(); }]);
+      if (this._feat("mealplan")) out.push([ICON.calendar, t.mp_title, () => { this._moreOpen = false; this._renderMore(); this._mealPlanDialog(); }]);
     }
     if (c.show_settings !== false) {
       if (c.settings_scope !== "list") out.push([ICON.tune, t.settings_global, () => { closeAll(); this._showSettings = true; this._setChosen = false; this._renderImport(); this._renderSettings(); this._render(); }]);
@@ -6112,6 +6310,36 @@ const PANEL_STYLE = `
   .empty { text-align:center; padding:48px 16px; color:var(--secondary-text-color); }
 `;
 const ICON_COLUMNS = "M3,3H11V21H3V3M13,3H21V21H13V3M5,5V19H9V5H5M15,5V19H19V5H15Z";
+const ICON_PHONE = "M17,19H7V5H17M17,1H7C5.89,1 5,1.89 5,3V21A2,2 0 0,0 7,23H17A2,2 0 0,0 19,21V3C19,1.89 18.1,1 17,1M12,14L8,10H11V6H13V10H16L12,14Z";
+
+/* ---------------- Als App auf dem Startbildschirm (PWA, siehe pwa.py) ----------------
+ * Auf /smartlists zeigt der Manifest-Link auf das SmartLists-Manifest (Start: gewählte Liste, auf Wunsch im
+ * Einkaufsmodus); beim Verlassen der Seite wieder auf das von Home Assistant. */
+let SL_INSTALL = null;  // Chrome/Edge: „App installieren“ (beforeinstallprompt), sonst Anleitung
+window.addEventListener("beforeinstallprompt", (e) => { SL_INSTALL = e; });
+const slStandalone = () => { try { return matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; } catch (e) { return false; } };
+const slCompanion = () => /Home ?Assistant\//i.test(navigator.userAgent || "");  // App von HA: hat eigene Widgets
+const slPlatform = () => { const ua = navigator.userAgent || "";
+  return /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) ? "ios" : /Android/i.test(ua) ? "android" : "other"; };
+function slAppUrl(list, shop) {
+  const q = new URLSearchParams({ app: "1" });
+  if (list) q.set("list", list);
+  if (shop) q.set("shopping", "1");
+  return q.toString();
+}
+function slSetHeadLink(rel, href, keep) {
+  let el = document.head.querySelector(`link[rel="${rel}"]`);
+  if (!el) { el = document.createElement("link"); el.rel = rel; document.head.append(el); keep[rel] = null; }
+  else if (!(rel in keep)) keep[rel] = el.getAttribute("href");
+  if (el.getAttribute("href") !== href) el.setAttribute("href", href);
+}
+function slRestoreHeadLinks(keep) {
+  for (const [rel, href] of Object.entries(keep)) {
+    const el = document.head.querySelector(`link[rel="${rel}"]`);
+    if (!el) continue;
+    if (href == null) el.remove(); else el.setAttribute("href", href);
+  }
+}
 const ICON_WIDE = "M3,5H21V7H3V5M3,11H21V13H3V11M3,17H21V19H3V17M1,9L4,12L1,15V9M23,9V15L20,12L23,9Z";
 
 /* Seite „SmartLists“: eine Liste oder bis zu drei nebeneinander (zwischen ihnen Ziehen & Ablegen),
@@ -6127,6 +6355,17 @@ class SmartListsPanel extends HTMLElement {
     try { legacy = localStorage.getItem(PANEL_KEY); } catch (e) { /* */ }
     // listsOpen: Listen-Übersicht oben aufgeklappt (Standard: zu – mehr Platz für die Listen, v. a. am Handy)
     this._prefs = { columns: false, wide: false, selected: legacy ? [legacy] : [], order: [], listsOpen: false, ...prefs };
+    // Start als App vom Startbildschirm: /smartlists?app=1&list=todo.x&shopping=1
+    let q = null;
+    try { q = new URLSearchParams(window.location.search); } catch (e) { q = null; }
+    this._appMode = !!q && q.get("app") === "1";
+    // Sprung aus der Integration (Konfigurieren → Einstellungen): /smartlists?settings=global
+    if (q && ["global", "stats"].includes(q.get("settings"))) {
+      this._settingsOpen = q.get("settings");
+      try { const u = new URL(window.location.href); u.searchParams.delete("settings"); window.history.replaceState(window.history.state, "", u.pathname + u.search + u.hash); } catch (e) { /* */ }
+    }
+    this._startShop = !!q && q.get("shopping") === "1";
+    this._headKeep = {};
     // Einstellungen (z.B. Notizen ein/aus) ändern, welche Listen erscheinen
     window.addEventListener("smartlists-lists-changed", () => { this._visibleKey = null; this._render(); });
   }
@@ -6155,6 +6394,9 @@ class SmartListsPanel extends HTMLElement {
     this._visibleKey = key;
     this._hass.callWS({ type: "smartlists/lists" }).then((r) => { this._visible = new Map(r.lists.map((l) => [l.entity_id, l.type])); this._render(); })
       .catch(() => { this._visible = null; });
+    // Extras (Wochenplan ein/aus) – ohne Antwort: wie bisher anzeigen
+    this._hass.callWS({ type: "smartlists/config" }).then((r) => { this._features = r.features || null; this._render(); })
+      .catch(() => { this._features = null; });
     // kombinierte Listen aus der App, die noch nicht in HA verbunden sind (Chip „verbinden“)
     this._hass.callWS({ type: "smartlists/app_lists" }).then((r) => { this._appLists = r.lists.filter((l) => !l.connected); this._render(); })
       .catch(() => { this._appLists = []; });
@@ -6197,7 +6439,8 @@ class SmartListsPanel extends HTMLElement {
     if (this._wantList && lists.some((l) => l.e === this._wantList)) {
       this._prefs.selected = this._prefs.columns ? [...this._prefs.selected.filter((e) => e !== this._wantList), this._wantList] : [this._wantList];
       this._prefs.tab = "lists"; this._settingsOpen = false; this._wantList = null; this._save();
-      try { const u = new URL(window.location.href); u.searchParams.delete("list"); window.history.replaceState(window.history.state, "", u.pathname + u.search + u.hash); } catch (e) { /* */ }
+      // als App gestartet: Adresse so lassen (sonst landet ein Neuladen bzw. „Zum Home-Bildschirm“ woanders)
+      if (!this._appMode) try { const u = new URL(window.location.href); u.searchParams.delete("list"); window.history.replaceState(window.history.state, "", u.pathname + u.search + u.hash); } catch (e) { /* */ }
     }
     if (this._pendingSelect) {
       const hit = lists.find((l) => l.name === this._pendingSelect);
@@ -6205,10 +6448,14 @@ class SmartListsPanel extends HTMLElement {
     }
     // beliebig viele Listen; Reihenfolge der Spalten = Reihenfolge der Chips
     const pos = new Map(lists.map((l, i) => [l.e, i]));
-    let sel = this._prefs.selected.filter((e) => pos.has(e)).sort((a, b) => pos.get(a) - pos.get(b));
-    if (!this._prefs.columns) sel = sel.slice(0, 1);
+    // Gemerkte Auswahl NICHT überschreiben: Beim Laden oder Neuladen der Integration fehlt eine Liste oft kurz
+    // (noch nicht da / „nicht verfügbar“). Früher wurde dann die erste Liste gewählt und gespeichert – danach
+    // stand eine andere Liste da als eingestellt. Jetzt wird nur angezeigt, gemerkt bleibt die Wahl.
+    const stored = Array.isArray(this._prefs.selected) ? this._prefs.selected : [];
+    let sel = (this._prefs.columns ? stored : stored.slice(0, 1)).filter((e) => pos.has(e)).sort((a, b) => pos.get(a) - pos.get(b));
     if (!sel.length && lists.length) sel = [lists[0].e];
-    this._prefs.selected = sel;
+    this._effSel = sel;
+    this._syncApp(sel);
     if (!this._root) {
       this._chipsEl = h("div", { class: "chips", role: "tablist" });
       this._hintEl = h("div", { class: "hint" });
@@ -6220,6 +6467,9 @@ class SmartListsPanel extends HTMLElement {
         onclick: () => { this._prefs.columns = !this._prefs.columns; this._save(); this._render(); } }, svg(ICON_COLUMNS, 22));
       this._wideBtn = h("button", { type: "button", title: t.p_wide, "aria-label": t.p_wide,
         onclick: () => { this._prefs.wide = !this._prefs.wide; this._save(); this._render(); } }, svg(ICON_WIDE, 22));
+      // 📲 Als App speichern – nicht in der Home-Assistant-App und nicht, wenn schon als App geöffnet
+      this._appBtn = h("button", { type: "button", title: t.app_title, "aria-label": t.app_title, onclick: () => this._appDialog() }, svg(ICON_PHONE, 22));
+      this._appBtn.hidden = slStandalone() || slCompanion();
       this._orderBtn = h("button", { type: "button", title: t.p_order, "aria-label": t.p_order,
         onclick: () => { this._ordering = !this._ordering; this._render(); } }, svg(ICON.sort, 22));
       this._newBtn = h("button", { type: "button", title: this._t.new_list, "aria-label": this._t.new_list, onclick: () => this._newList() }, svg(ICON.plus, 22));
@@ -6230,13 +6480,15 @@ class SmartListsPanel extends HTMLElement {
         onclick: () => { this._settingsOpen = this._settingsOpen === "stats" ? false : "stats"; this._render(); } }, svg(ICON.chart, 22));
       // Tabs wie in Home Assistant: Listen | Wochenplan
       this._tabsEl = h("div", { class: "ptabs", role: "tablist" });
-      this._root = h("div", {}, h("div", { class: "toolbar" }, this._menuBtn, h("span", { class: "title" }, "SmartLists"), this._newBtn, this._orderBtn, this._colBtn, this._wideBtn, this._statsBtn, this._gearBtn),
+      this._root = h("div", {}, h("div", { class: "toolbar" }, this._menuBtn, h("span", { class: "title" }, "SmartLists"), this._appBtn, this._newBtn, this._orderBtn, this._colBtn, this._wideBtn, this._statsBtn, this._gearBtn),
         this._tabsEl, this._chipsEl, this._hintEl, this._contentEl);
       this.shadowRoot.replaceChildren(h("style", {}, PANEL_STYLE), this._root);
     }
     this._menuBtn.hidden = !this._narrow;
-    const tab = this._settingsOpen ? null : (this._prefs.tab || "lists");
-    fill(this._tabsEl, this._settingsOpen ? null : [["lists", "📋 " + this._t.p_tab_lists], ["plan", "🗓️ " + this._t.mp_title]].map(([id, label]) =>
+    const planOn = !this._features || this._features.mealplan !== false;
+    const tab = this._settingsOpen ? null : (planOn && this._prefs.tab) || "lists";
+    // nur ein Tab (Wochenplan unter Extras aus) → keine Tab-Leiste
+    fill(this._tabsEl, this._settingsOpen || !planOn ? null : [["lists", "📋 " + this._t.p_tab_lists], ["plan", "🗓️ " + this._t.mp_title]].map(([id, label]) =>
       h("button", { type: "button", role: "tab", class: `ptab ${tab === id ? "on" : ""}`, "aria-selected": String(tab === id),
         onclick: () => { this._prefs.tab = id; this._save(); this._render(); } }, label)));
     this._gearBtn.classList.toggle("on", this._settingsOpen === "global");
@@ -6284,7 +6536,7 @@ class SmartListsPanel extends HTMLElement {
         "aria-selected": String(sel.includes(l.e)), draggable: "true", onclick: () => { if (!this._ordering) this._select(l.e); } },
         this._ordering && i > 0 ? h("span", { class: "mv", role: "button", "aria-label": this._t.p_left, title: this._t.p_left,
           onclick: (e) => { e.stopPropagation(); this._move(lists, l.e, group[i - 1].e, false); } }, "◀") : null,
-        l.notes ? "📝 " : "", l.name, h("span", { class: "n" }, String(l.open)),
+        l.notes ? "📝 " : "", chipName(l.name), h("span", { class: "n" }, String(l.open)),
         this._ordering && i < group.length - 1 ? h("span", { class: "mv", role: "button", "aria-label": this._t.p_right, title: this._t.p_right,
           onclick: (e) => { e.stopPropagation(); this._move(lists, l.e, group[i + 1].e, true); } }, "▶") : null);
       // Ziehen & Ablegen mit der Maus: Chip auf einen anderen ziehen = davor einsortieren
@@ -6340,7 +6592,7 @@ class SmartListsPanel extends HTMLElement {
       if (!this._cards.has(e)) {
         const c = document.createElement("smartlists-card");
         // Zahnrad je Karte = nur Einstellungen dieser Liste; Globales über ⚙ oben in der Werkzeugleiste
-        c.setConfig({ entity: e, settings_scope: "list" });
+        c.setConfig({ entity: e, settings_scope: "list", ...(this._startShop ? { start_shopping: true } : {}) });
         c.hass = this._hass;
         this._cards.set(e, c);
       }
@@ -6349,12 +6601,61 @@ class SmartListsPanel extends HTMLElement {
     this._contentEl.className = `content ${width} cols-${Math.min(cards.length, this._prefs.wide ? 4 : 3)}`;
     const current = [...this._contentEl.childNodes];
     if (current.length !== cards.length || current.some((n, i) => n !== cards[i])) fill(this._contentEl, ...cards);
+    if (this._startShop && !this._wantList) this._startShop = false;  // nur beim Start als App
+  }
+  connectedCallback() { this._attached = true; if (this._effSel) this._syncApp(this._effSel); }
+  disconnectedCallback() { this._attached = false; slRestoreHeadLinks(this._headKeep); this._headKeep = {}; }
+  // Manifest der Seite: „Installieren“/„Zum Startbildschirm“ öffnet direkt die gewählte Liste
+  _syncApp(sel) {
+    if (this._attached === false) return;
+    const prefs = this._prefs.app || {};
+    const list = prefs.list && this._hass && this._hass.states[prefs.list] ? prefs.list : sel[0];
+    const shop = prefs.shopping !== false;
+    const name = list && this._hass && this._hass.states[list] ? this._hass.states[list].attributes.friendly_name || "" : "";
+    slSetHeadLink("manifest", `/smartlists-files/app.webmanifest?${slAppUrl(list, shop)}${name ? "&name=" + encodeURIComponent(name) : ""}`, this._headKeep);
+    slSetHeadLink("apple-touch-icon", "/smartlists-files/brand/icon@2x.png", this._headKeep);
+  }
+  // 📲 Als App auf dem Startbildschirm speichern: Liste und Einkaufsmodus wählen, dann installieren bzw. Anleitung
+  _appDialog() {
+    const t = this._t;
+    const lists = this._lists().filter((l) => !l.notes);
+    const prefs = { list: (this._prefs.app && this._prefs.app.list) || (this._effSel || [])[0] || (lists[0] && lists[0].e) || "", shopping: !(this._prefs.app && this._prefs.app.shopping === false) };
+    const platform = slPlatform();
+    const apply = () => {
+      this._prefs.app = { ...prefs }; this._save(); this._syncApp(this._effSel || []);
+      // iOS nimmt beim „Zum Home-Bildschirm“ die aktuelle Adresse → passend setzen
+      try { window.history.replaceState(window.history.state, "", `${window.location.pathname}?${slAppUrl(prefs.list, prefs.shopping)}`); this._appMode = true; } catch (e) { /* */ }
+    };
+    const box = h("input", { type: "checkbox", checked: prefs.shopping, onchange: (e) => { prefs.shopping = e.target.checked; apply(); } });
+    box.checked = prefs.shopping;
+    const steps = { ios: t.app_ios, android: t.app_android, other: t.app_other }[platform];
+    const close = () => back.remove();
+    const install = SL_INSTALL ? h("button", { type: "button", class: "ok", onclick: async () => {
+      apply();
+      try { await SL_INSTALL.prompt(); SL_INSTALL = null; close(); } catch (e) { /* Anleitung bleibt sichtbar */ }
+    } }, "📲 " + t.app_install) : null;
+    const back = h("div", { class: "dlg-back", onclick: (ev) => { if (ev.target === back) close(); } },
+      h("style", {}, DIALOG_STYLE + `.dlg label{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:.95rem}
+        .dlg select{width:100%;height:42px;border-radius:10px;border:1px solid var(--divider-color,#ccc);background:var(--secondary-background-color,#f2f2f2);color:inherit;font:inherit;padding:0 10px;margin:0 0 12px}
+        .dlg ol{margin:0 0 14px;padding-left:20px;font-size:.9rem;line-height:1.5}.dlg input[type=checkbox]{width:20px;height:20px;margin:0}`),
+      h("div", { class: "dlg", role: "dialog", "aria-modal": "true", "aria-label": t.app_title },
+        h("h2", {}, "📲 " + t.app_title),
+        h("p", {}, t.app_lead),
+        h("select", { "aria-label": t.app_list, onchange: (e) => { prefs.list = e.target.value; apply(); } },
+          lists.map((l) => h("option", { value: l.e, selected: l.e === prefs.list }, l.name))),
+        h("label", {}, box, t.app_shop),
+        h("ol", {}, steps.split("\n").map((x) => h("li", {}, x))),
+        h("div", { class: "row" }, h("button", { type: "button", onclick: close }, t.app_close), install)));
+    apply();
+    this.shadowRoot.append(back);
   }
   _select(entity) {
-    const sel = this._prefs.selected;
+    // Basis: was gerade zu sehen ist; gemerkte, gerade fehlende Listen bleiben dahinter erhalten
+    const sel = this._effSel || this._prefs.selected || [];
+    const away = (this._prefs.selected || []).filter((e) => !sel.includes(e) && !(this._hass && this._hass.states[e] && this._hass.states[e].state !== "unavailable"));
     if (!this._prefs.columns) this._prefs.selected = [entity];
-    else if (sel.includes(entity)) { if (sel.length > 1) this._prefs.selected = sel.filter((e) => e !== entity); }
-    else this._prefs.selected = [...sel, entity];
+    else if (sel.includes(entity)) { if (sel.length > 1) this._prefs.selected = [...sel.filter((e) => e !== entity), ...away]; }
+    else this._prefs.selected = [...sel, entity, ...away];
     this._save();
     this._render();
   }

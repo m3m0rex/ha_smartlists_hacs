@@ -45,6 +45,44 @@ def candidates(hass: HomeAssistant, user: Any | None = None) -> list[dict[str, A
     return sorted(out, key=lambda x: str(x["name"]).casefold())
 
 
+APP_PREFIX = "ha_smartlists_"
+MIGRATED_KEY = "migrated_lists"
+
+
+def unmigrated(hass: HomeAssistant) -> list[dict[str, Any]]:
+    """Listen der App (todo.ha_smartlists_*, z. B. in Local To-do), die noch nicht in SmartLists übernommen sind –
+    für den Hinweis unter Einstellungen → Reparaturen. Nicht dabei: Notizlisten (bleiben bewusst in Local To-do),
+    SmartLists-eigene und kombinierte Listen (stehen nicht in candidates), schon übernommene Listen (gemerkt seit
+    3.9.2) und – für Übernahmen davor – Listen, deren Name schon als eigene SmartLists-Liste existiert."""
+    learning = hass.data.get(DOMAIN, {}).get("learning")
+    done = set((getattr(learning, "automation", None) or {}).get(MIGRATED_KEY) or [])
+    titles: set[str] = set()
+    entries = hass.config_entries.async_entries(DOMAIN) if hasattr(hass, "config_entries") else []
+    if entries:
+        from .own_groups import iter_lists
+
+        titles = {str(data.get("title") or "").casefold() for _g, _lid, data in iter_lists(entries[0])}
+    out = []
+    for c in candidates(hass, None):
+        object_id = c["entity_id"].split(".", 1)[-1]
+        if not object_id.startswith(APP_PREFIX) or c["notes"] or c["platform"] == DOMAIN or c["entity_id"] in done:
+            continue
+        if nice_title(str(c["name"]), c["entity_id"]).casefold() in titles:
+            continue
+        out.append(c)
+    return out
+
+
+def mark_migrated(hass: HomeAssistant, entity_ids: list[str]) -> None:
+    """Übernommene Listen merken (der Reparatur-Hinweis erscheint dafür nicht mehr)."""
+    learning = hass.data.get(DOMAIN, {}).get("learning")
+    if not isinstance(getattr(learning, "automation", None), dict):
+        return
+    done = list(dict.fromkeys([*(learning.automation.get(MIGRATED_KEY) or []), *entity_ids]))[-500:]
+    learning.automation[MIGRATED_KEY] = done
+    learning._changed()
+
+
 def _int(v: Any) -> int:
     try:
         return int(v)
@@ -63,7 +101,7 @@ def nice_title(name: str, entity_id: str) -> str:
                 n = n[len(p):]
         n = n.replace("_", " ").strip().capitalize()
     low = n.lower()
-    for p in ("ha smartlists list ", "ha smartlists "):
+    for p in ("ha smartlists liste ", "ha smartlists lista ", "ha smartlists listy ", "ha smartlists list ", "ha smartlists "):
         if low.startswith(p) and len(n) > len(p):
             n = n[len(p):].strip()
             break
@@ -119,7 +157,9 @@ async def async_migrate(hass: HomeAssistant, owner: str, sources: list[str], mod
         groups = [(nice_title(str(allowed[s]["name"]), s), own_items([(s, i) for i in items_by_source[s]]), s) for s in sources]
 
     if target == "notes":
-        return await _as_notes(hass, user, groups, sources)
+        result = await _as_notes(hass, user, groups, sources)
+        mark_migrated(hass, sources)
+        return result
 
     from .own_groups import async_add_list
 
@@ -132,6 +172,7 @@ async def async_migrate(hass: HomeAssistant, owner: str, sources: list[str], mod
         created.append((list_id, title[:60], len(items)))
     for list_id, title, _ in created:
         await async_add_list(hass, owner, title, {}, list_id=list_id)
+    mark_migrated(hass, sources)
     return {"lists": [{"name": t, "list_id": lid, "items": n} for lid, t, n in created],
             "old": {s: "kept" for s in sources}}
 

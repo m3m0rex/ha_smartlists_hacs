@@ -86,6 +86,22 @@ def combined_entity(hass: HomeAssistant, entity_id: str) -> Any | None:
     return hass.data.get(DOMAIN, {}).get("entities", {}).get(entity_id)
 
 
+def suggest_scope(hass: HomeAssistant, entity_id: str) -> set[str] | None:
+    """Aus welchen Listen „häufig gekauft“ und Vorschläge kommen: Standard nur diese Liste (eine kombinierte Liste:
+    sie selbst und ihre Quell-Listen); Einstellung der Liste „aus allen Listen“ → None."""
+    extras = hass.data[DOMAIN].get("extras")
+    settings = (extras.list_settings.get(entity_id) if extras else None) or {}
+    if settings.get("plain"):
+        return set()  # einfache Liste: keine Vorschläge aus dem Verlauf
+    if settings.get("suggest_scope") == "all":
+        return None
+    scope = {entity_id}
+    entity = combined_entity(hass, entity_id)
+    if entity is not None:
+        scope.update(getattr(entity, "_sources", []) or [])
+    return scope
+
+
 def _state(hass: HomeAssistant, entity_id: str):
     if not entity_id.startswith(f"{TODO_DOMAIN}."):
         raise ListError(f"{entity_id} ist keine To-do-Liste")
@@ -164,6 +180,7 @@ async def get_list(hass: HomeAssistant, entity_id: str, user: Any | None = None,
     person_prefix = next((r["prefix"] for r in learning.tag_rules if r["kind"] == "person"), None)
     notes = is_notes(hass, entity_id)
     extras = _extras(hass)
+    plain = bool(extras and extras.is_plain(entity_id))
     shares = _shares(hass)
     soft = shares.soft_checked(entity_id) if shares else {}
     for raw in await raw_items(hass, entity_id):
@@ -196,7 +213,7 @@ async def get_list(hass: HomeAssistant, entity_id: str, user: Any | None = None,
         elif info.get("text_price") is not None:
             # Preis steht im Text einer anderen Quelle ("… (REWE) - 0,99 €") – gilt je Stück
             price = {"total": round(float(info["text_price"]) * qty, 2), "unit_price": round(float(info["text_price"]), 2), "source": "text"}
-        elif extras and (p := extras.price_for(info["name"])):
+        elif extras and not plain and (p := extras.price_for(info["name"])):
             price = {"total": round(float(p["price"]) * qty, 2), "unit_price": p["price"], "source": p.get("source", "manual"), "at": p.get("at")}
         items.append(
             {
@@ -267,8 +284,8 @@ async def all_lists(hass: HomeAssistant, user: Any | None = None) -> list[dict[s
 
 def _take_price(hass: HomeAssistant, entity_id: str, text: str) -> str:
     """Preis im Text ("Milch 2 l 1,19€ @REWE") gehört nicht in den Namen – wird als Preis gemerkt."""
-    if is_notes(hass, entity_id) or (extras := _extras(hass)) is None:
-        return text
+    if is_notes(hass, entity_id) or (extras := _extras(hass)) is None or extras.is_plain(entity_id):
+        return text  # einfache Liste: Preis bleibt im Text, wird nicht gemerkt
     from .extras import split_price
 
     text, price = split_price(text)
@@ -304,9 +321,9 @@ async def add_item(
     if note and perms["note"]:
         data["description"] = note
     await _call(hass, "add_item", data, context)
-    if combined_entity(hass, entity_id) is None and not is_notes(hass, entity_id) and not from_share:
-        # kombinierte Listen merken sich den Verlauf selbst beim Hinzufügen
-        _learning(hass).record(text)
+    if combined_entity(hass, entity_id) is None and own_entity(hass, entity_id) is None and not is_notes(hass, entity_id) and not from_share:
+        # kombinierte und eigene Listen merken sich den Verlauf selbst beim Hinzufügen (sonst doppelt gezählt)
+        _learning(hass).record(text, entity_id)
     new = [i for i in await raw_items(hass, entity_id) if i["uid"] not in before]
     match = next((i for i in reversed(new) if i["text"] == text), new[-1] if new else None)
     uid = match["uid"] if match else None

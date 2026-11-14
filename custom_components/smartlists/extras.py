@@ -198,7 +198,13 @@ class Extras:
         self._save()
 
     @callback
-    def set_list_settings(self, entity_id: str, sort: str | None = None, show_prices: bool | None = None) -> dict[str, Any]:
+    def set_list_settings(self, entity_id: str, sort: str | None = None, show_prices: bool | None = None,
+                          categories: bool | None = None, suggest_scope: str | None = None,
+                          plain: bool | None = None) -> dict[str, Any]:
+        """plain=True: „einfache Liste“ – SmartLists merkt sich aus ihr nichts (kein Verlauf, keine Preise, keine
+        Kategorien) und schlägt nichts vor; was dort steht, erscheint nirgends sonst (z. B. Baumarkt).
+        categories=False: keine automatischen Kategorien in dieser Liste (auch nicht beim Eintippen).
+        suggest_scope: "list" (Standard) = Vorschläge/häufig gekauft nur aus dieser Liste, "all" = aus allen Listen."""
         cur = dict(self.list_settings.get(entity_id) or {})
         if sort is not None:
             if sort in ("category", "alpha", "added", "list"):
@@ -207,12 +213,30 @@ class Extras:
                 cur.pop("sort", None)
         if show_prices is not None:
             cur["show_prices"] = bool(show_prices)
+        if categories is not None:
+            if categories:
+                cur.pop("categories", None)
+            else:
+                cur["categories"] = False
+        if plain is not None:
+            if plain:
+                cur["plain"] = True
+            else:
+                cur.pop("plain", None)
+        if suggest_scope is not None:
+            if suggest_scope == "all":
+                cur["suggest_scope"] = "all"
+            else:
+                cur.pop("suggest_scope", None)
         if cur:
             self.list_settings[entity_id] = cur
         else:
             self.list_settings.pop(entity_id, None)
         self._save()
         return cur
+
+    def is_plain(self, entity_id: str | None) -> bool:
+        return bool(entity_id) and bool((self.list_settings.get(entity_id) or {}).get("plain"))
 
     @callback
     def mark_checked(self, entity_id: str, uid: str, checked: bool) -> None:

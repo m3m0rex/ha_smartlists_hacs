@@ -106,3 +106,51 @@ def test_reset_settings_and_data():
     learning.reset(settings=False, data=True)
     assert learning.resolve("Hafermilch")[1] != "manual" and not learning.history
     assert learning.config()["setup_needed"]  # alles leer → Assistent erscheint wieder von selbst
+
+
+def test_history_per_list_and_scope():
+    """Häufig gekauft / Vorschläge je Liste; kombinierte Liste = ihre Quell-Listen; alter Verlauf gilt überall."""
+    from smartlists.learning import scoped_count
+
+    learning = _learning()
+    learning.history["senf"] = {"name": "Senf", "count": 3, "last": int(time.time())}  # von vor 3.9.4
+    for _ in range(3):
+        learning.record("Hundefutter", "todo.tier")
+    for _ in range(2):
+        learning.record("Milch", "todo.einkauf")
+    learning.record("Senf", "todo.einkauf")
+    assert learning.history["senf"]["lists"] == {"*": 3, "todo.einkauf": 1}
+    assert scoped_count(learning.history["hundefutter"], {"todo.einkauf"}) == 0
+    assert scoped_count(learning.history["hundefutter"], None) == 3
+    assert scoped_count(learning.history["senf"], {"todo.tier"}) == 3  # alter Teil gilt überall
+
+    names = lambda r: {s["name"] for s in r["suggestions"]}  # noqa: E731
+    einkauf = learning.suggest("", [], 10, {"todo.einkauf"})
+    assert "Milch" in names(einkauf) and "Hundefutter" not in names(einkauf)
+    assert "Hundefutter" in names(learning.suggest("", [], 10, {"todo.tier"}))
+    # kombinierte Liste aus beiden Quellen bzw. „aus allen Listen“
+    assert {"Milch", "Hundefutter"} <= names(learning.suggest("", [], 10, {"todo.kombi", "todo.einkauf", "todo.tier"}))
+    assert {"Milch", "Hundefutter"} <= names(learning.suggest("", [], 10, None))
+    # beim Tippen genauso
+    assert "Hundefutter" not in names(learning.suggest("Hun", [], 8, {"todo.einkauf"}))
+    assert "Hundefutter" in names(learning.suggest("Hun", [], 8, {"todo.tier"}))
+
+
+def test_plain_list_remembers_nothing():
+    """Einfache Liste (z. B. Baumarkt): nichts gemerkt, nichts vorgeschlagen – Holz taucht nirgends sonst auf."""
+    import types
+
+    from smartlists.extras import Extras
+
+    learning = _learning()
+    extras = Extras(types.SimpleNamespace(data={}))
+    extras.set_list_settings("todo.baumarkt", plain=True)
+    learning.hass = types.SimpleNamespace(data={"smartlists": {"extras": extras}})
+    learning.record("Holz 2 m", "todo.baumarkt")
+    learning.record("Milch", "todo.einkauf")
+    assert "holz" not in learning.history and "milch" in learning.history
+    assert learning.suggest("Ho", [], 8, None)["suggestions"] == [] or all(
+        s["source"] != "history" for s in learning.suggest("Ho", [], 8, None)["suggestions"])
+    # in der einfachen Liste selbst: keine Vorschläge (leerer Bereich)
+    assert learning.suggest("", [], 8, set())["suggestions"] == []
+    assert learning.suggest("Mi", [], 8, set())["suggestions"] == []

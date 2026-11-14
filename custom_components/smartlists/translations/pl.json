@@ -186,7 +186,7 @@
     "step": {
       "init": {
         "title": "SmartLists – ustawienia dla wszystkich",
-        "description": "Każdy użytkownik może ustawić własne odstępstwa za pomocą ikony koła zębatego w karcie.",
+        "description": "Wszystkie ustawienia – listy, sklepy, kategorie, udostępnianie, urządzenia, dodatki i więcej – są na stronie SmartLists w ⚙ Ustawienia: [➜ Otwórz ustawienia]({url})\n\nKażdy użytkownik ustawia tam swoje preferencje w *Dla mnie*.",
         "menu_options": {
           "assistant": "Kreator konfiguracji",
           "naming": "Konwencja nazw (@sklep, *osoba, #tag)",
@@ -197,7 +197,8 @@
           "app_lists": "Listy z aplikacji (przejmij listy połączone)",
           "packs": "Rozpoznawanie kategorii (pakiety słów kluczowych)",
           "overview": "Wszystkie listy SmartLists",
-          "restart": "Uruchom konfigurację ponownie / zacznij od nowa"
+          "restart": "Uruchom konfigurację ponownie / zacznij od nowa",
+          "settings": "Otwórz ustawienia (strona SmartLists)"
         }
       },
       "naming": {
@@ -325,6 +326,10 @@
       "restart_done": {
         "title": "Zresetowano",
         "description": "Gotowe. [➜ Otwórz kreator teraz]({url}) – pojawi się też, gdy admin następnym razem otworzy SmartLists."
+      },
+      "settings": {
+        "title": "Ustawienia",
+        "description": "[➜ Otwórz ustawienia na stronie SmartLists]({url})\n\nWszystko w jednym miejscu, z wyszukiwaniem: *Dla mnie*, *Globalne* (admini), *Analiza* i – w kole zębatym każdej listy – ustawienia tej listy."
       }
     },
     "error": {
@@ -501,6 +506,25 @@
     "stale_device": {
       "title": "Urządzenie „{device}” nie synchronizowało się od {days} dni",
       "description": "Aplikacja HA SmartLists na **{device}** nie synchronizowała się od {days} dni. Jeśli urządzenie nie jest już używane, usuń je w SmartLists → Konfiguruj → Połączone urządzenia i usuń jego token w profilu. Jeśli jest nadal używane, otwórz raz aplikację, aby zsynchronizować."
+    },
+    "unmigrated_list": {
+      "title": "Lista aplikacji „{list}” nie jest jeszcze w SmartLists",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Przenieś „{list}” do SmartLists",
+            "description": "**{entity_id}** to lista aplikacji HA SmartLists, która nie jest jeszcze listą SmartLists. Przeniesienie tworzy własną listę **{title}** ze wszystkimi produktami, notatkami i zaznaczeniami; właściciel może ją udostępnić.\n\nStara lista pozostaje bez zmian – usuń ją sam później, jeśli nie jest już potrzebna. Listy łączone, które jej używają, nadal korzystają ze starej listy.",
+            "data": {
+              "owner": "Właściciel"
+            }
+          }
+        },
+        "abort": {
+          "list_gone": "Lista już nie istnieje.",
+          "no_owner": "Wybierz właściciela.",
+          "failed": "Przeniesienie nie powiodło się: {error}"
+        }
+      }
     }
   }
 }

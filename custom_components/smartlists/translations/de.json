@@ -186,7 +186,7 @@
     "step": {
       "init": {
         "title": "SmartLists – Einstellungen für alle",
-        "description": "Persönliche Abweichungen stellt jeder Benutzer im Zahnrad der Karte ein.",
+        "description": "Alle Einstellungen – Listen, Märkte, Kategorien, Teilen, Geräte, Extras und mehr – stehen auf der SmartLists-Seite unter ⚙ Einstellungen: [➜ Einstellungen öffnen]({url})\n\nPersönliche Abweichungen stellt dort jeder Benutzer unter *Für mich* ein.",
         "menu_options": {
           "assistant": "Einrichtungs-Assistent",
           "naming": "Namenskonvention (@Markt, *Person, #Schlagwort)",
@@ -197,7 +197,8 @@
           "app_lists": "Listen aus der App (kombinierte Listen übernehmen)",
           "packs": "Kategorie-Erkennung (Keyword-Packs)",
           "overview": "Alle SmartLists-Listen",
-          "restart": "Einrichtung erneut starten / von vorn"
+          "restart": "Einrichtung erneut starten / von vorn",
+          "settings": "Einstellungen öffnen (SmartLists-Seite)"
         }
       },
       "naming": {
@@ -325,6 +326,10 @@
       "restart_done": {
         "title": "Zurückgesetzt",
         "description": "Fertig. [➜ Einrichtungs-Assistent jetzt öffnen]({url}) – er erscheint auch, wenn ein Admin SmartLists das nächste Mal öffnet."
+      },
+      "settings": {
+        "title": "Einstellungen",
+        "description": "[➜ Einstellungen auf der SmartLists-Seite öffnen]({url})\n\nDort ist alles an einem Ort, mit Suche: *Für mich*, *Global* (Admins), *Auswertung* und – im Zahnrad jeder Liste – die Einstellungen dieser Liste."
       }
     },
     "error": {
@@ -501,6 +506,25 @@
     "stale_device": {
       "title": "Gerät „{device}“ hat sich seit {days} Tagen nicht gemeldet",
       "description": "Die HA-SmartLists-App auf **{device}** hat seit {days} Tagen nicht abgeglichen. Wird das Gerät nicht mehr benutzt, entferne es unter SmartLists → Konfigurieren → Verbundene Geräte und lösche seinen Token im Profil. Wird es noch benutzt, öffne die App einmal zum Abgleichen."
+    },
+    "unmigrated_list": {
+      "title": "App-Liste „{list}“ ist noch nicht in SmartLists",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "„{list}“ in SmartLists übernehmen",
+            "description": "**{entity_id}** ist eine Liste der HA-SmartLists-App, die noch keine SmartLists-Liste ist. Beim Übernehmen entsteht die eigene Liste **{title}** mit allen Artikeln, Notizen und Häkchen; der Besitzer kann sie für andere freigeben.\n\nDie alte Liste bleibt unverändert – lösche sie später selbst, wenn du sie nicht mehr brauchst. Kombinierte Listen, die sie nutzen, verwenden weiter die alte Liste.",
+            "data": {
+              "owner": "Besitzer"
+            }
+          }
+        },
+        "abort": {
+          "list_gone": "Die Liste gibt es nicht mehr.",
+          "no_owner": "Bitte einen Besitzer wählen.",
+          "failed": "Übernehmen fehlgeschlagen: {error}"
+        }
+      }
     }
   }
 }

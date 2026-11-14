@@ -2,7 +2,13 @@
 
 # SmartLists – kombinierte To-do-Listen für Home Assistant
 
-🇬🇧 [English version](README.md) · 📖 [Wiki (englisch)](https://github.com/m3m0rex/ha_smartlists/wiki) · 🔒 [Sicherheit](SECURITY.md)
+🇬🇧 [English version](README.md) · 📖 [Wiki (englisch)](https://github.com/m3m0rex/ha_smartlists/wiki) · 🔒 [Sicherheit](SECURITY.md) · 📝 [Änderungen](CHANGELOG.md)
+
+<p align="center"><img src="https://raw.githubusercontent.com/m3m0rex/ha_smartlists/main/docs/images/demo-de.gif" alt="„Milch 2 l 1,19€ @REWE *Anna #bio“ eintippen: SmartLists erkennt Menge, Preis, Markt, Person, Schlagwort und Kategorie und sortiert den Artikel unter Kühlung ein" width="640"></p>
+
+`Milch 2 l 1,19€ @REWE *Anna #bio` eintippen – SmartLists erkennt schon beim Tippen **Menge, Preis, Markt, Person,
+Schlagwort und Kategorie** und sortiert den Artikel an die richtige Stelle. (`@`, `*` und `#` sind nur die
+Vorgabe – die Zeichen legst du selbst fest.)
 
 Eigenständige Home-Assistant-Integration (HACS), unabhängig von der HA-SmartLists-App.
 Sie bringt die wichtigste Funktion der App direkt in Home Assistant: **mehrere To-do-Listen zu einer
@@ -10,6 +16,15 @@ gemeinsamen Liste zusammenführen** – z.B. die Einkaufslisten von Anna und Max
 
 Die kombinierte Liste ist eine ganz normale To-do-Entität (`todo.grosseinkauf`). Sie funktioniert in der
 To-do-Ansicht, auf Dashboards, mit Sprachassistenten, in Automationen und auch in der HA-SmartLists-App.
+
+> ℹ️ **Die HA-SmartLists-App für Android ist noch nicht veröffentlicht.** Alles hier funktioniert ohne sie – in
+> Home Assistant, in der Karte, auf der SmartLists-Seite und mit der offiziellen Home-Assistant-App. Was die App
+> betrifft (Koppeln, verbundene Geräte, Notizen der App, Listen aus der App), wird erst wichtig, wenn sie verfügbar ist.
+
+> 📱 **Funktioniert direkt mit den offiziellen Home Assistant Startbildschirm-Widgets!** Jede SmartLists-Liste
+> ist eine echte `todo.*`-Entität – das **To-do-Listen-Widget** der Home-Assistant-App zeigt sie auf dem
+> Android- oder iOS-Startbildschirm. Schneller Zugriff im Supermarkt, ohne etwas zu öffnen (unter Android lässt
+> sich sogar direkt im Widget abhaken). Siehe [Startbildschirm-Widgets](#startbildschirm-widgets).
 
 <p align="center"><img src="https://raw.githubusercontent.com/m3m0rex/ha_smartlists/main/docs/images/hero.svg" alt="SmartLists-Seite mit kombinierter Liste, Kategorien, Badges und Preisen"></p>
 
@@ -19,6 +34,17 @@ To-do-Ansicht, auf Dashboards, mit Sprachassistenten, in Automationen und auch i
 <td width="38%" valign="top" align="center"><img src="https://raw.githubusercontent.com/m3m0rex/ha_smartlists/main/docs/images/shopping-mode.svg" alt="Einkaufsmodus am Gerät" width="240"><br><sub>Einkaufsmodus: große Zeilen, Markt-Leiste.</sub></td>
 </tr>
 </table>
+
+## Das Wichtigste
+
+| | |
+|---|---|
+| 🧺 **Listen zusammenfassen** | Die Listen von Anna und Max werden zu einer Liste „Großeinkauf“; Abhaken wirkt in der Original-Liste. |
+| ⌨️ **Ein Eingabefeld** | Menge, Einheit, Preis, Markt, Person und Schlagwort werden beim Tippen erkannt – standardmäßig `@Markt`, `*Person`, `#Schlagwort`; die Zeichen lassen sich ändern oder abschalten (Namenskonvention). Vorschläge und „häufig gekauft“ je Liste. |
+| 🗂️ **Kategorien** | Sortiert wie im Laden – Wortlisten in 6 Sprachen, gemerkte Korrekturen, Gang-Reihenfolge je Markt; je Liste abschaltbar. |
+| 🛒 **Einkaufsmodus** | Große Zeilen (wählbar), ganze Zeile antippen zum Abhaken mit 3 s Rückgängig, Markt-Leiste, Markt per Zone. |
+| 🔗 **Teilen** | Mit Personen in Home Assistant oder per **Link / QR-Code** – auf Wunsch über Quick Tunnel oder eigenen Proxy, damit deine HA-Adresse privat bleibt. |
+| 📲 **Als App** | Die SmartLists-Seite als Symbol auf den Startbildschirm legen – öffnet eine Liste direkt im Einkaufsmodus. |
 
 ## Funktionen
 
@@ -44,6 +70,8 @@ To-do-Ansicht, auf Dashboards, mit Sprachassistenten, in Automationen und auch i
 
 ## Gemeinsames Gedächtnis
 
+Neu in 3.9: Teilen-Links über Cloudflare Quick Tunnel oder eigenen Proxy (deine HA-Adresse bleibt privat), Notizen und Wochenplan als optionale *Extras*, im Einkaufsmodus die ganze Zeile antippen (3 s Rückgängig), App-Symbol für den Startbildschirm, Vorschläge und „häufig gekauft“ je Liste, **einfache Listen** ohne Gedächtnis (z. B. Baumarkt), Kategorien je Liste abschaltbar, noch nicht übernommene App-Listen unter *Reparaturen*.
+
 Neu in 3.5: vorhandene To-do-Listen (Einkaufsliste, Local To-do …) mit allen Artikeln in eigene SmartLists-Listen übernehmen – einzeln oder zusammen; die alten Listen bleiben unverändert, löschen kannst du sie danach selbst.
 
 Neu in 3.4: Benachrichtigungen an mehrere Ziele – jeder notify-Dienst (Companion-App, Telegram, E-Mail …), notify-Entitäten und für Admins eigene Dienste.
@@ -60,16 +88,24 @@ Gilt für alle Listen und alle HA-Benutzer, gespeichert in `.storage/smartlists.
   in der App: gemerkt > gelernt > eingebautes Paket > Sonstiges. Die Sortierung „nach Kategorie“ und
   das Attribut `open_by_category` der kombinierten Listen nutzen das bereits.
 - **Verlauf & Vorschläge:** Häufig und zuletzt gekaufte Artikel, Artikel der Liste und 1049 Produkte aus
-  dem Paket der App; dazu die zuletzt benutzte bzw. übliche Einheit.
+  dem Paket der App; dazu die zuletzt benutzte bzw. übliche Einheit. Standardmäßig **je Liste** (eine
+  kombinierte Liste zeigt, was in ihren Quell-Listen gekauft wurde); in den Einstellungen der Liste auf
+  *aus allen Listen* umstellbar.
+- **Einfache Liste:** Eine Liste wie „Baumarkt“ lässt sich als *einfache Liste* markieren – keine Kategorien,
+  keine Vorschläge, und SmartLists merkt sich nichts daraus; „Holz“ taucht so in keiner anderen Liste auf.
+  Nur die Kategorien lassen sich je Liste ebenfalls abschalten.
 - **Namenskonvention:** `@REWE` wird zum Markt-Badge (bekannte Märkte in Markenfarbe), `*Anna` zur Person,
   `#bio` zum Schlagwort. Welches Zeichen was bedeutet, stellen Admins in der Karte ein (Zahnrad).
   Die Tags bleiben im Artikelnamen stehen – andere Oberflächen sehen sie also weiter als Text.
 - **Automationen & Sprache:** „Bin im Laden“-Benachrichtigung, Markt-Erinnerung, wiederkehrende Artikel, Assist-Sätze – siehe [Wiki](https://github.com/m3m0rex/ha_smartlists/wiki/Automations-and-voice).
 - **Eigene Listen mit Freigaben:** Listen mit Besitzer, pro Person freigegeben zum Sehen, Abhaken oder Bearbeiten – siehe [Wiki](https://github.com/m3m0rex/ha_smartlists/wiki/Own-lists-and-sharing).
-- **Verbundene Geräte:** jedes Gerät mit der App erscheint unter *Konfigurieren → Verbundene Geräte* und als HA-Gerät mit den Sensoren *Zuletzt gesehen* und *App-Version*.
+- **Verbundene Geräte:** jedes Gerät mit der App erscheint unter *Einstellungen → Global → Geräte und Notizen* und als HA-Gerät mit den Sensoren *Zuletzt gesehen* und *App-Version*.
 - **Bedienung:** Standard für alle (Admin) → je Benutzer abweichend → optional je Gerät abweichend.
 - **Teilen:** mit Personen in Home Assistant (sehen, abhaken, bearbeiten) oder **per Link / QR-Code** – nur diese Liste,
-  befristet, jederzeit zurückziehbar:
+  befristet, jederzeit zurückziehbar. Links laufen auf Wunsch über einen **Cloudflare Quick Tunnel oder einen
+  eigenen Proxy** statt über die Adresse deines Home Assistant – wer den Link bekommt, erfährt sie nicht (siehe
+  [Wiki](https://github.com/m3m0rex/ha_smartlists/wiki/Shopping-helpers#share-without-revealing-your-home-assistant-address)).
+  👥 *geteilt* im Kopf einer Liste antippen zeigt, mit wem sie geteilt ist:
 
   <img src="https://raw.githubusercontent.com/m3m0rex/ha_smartlists/main/docs/images/share.svg" alt="Teilen-Fenster mit QR-Code, Rechten und Gültigkeit" width="620">
 
@@ -79,6 +115,26 @@ Gilt für alle Listen und alle HA-Benutzer, gespeichert in `.storage/smartlists.
 
 Mengen stehen wie in der App im Namen („Milch 2 l @REWE“). Beim Tippen wird auch „2 kg Äpfel“ erkannt.
 
+**Extras – optional, für Einsteiger aus:** **Notizen** (Notizlisten als eigener Bereich 📝) und der **Wochenplan**
+(mit Kalender „Essensplan“ und Mealie-Import) braucht man für den Anfang nicht. Der Einrichtungs-Assistent lässt
+sie aus; einschalten lassen sie sich jederzeit unter *Einstellungen → Global → Extras*.
+
+## Startbildschirm-Widgets
+
+SmartLists-Listen – kombinierte Listen, eigene Listen, alles, was du in SmartLists siehst – sind ganz normale
+To-do-Entitäten. Die offiziellen Home-Assistant-Apps zeigen sie deshalb in ihrem **To-do-Listen-Widget**, ohne
+dass in SmartLists etwas einzurichten ist:
+
+- **Android:** Startbildschirm lange drücken → *Widgets* → *Home Assistant* → **To-do-Liste**, z. B.
+  `todo.grosseinkauf` wählen. Artikel lassen sich direkt im Widget abhaken.
+- **iOS / iPadOS:** Startbildschirm → *Bearbeiten* → *Widget hinzufügen* → *Home Assistant* → **To-do List**,
+  Liste wählen.
+
+Mehr in der Doku der App: [Android-Widgets](https://companion.home-assistant.io/docs/integrations/android-widgets/),
+[iOS-Widgets](https://companion.home-assistant.io/docs/integrations/ios-widgets/). Das Widget zeigt den reinen
+Artikeltext (z. B. `Milch 2 l @REWE`); Badges, Kategorien und Einkaufsmodus gibt es in der Karte, auf der
+Seite und in der HA-SmartLists-App.
+
 ## Seite „SmartLists“ in der Seitenleiste
 
 Nach dem Einrichten gibt es links in HA den Eintrag **SmartLists**: alle To-do-Listen (kombinierte
@@ -87,10 +143,14 @@ Dashboard. Oben rechts schaltest du zwischen **einer Liste** und **mehreren nebe
 zwischen normaler und **breiter** Ansicht; bei mehreren Listen ziehst du Artikel mit der Maus in eine
 andere Liste (Strg = kopieren). Die eingebaute To-do-Seite von HA zeigt Artikel nur als Text.
 
+📲 **Als App auf dem Startbildschirm, ohne etwas zu installieren:** der Handy-Knopf oben speichert ein Symbol,
+das eine Liste direkt öffnet – auf Wunsch gleich im Einkaufsmodus, im Vollbild (*Installieren* in Chrome,
+*Teilen → Zum Home-Bildschirm* in Safari). Siehe [Wiki](https://github.com/m3m0rex/ha_smartlists/wiki/Sidebar-page).
+
 <table>
 <tr>
-<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/m3m0rex/ha_smartlists/main/docs/images/mealplan.svg" alt="Reiter Wochenplan"><br><sub>Reiter <b>Wochenplan</b>: Gerichte je Tag, Zutaten mit einem Klick auf die Liste.</sub></td>
-<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/m3m0rex/ha_smartlists/main/docs/images/notes.svg" alt="Notizen der App als Notizkarten"><br><sub><b>Notizen</b> der App als Notizkarten – nur für ihren Besitzer.</sub></td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/m3m0rex/ha_smartlists/main/docs/images/mealplan.svg" alt="Reiter Wochenplan"><br><sub>Reiter <b>Wochenplan</b> (optionales Extra): Gerichte je Tag, Zutaten mit einem Klick auf die Liste.</sub></td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/m3m0rex/ha_smartlists/main/docs/images/notes.svg" alt="Notizen der App als Notizkarten"><br><sub><b>Notizen</b> der App als Notizkarten – nur für ihren Besitzer (optionales Extra).</sub></td>
 </tr>
 </table>
 
@@ -142,6 +202,8 @@ erscheinen live.
 
 ### Schnittstelle für die App
 
+*(Die App ist noch nicht veröffentlicht.)*
+
 Die HA-SmartLists-App kann sich mit der Integration koppeln (`smartlists/info`) und zeigt dann
 dieselben Badges, Kategorien und Vorschläge an. Alle Befehle, Antworten und das Textformat:
 [docs/app-api.md](docs/app-api.md).
@@ -166,7 +228,7 @@ Ordner `custom_components/smartlists` nach `/config/custom_components/smartlists
 
 Beim ersten Öffnen führt ein **Einrichtungs-Assistent** Admins durch Listen, Märkte, Schreibweise,
 Sprache, Personen und Extras – siehe [Wiki](https://github.com/m3m0rex/ha_smartlists/wiki/Setup#setup-assistant).
-Er lässt sich jederzeit erneut starten (auch verlinkt unter *Konfigurieren* der Integration), auf Wunsch **von vorn** (Einstellungen, gelernte Daten,
+Er lässt sich jederzeit erneut starten (auch über *Konfigurieren* der Integration), auf Wunsch **von vorn** (Einstellungen, gelernte Daten,
 Teilen-Links oder kombinierte Listen zurücksetzen – To-do-Listen werden nie gelöscht).
 
 *Einstellungen → Geräte & Dienste → Integrationen → Integration hinzufügen → **SmartLists***
@@ -176,13 +238,15 @@ Integration gibt es:
 
 - **„Kombinierte Liste hinzufügen“** – Name, Listen, Standard-Liste, Modus, Herkunftsanzeige, Sortierung,
   fremde Listen. Jede Liste lässt sich später über ⋮ → *Neu konfigurieren* ändern oder löschen.
-- **„Konfigurieren“** – globale Einstellungen für alle Benutzer:
-  - *Namenskonvention:* welches Zeichen Markt, Person bzw. Schlagwort einleitet (oder aus)
-  - *Bedienung – Standard für alle:* Geste fürs Artikel-Menü, Menü-Einträge, Einkaufsmodus
-  - *Gemerkte Kategorien & Verlauf:* einzelne Zuordnungen vergessen, Verlauf löschen
+- **„Konfigurieren“** – *Einrichtung erneut starten / von vorn* und **Einstellungen öffnen**, das zu den
+  Einstellungen auf der SmartLists-Seite springt (`/smartlists?settings=global`). Dort stehen alle globalen
+  Einstellungen – Namenskonvention, Bedienung für alle, Kategorien und Verlauf, Märkte, Teilen, Extras …
 
 Persönliche Abweichungen (pro Benutzer oder nur auf einem Gerät) stellt jeder selbst im Zahnrad der
 Karte ein; dort können Admins auch die globalen Einstellungen ändern – beides zeigt dieselben Werte.
+
+**Listen der App** (`todo.ha_smartlists_*`), die noch keine SmartLists-Listen sind, erscheinen unter
+*Einstellungen → Reparaturen*; *Beheben* übernimmt sie als eigene Listen (die alte Liste bleibt).
 
 **Update von 1.1:** Bisherige SmartLists-Helfer werden beim ersten Start automatisch zu Listen unter
 dem einen Eintrag „SmartLists“ umgezogen. entity_id, Dashboards, Automationen und lokale Häkchen
@@ -195,6 +259,8 @@ bleiben erhalten.
   (`.storage/smartlists.<id>`) und beim Löschen der Integration mit entfernt.
 - Artikel ohne eindeutige ID (sehr alte Integrationen) werden übersprungen.
 - Voraussetzung: Home Assistant 2025.3 oder neuer (Unter-Einträge für die Listen).
+- Oberfläche (Karte, Seite, Einrichtung, Assist-Sätze) auf Deutsch, Englisch, Französisch, Spanisch, Italienisch
+  und Polnisch. Die Kategorienamen folgen der Sprache von Home Assistant.
 
 ## Lizenz
 
@@ -211,10 +277,14 @@ custom_components/smartlists/
   todo.py            To-do-Entitäten: kombinierte und eigene Listen
   categories.py/json Kategorie-Paket (aus der App erzeugt, mit Produkten + Einheiten)
   itemtext.py        Artikeltext zerlegen: Menge, Einheit, Tags (@REWE …)
-  learning.py        Gedächtnis: Kategorien, Verlauf, Vorschläge, Tag-Regeln, Bedienung
+  learning.py        Gedächtnis: Kategorien, Verlauf (je Liste), Vorschläge, Tag-Regeln, Bedienung
   own.py             eigene Listen: Rollen und Rechte
   automation.py      Einkaufs-Ereignis, get_items, Assist, fällige Artikel
   lists.py           Listen lesen/ändern (kombinierte und normale To-do-Listen)
+  shares.py, public.py   Teilen-Links; Teilen-Server, Quick Tunnel, eigener Proxy
+  features.py        Extras (Notizen, Wochenplan)
+  pwa.py             Web-App-Manifest für das Startbildschirm-Symbol
+  repairs.py         Hinweise und Behebungen unter Einstellungen → Reparaturen
   websocket.py       Befehle für Karte und App (siehe docs/app-api.md)
   www/smartlists-card.js   Lovelace-Karte und Seite in der Seitenleiste
   strings.json, translations/   Texte (de, en, fr, es, it, pl)
@@ -222,4 +292,5 @@ custom_components/smartlists/
 blueprints/automation/smartlists/   fertige Automationen
 tests/                          Tests (pytest, ohne HA)
 scripts/build_categories.py     categories.json aus dem App-Paket erzeugen
+scripts/make_demo_gif.py        das Demo-GIF oben in dieser README erzeugen
 ```

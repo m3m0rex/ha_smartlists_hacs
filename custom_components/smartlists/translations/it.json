@@ -186,7 +186,7 @@
     "step": {
       "init": {
         "title": "SmartLists – impostazioni per tutti",
-        "description": "Ogni utente può impostare le proprie differenze personali tramite l'icona a ingranaggio nella scheda.",
+        "description": "Tutte le impostazioni – liste, negozi, categorie, condivisione, dispositivi, extra e altro – sono nella pagina SmartLists in ⚙ Impostazioni: [➜ Apri impostazioni]({url})\n\nOgni utente imposta lì le preferenze personali in *Per me*.",
         "menu_options": {
           "assistant": "Assistente di configurazione",
           "naming": "Convenzione dei nomi (@negozio, *persona, #tag)",
@@ -197,7 +197,8 @@
           "app_lists": "Liste dall'app (adotta liste combinate)",
           "packs": "Riconoscimento categorie (pacchetti di parole chiave)",
           "overview": "Tutte le liste SmartLists",
-          "restart": "Ripeti la configurazione / ricomincia da zero"
+          "restart": "Ripeti la configurazione / ricomincia da zero",
+          "settings": "Apri impostazioni (pagina SmartLists)"
         }
       },
       "naming": {
@@ -325,6 +326,10 @@
       "restart_done": {
         "title": "Ripristinato",
         "description": "Fatto. [➜ Apri l'assistente ora]({url}) – compare anche la prossima volta che un admin apre SmartLists."
+      },
+      "settings": {
+        "title": "Impostazioni",
+        "description": "[➜ Apri le impostazioni nella pagina SmartLists]({url})\n\nLì trovi tutto in un posto, con ricerca: *Per me*, *Globale* (admin), *Analisi* e – nell'ingranaggio di ogni lista – le impostazioni di quella lista."
       }
     },
     "error": {
@@ -501,6 +506,25 @@
     "stale_device": {
       "title": "Il dispositivo «{device}» non si sincronizza da {days} giorni",
       "description": "L'app HA SmartLists su **{device}** non si sincronizza da {days} giorni. Se il dispositivo non è più usato, rimuovilo in SmartLists → Configura → Dispositivi collegati ed elimina il suo token nel profilo. Se è ancora in uso, apri l'app una volta per sincronizzare."
+    },
+    "unmigrated_list": {
+      "title": "La lista dell'app «{list}» non è ancora in SmartLists",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Trasferisci «{list}» in SmartLists",
+            "description": "**{entity_id}** è una lista dell'app HA SmartLists che non è ancora una lista SmartLists. Il trasferimento crea la lista propria **{title}** con tutti gli articoli, le note e le spunte; il proprietario può condividerla.\n\nLa vecchia lista resta invariata – eliminala tu più tardi se non serve più. Le liste combinate che la usano continuano a usare la vecchia lista.",
+            "data": {
+              "owner": "Proprietario"
+            }
+          }
+        },
+        "abort": {
+          "list_gone": "La lista non esiste più.",
+          "no_owner": "Scegli un proprietario.",
+          "failed": "Trasferimento non riuscito: {error}"
+        }
+      }
     }
   }
 }

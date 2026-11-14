@@ -15,6 +15,14 @@ plan is also the calendar **SmartLists Meal plan** in Home Assistant.
 
 Toolbar buttons:
 
+- **📲 Save as app** – puts a **SmartLists icon on the phone's home screen** that opens one list directly
+  (optionally straight in **shopping mode**), full screen like an app – no extra app to install. Pick the list,
+  then follow the steps shown: Android/Chrome *⋮ → Add to Home screen / Install app* (or the *Install* button),
+  iPhone/Safari *Share → Add to Home Screen*. Several icons for different lists are possible. The button is
+  hidden inside the Home Assistant companion app and when the page already runs as an app. Behind it: on this
+  page SmartLists points the browser to its own web-app manifest (`/smartlists?app=1&list=…&shopping=1`); on
+  other pages Home Assistant's own manifest applies as usual. Login is shared with Home Assistant in the same
+  browser.
 - **+** – create an own list (you are the owner, see [[Own lists and sharing]]). Lists that are not
   shared with you are not shown.
 - **Side by side** – tap as many lists as you like; they appear in columns (up to 3, or 4 in wide layout,

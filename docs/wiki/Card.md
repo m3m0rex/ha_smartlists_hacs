@@ -180,8 +180,11 @@ layout: columns
   when adding and when editing.
 - **Drag & drop** with the mouse: onto another SmartLists card to move (Ctrl/Alt = copy), onto an item in
   the same list to reorder (sort "added").
-- **Shopping mode** (cart icon): screen stays on, checked items are hidden, large rows, tap the whole
-  row; ↶ in the header undoes the last change. A bar shows **All | REWE · 4 | Lidl · 2 …** – tap a store
+- **Shopping mode** (cart icon): screen stays on, checked items are hidden, large rows (or the normal size –
+  *For me → Shopping and scanning → Large rows*). **Tap anywhere on a row to check it off**, not only the
+  box. Editing is locked so a slip cannot rename anything: no item menu, no edit, no quantity stepper, no
+  dragging. Every check-off shows an **Undo** bar at the bottom for 3 seconds; ↶ in the header undoes the last
+  change as well. A bar shows **All | REWE · 4 | Lidl · 2 …** – tap a store
   to see only its items. If stores are linked to zones (*General settings → Global → Stores & zones*), the store
   whose zone you are in is selected automatically. Items without `@store` are shown as well (on by
   default; switch off under *For me* → "Also show items without a store").
@@ -198,8 +201,23 @@ chains. Each store can have **several zones** (one per branch – REWE Nord, REW
 Home Assistant zones via *＋ Zone* (× unlinks one) or choose *＋ New zone …*: a dialog asks for the name, **where** (current location of this device,
 home, pick on the map – if Home Assistant's map editor is available – or coordinates / a link from
 Google Maps, Apple Maps or OpenStreetMap) and the radius. Fine-tune zones under *Settings → Areas & zones*.
-*＋ Store with zone* adds a new store right away. Your person must be tracked (companion app) for the
+If a zone with the same name already exists (e.g. a second "REWE"), SmartLists asks: **keep the name** (two
+zones with the same name – they are then shown with their entity ID so you can tell them apart) or **rename**
+the new one (e.g. "REWE Downtown"). *＋ Store with zone* adds a new store right away. Your person must be tracked (companion app) for the
 automatic selection.
+
+## Home screen widgets
+
+Outside the dashboard, every SmartLists list also works in the **To-do list widget** of the official Home
+Assistant companion apps, because each list is a real `todo.*` entity – nothing to set up in SmartLists.
+
+- **Android:** long-press the home screen → *Widgets* → *Home Assistant* → **To-do list** → pick the list
+  (e.g. a combined list). Items can be checked off in the widget.
+- **iOS / iPadOS:** *Edit* → *Add widget* → *Home Assistant* → **To-do List** → choose the list.
+
+Details: [Android widgets](https://companion.home-assistant.io/docs/integrations/android-widgets/),
+[iOS widgets](https://companion.home-assistant.io/docs/integrations/ios-widgets/). The widget shows the plain
+item text; badges and categories are only in the card, the sidebar page and the HA SmartLists app.
 
 ## Styling
 

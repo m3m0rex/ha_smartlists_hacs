@@ -13,7 +13,7 @@ away, or leave it empty.
 
 When an admin opens SmartLists for the first time (sidebar page or card), a short assistant appears.
 Right after adding the integration, the success message also has a link **Open the setup assistant**, and
-*Settings → Devices & services → SmartLists → Configure → Setup assistant* links to it any time
+*Settings → Devices & services → SmartLists → Configure → Run setup again* leads to it any time
 (`/smartlists?setup=1`).
 Every step can be skipped and everything can be changed later in the settings. It is not shown to
 installations that were already in use before 3.0.0; start it any time under *General settings →
@@ -27,7 +27,8 @@ Global → Voice, backup, defaults → Run setup again*.
 4. **Language** – which keyword packs recognise the categories.
 5. **People and app** – permissions for a new own list; how to pair the app.
 6. **Extras** – notifications to your device, Assist, prices and expenses, barcode lookup, sharing via
-   link for owners.
+   link for owners. **Optional**, off by default to keep things tidy for beginners: **notes** and the
+   **meal plan** (can be switched on later under *General settings → Global → Extras*).
 7. **Done** – a summary; *Set up* applies everything at once.
 
 The assistant is available in all six languages of the interface.
@@ -74,6 +75,11 @@ taken over from the app are linked to the app's device ("via").
 Change or delete a list via ⋮ → *Reconfigure*.
 
 ## Configure (global settings, admins)
+
+Since 3.9.4 *Settings → Devices & services → SmartLists → Configure* only offers **Run setup again / start
+from scratch** and a link **Open settings** to the SmartLists page (`/smartlists?settings=global`) – all
+settings are there, complete and searchable. The sections below are kept for reference; their content lives in
+the general settings now (see [[Settings]]).
 
 - **Naming convention** – which character starts a store, person or tag (or off). See
   [[Item text and naming convention]].

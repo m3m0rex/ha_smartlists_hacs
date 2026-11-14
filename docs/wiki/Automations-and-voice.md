@@ -44,13 +44,14 @@ response_variable: result
 
 SmartLists remembers when items are added. After three purchases it knows the usual interval
 ("milk about every 4 days"). Due items show with ⏰ first in "frequently bought" when the input is
-empty. Optionally they are added automatically every hour: *Configure → Voice & automations →
-Automatically add due items to this list*. Removing such an item is fine – it comes back only after
+empty. Optionally they are added automatically every hour: *General settings → Global → Voice, backup, defaults →
+Automatically add due items to this list*. Like "frequently bought", due items are taken from the history of that
+list (or of all lists, depending on the list's setting *Bought often & suggestions*). Removing such an item is fine – it comes back only after
 the next purchase cycle. Action `smartlists.add_due_items` does the same on demand.
 
 ## Assist (voice)
 
-*Configure → Voice & automations*: choose the **default list for Assist** and tick **Install Assist
+*General settings → Global → Voice, backup, defaults*: choose the **default list for Assist** and tick **Install Assist
 sentences** (copies the sentences for German, English, French, Spanish, Italian and Polish to
 `config/custom_sentences/` and reloads Assist). Assist answers in the language of the conversation.
 

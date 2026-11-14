@@ -18,6 +18,7 @@ from homeassistant.core import HomeAssistant, callback
 
 from . import lists
 from .const import DOMAIN, SUBENTRY_COMBINED
+from .features import get_features, set_features
 from .learning import Learning
 
 # Version der Befehlsschnittstelle. Erhöhen, wenn sich Befehle/Antworten inkompatibel ändern –
@@ -36,7 +37,7 @@ def async_register(hass: HomeAssistant) -> None:
                     ws_register_device, ws_devices, ws_remove_device,
                     ws_users, ws_create_list, ws_share, ws_set_owner, ws_set_labels, ws_delete_list,
                     ws_install_sentences, ws_shopping, ws_due,
-                    ws_subscribe, ws_reset, ws_migrate_candidates, ws_migrate, ws_mealplan, ws_set_meals, ws_add_meals, ws_mealie_status, ws_mealie_import, ws_item_history, ws_setup, ws_set_rights, ws_share_links_all, ws_set_list_settings, ws_finish_shopping, ws_expense_entries, ws_delete_expense, ws_forget_history, ws_create_notes, ws_store_order, ws_set_price, ws_expenses, ws_templates, ws_save_template, ws_delete_template, ws_add_template, ws_stats, ws_share_links, ws_share_create, ws_share_revoke, ws_notify, ws_set_notify, ws_notify_test, ws_barcode, ws_app_lists, ws_connect_app_list, ws_appearance, ws_set_appearance, ws_stores, ws_set_store_zone, ws_notes, ws_set_notes, ws_pack_create, ws_pack_terms, ws_pack_update, ws_packs, ws_pack_upload, ws_pack_delete, ws_pack_set_active, ws_pack_export,
+                    ws_subscribe, ws_reset, ws_migrate_candidates, ws_migrate, ws_mealplan, ws_set_meals, ws_add_meals, ws_mealie_status, ws_mealie_import, ws_item_history, ws_setup, ws_set_features, ws_set_rights, ws_share_links_all, ws_set_list_settings, ws_finish_shopping, ws_expense_entries, ws_delete_expense, ws_forget_history, ws_create_notes, ws_store_order, ws_set_price, ws_expenses, ws_templates, ws_save_template, ws_delete_template, ws_add_template, ws_stats, ws_share_links, ws_share_create, ws_share_revoke, ws_share_public, ws_set_share_public, ws_notify, ws_set_notify, ws_notify_test, ws_barcode, ws_app_lists, ws_connect_app_list, ws_appearance, ws_set_appearance, ws_stores, ws_set_store_zone, ws_notes, ws_set_notes, ws_pack_create, ws_pack_terms, ws_pack_update, ws_packs, ws_pack_upload, ws_pack_delete, ws_pack_set_active, ws_pack_export,
                     ws_app_backup_save, ws_app_backups, ws_app_backup_get, ws_app_backup_delete, ws_export, ws_import, ws_automation, ws_set_automation,
                     ws_get_list, ws_lists, ws_add_item, ws_update_item, ws_remove_items, ws_clear_completed, ws_move_item):
         websocket_api.async_register_command(hass, handler)
@@ -49,7 +50,17 @@ def ws_config(hass: HomeAssistant, connection: websocket_api.ActiveConnection, m
     extras = hass.data[DOMAIN].get("extras")
     connection.send_result(msg["id"], {**_learning(hass).config(msg.get("language")),
                                        "store_order": extras.store_order if extras else {},
-                                       "templates": len(extras.templates) if extras else 0})
+                                       "templates": len(extras.templates) if extras else 0,
+                                       "features": get_features(hass)})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command({vol.Required("type"): "smartlists/set_features",
+                                  vol.Optional("notes"): bool, vol.Optional("mealplan"): bool})
+@callback
+def ws_set_features(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]) -> None:
+    """Einstellungen → Extras: Notizen und Wochenplan ein-/ausschalten (siehe features.py)."""
+    connection.send_result(msg["id"], {"features": set_features(hass, notes=msg.get("notes"), mealplan=msg.get("mealplan"))})
 
 
 @websocket_api.websocket_command(
@@ -72,7 +83,9 @@ async def ws_suggest(hass: HomeAssistant, connection: websocket_api.ActiveConnec
             names = [i.get("summary", "") for i in ((response or {}).get(entity_id) or {}).get("items", [])]
         except Exception:  # noqa: BLE001 – Vorschläge sollen nie an einer Liste scheitern
             names = []
-    connection.send_result(msg["id"], _learning(hass).suggest(msg["query"], names, msg["limit"]))
+    scope = lists.suggest_scope(hass, entity_id) if entity_id else None
+    connection.send_result(msg["id"], _learning(hass).suggest(msg["query"], names, msg["limit"], scope))
+
 
 
 @websocket_api.websocket_command({vol.Required("type"): "smartlists/describe", vol.Required("texts"): [str]})
@@ -1011,7 +1024,19 @@ def ws_share_links(hass: HomeAssistant, connection: websocket_api.ActiveConnecti
     if (err := _may_share(hass, msg["entity_id"], connection.user)) is not None:
         connection.send_error(msg["id"], websocket_api.ERR_UNAUTHORIZED, err)
         return
-    connection.send_result(msg["id"], {"links": hass.data[DOMAIN]["shares"].for_list(msg["entity_id"])})
+    connection.send_result(msg["id"], {"links": hass.data[DOMAIN]["shares"].for_list(msg["entity_id"]), **_public_info(hass)})
+
+
+def _public_info(hass: HomeAssistant) -> dict[str, Any]:
+    """Für die Karte: Art der öffentlichen Adresse und die aktuelle (Links mit anderer Tunnel-Adresse gehen nicht mehr)."""
+    public = hass.data[DOMAIN].get("public")
+    if public is None:
+        return {"public_mode": "ha", "public_base": None}
+    try:
+        base = public.base_url()
+    except ValueError:
+        base = None
+    return {"public_mode": public.mode, "public_base": base}
 
 
 @websocket_api.websocket_command({vol.Required("type"): "smartlists/share_create", vol.Required("entity_id"): str,
@@ -1030,12 +1055,48 @@ def ws_share_create(hass: HomeAssistant, connection: websocket_api.ActiveConnect
         from .learning import clamp_link
 
         check, add, hours = clamp_link(_learning(hass).rights(), check, add, hours)
+    # Öffentliche Adresse (Tunnel/Proxy) – ist sie gewählt, aber nicht bereit, gibt es keinen Link (sonst
+    # baute die Karte ihn mit der HA-Adresse, und genau die soll nicht herausgegeben werden)
+    public = hass.data[DOMAIN].get("public")
     try:
-        link = hass.data[DOMAIN]["shares"].create(msg["entity_id"], connection.user.id, check, add, hours=hours)
+        base = public.base_url() if public is not None else None
+    except ValueError as err:
+        connection.send_error(msg["id"], "public_unavailable", str(err))
+        return
+    try:
+        link = hass.data[DOMAIN]["shares"].create(msg["entity_id"], connection.user.id, check, add, hours=hours, base=base)
     except ValueError as err:
         connection.send_error(msg["id"], "invalid", str(err))
         return
-    connection.send_result(msg["id"], {**link, "path": f"/smartlists-share/{link['token']}"})
+    connection.send_result(msg["id"], {**link, "path": f"/smartlists-share/{link['token']}", "base": base})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command({vol.Required("type"): "smartlists/share_public"})
+@websocket_api.async_response
+async def ws_share_public(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]) -> None:
+    """Teilen und Rechte → Öffentliche Adresse: Einstellung und Zustand (Server, Tunnel, cloudflared).
+    Sucht cloudflared jedes Mal neu – so sieht man gleich, ob eine eben abgelegte Datei gefunden wird."""
+    from .public import find_cloudflared
+
+    public = hass.data[DOMAIN]["public"]
+    path, problem = await hass.async_add_executor_job(find_cloudflared, hass.config.config_dir)
+    connection.send_result(msg["id"], {**public.status(), "cloudflared": path, "cloudflared_problem": problem})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command({vol.Required("type"): "smartlists/set_share_public",
+                                  vol.Optional("mode"): vol.In(["ha", "tunnel", "proxy"]),
+                                  vol.Optional("port"): vol.All(int, vol.Range(min=1024, max=65535)),
+                                  vol.Optional("url"): str})
+@websocket_api.async_response
+async def ws_set_share_public(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]) -> None:
+    try:
+        status = await hass.data[DOMAIN]["public"].async_update(msg.get("mode"), msg.get("port"), msg.get("url"))
+    except ValueError as err:
+        connection.send_error(msg["id"], "invalid", str(err))
+        return
+    connection.send_result(msg["id"], status)
 
 
 @websocket_api.websocket_command({vol.Required("type"): "smartlists/share_revoke", vol.Required("entity_id"): str, vol.Required("link_id"): str})
@@ -1219,7 +1280,9 @@ def ws_share_links_all(hass: HomeAssistant, connection: websocket_api.ActiveConn
 
 @websocket_api.websocket_command({vol.Required("type"): "smartlists/set_list_settings", vol.Required("entity_id"): str,
                                   vol.Optional("name"): vol.All(str, vol.Length(min=1, max=60)),
-                                  vol.Optional("sort"): vol.Any(str, None), vol.Optional("show_prices"): bool})
+                                  vol.Optional("sort"): vol.Any(str, None), vol.Optional("show_prices"): bool,
+                                  vol.Optional("categories"): bool, vol.Optional("suggest_scope"): vol.In(["list", "all"]),
+                                  vol.Optional("plain"): bool})
 @callback
 def ws_set_list_settings(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]) -> None:
     """Darstellung einer Liste für alle Geräte: Name (Anzeigename in HA), Standard-Sortierung, Preise an/aus.
@@ -1241,7 +1304,8 @@ def ws_set_list_settings(hass: HomeAssistant, connection: websocket_api.ActiveCo
             connection.send_error(msg["id"], "invalid", "Diese Liste lässt sich hier nicht umbenennen.")
             return
         registry.async_update_entity(entity_id, name=msg["name"].strip())
-    settings = _extras(hass).set_list_settings(entity_id, msg.get("sort") if "sort" in msg else None, msg.get("show_prices"))
+    settings = _extras(hass).set_list_settings(entity_id, msg.get("sort") if "sort" in msg else None, msg.get("show_prices"),
+                                               msg.get("categories"), msg.get("suggest_scope"), msg.get("plain"))
     connection.send_result(msg["id"], {"settings": settings})
 
 
@@ -1264,6 +1328,9 @@ def ws_set_list_settings(hass: HomeAssistant, connection: websocket_api.ActiveCo
         vol.Optional("prices", default=True): bool,
         vol.Optional("barcode", default=True): bool,
         vol.Optional("share_links", default=False): bool,
+        # Extras – im Assistenten standardmäßig aus (fehlt die Angabe: unverändert)
+        vol.Optional("notes"): bool,
+        vol.Optional("mealplan"): bool,
     }
 )
 @websocket_api.async_response
@@ -1336,6 +1403,9 @@ async def ws_setup(hass: HomeAssistant, connection: websocket_api.ActiveConnecti
         rights = learning.rights()
         rights["share_who"] = "owners" if msg["share_links"] else "admins"
         learning.automation["rights"] = rights
+        if "notes" in msg or "mealplan" in msg:
+            set_features(hass, notes=msg.get("notes"), mealplan=msg.get("mealplan"))
+            done.extend(k for k in ("notes", "mealplan") if msg.get(k))
         if not msg["prices"]:
             for e in [*lists_sel, *([main_list] if main_list else [])]:
                 _extras(hass).set_list_settings(e, show_prices=False)

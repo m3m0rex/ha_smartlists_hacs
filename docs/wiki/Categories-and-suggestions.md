@@ -15,7 +15,13 @@ applies to all users and is synced with the app. Remembered categories can be ch
 the products of the active packs (about 1,050 in the German pack), including the usual or last used unit. An empty input shows
 "frequently bought" items that are not on the list.
 
-Manage everything under *Configure → Remembered categories & history* or in the card's gear menu.
+History and "frequently bought" are **per list** by default: what you buy in the pet list does not show up in
+the grocery list. A combined list shows what was bought in its source lists. Switch a list to *from all lists*
+in its settings (*⋯ → Settings of this list → Bought often & suggestions*). A **plain list** (same place) remembers
+nothing at all and suggests nothing – for lists like the hardware store whose items should never appear elsewhere. Categories can be switched off per
+list there as well (*Categories automatically*).
+
+Manage everything in the general settings (*Global → Categories*) or in the card's gear menu.
 
 ## Keyword packs
 
@@ -27,9 +33,8 @@ A pack maps keywords to the 12 fixed categories. Built in:
 | English / French / Spanish / Italian / Polish – starter packs | ~360–410 each | ~200 each |
 
 By default the pack in Home Assistant's language is active (German if there is none). Admins manage
-packs in the general settings → **Global → Categories** – or
-under *Settings → Devices & services → SmartLists → Configure → Category detection* (activate packs, add
-or remove keywords, create a pack, paste a pack as JSON):
+packs in the general settings → **Global → Categories** (activate packs, add or remove keywords, create a pack,
+paste a pack as JSON):
 
 - **switch** a pack on or off – several can be active, e.g. German + English in a bilingual household,
 - **▲** moves a pack up: on equal keywords the pack higher up wins. Otherwise the **longest matching

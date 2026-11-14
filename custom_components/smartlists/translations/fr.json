@@ -185,8 +185,8 @@
   "options": {
     "step": {
       "init": {
-        "title": "SmartLists – paramètres pour tous",
-        "description": "Chaque utilisateur peut définir ses propres différences via l'icône d'engrenage dans la carte.",
+        "title": "SmartLists – réglages pour tous",
+        "description": "Tous les réglages – listes, magasins, catégories, partage, appareils, extras et plus – se trouvent sur la page SmartLists sous ⚙ Paramètres : [➜ Ouvrir les paramètres]({url})\n\nChaque utilisateur y règle ses préférences personnelles sous *Pour moi*.",
         "menu_options": {
           "assistant": "Assistant de configuration",
           "naming": "Convention de nommage (@magasin, *personne, #mot-clé)",
@@ -197,7 +197,8 @@
           "app_lists": "Listes de l'app (reprendre les listes combinées)",
           "packs": "Détection des catégories (packs de mots-clés)",
           "overview": "Toutes les listes SmartLists",
-          "restart": "Relancer la configuration / repartir de zéro"
+          "restart": "Relancer la configuration / repartir de zéro",
+          "settings": "Ouvrir les paramètres (page SmartLists)"
         }
       },
       "naming": {
@@ -325,6 +326,10 @@
       "restart_done": {
         "title": "Réinitialisé",
         "description": "Terminé. [➜ Ouvrir l'assistant maintenant]({url}) – il apparaît aussi la prochaine fois qu'un admin ouvre SmartLists."
+      },
+      "settings": {
+        "title": "Paramètres",
+        "description": "[➜ Ouvrir les paramètres sur la page SmartLists]({url})\n\nTout y est réuni, avec recherche : *Pour moi*, *Global* (admins), *Analyse* et – dans l'engrenage de chaque liste – les réglages de cette liste."
       }
     },
     "error": {
@@ -501,6 +506,25 @@
     "stale_device": {
       "title": "L'appareil « {device} » ne s'est pas synchronisé depuis {days} jours",
       "description": "L'app HA SmartLists sur **{device}** ne s'est pas synchronisée depuis {days} jours. Si l'appareil n'est plus utilisé, retire-le sous SmartLists → Configurer → Appareils connectés et supprime son jeton dans le profil. S'il est encore utilisé, ouvre l'app une fois pour synchroniser."
+    },
+    "unmigrated_list": {
+      "title": "La liste de l'app « {list} » n'est pas encore dans SmartLists",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Reprendre « {list} » dans SmartLists",
+            "description": "**{entity_id}** est une liste de l'app HA SmartLists qui n'est pas encore une liste SmartLists. La reprise crée la liste propre **{title}** avec tous les articles, notes et coches ; le propriétaire peut la partager.\n\nL'ancienne liste reste inchangée – supprime-la toi-même plus tard si tu n'en as plus besoin. Les listes combinées qui l'utilisent continuent d'utiliser l'ancienne liste.",
+            "data": {
+              "owner": "Propriétaire"
+            }
+          }
+        },
+        "abort": {
+          "list_gone": "La liste n'existe plus.",
+          "no_owner": "Choisis un propriétaire.",
+          "failed": "La reprise a échoué : {error}"
+        }
+      }
     }
   }
 }

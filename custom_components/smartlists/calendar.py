@@ -15,7 +15,12 @@ from .const import DOMAIN, SIGNAL_DATA_CHANGED
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
-    async_add_entities([MealPlanCalendar(hass)])
+    from .features import get_features
+
+    entity = MealPlanCalendar(hass)
+    # Wochenplan unter Extras ausgeschaltet → neu angelegt wird der Kalender gleich deaktiviert
+    entity._attr_entity_registry_enabled_default = get_features(hass)["mealplan"]
+    async_add_entities([entity])
 
 
 class MealPlanCalendar(CalendarEntity):

@@ -14,6 +14,10 @@ sharing, hand it over to another owner (it moves to that owner's entry) or delet
 was an entry of its own; they are moved automatically on update – entity IDs, items, sharing, automations and
 dashboards stay the same.
 
+The header of a shared list shows **👥 shared** (or 🔒 private, or the owner and your role). Tap it to see who the
+list is shared with and what each person may do – read only; owners and admins change it in the gear of the list
+(*Sharing*).
+
 Own lists are regular to-do entities: they work in the card, the sidebar page, the app, Assist and
 automations, and can be part of a combined list.
 
@@ -29,6 +33,9 @@ with items, notes and checkmarks. You become the owner and can share them afterw
 - **Old lists stay unchanged** – nothing is emptied or deleted. Afterwards SmartLists lists them and asks you
   to delete them yourself once the new list is fine (*Settings → Devices & services*, e.g. Local To-do or the
   respective integration). If an old list is a source of a combined list, add the new list there first.
+- **Lists of the app** (`todo.ha_smartlists_*`, e.g. in Local To-do) that are not taken over yet also appear
+  under *Settings → Repairs*. **Fix** → pick the owner (suggested: whoever paired the app) → taken over, old list
+  kept. Note lists are not reported; lists already taken over (also by name, from older versions) neither.
 
 - **Note lists** (e.g. notes of the app in Local To-do) can be taken over **as notes** – a new SmartLists note
   list owned by you with titles, texts and checkmarks (encrypted notes are copied unchanged) – or as a normal

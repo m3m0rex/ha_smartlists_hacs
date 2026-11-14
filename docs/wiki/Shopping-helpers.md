@@ -52,8 +52,57 @@ active links of all lists.
   item texts with checkmarks – no notes, no entities, no users, nothing else from Home Assistant.
   Writing is limited (30 actions per minute, 120 characters), wrong keys are answered slowly, the page
   is not indexed and cannot be framed. Note lists of the app cannot be shared.
-- The link only works from outside if Home Assistant is reachable from outside (Nabu Casa or your own
-  domain, *Settings → System → Network → external URL*).
+- By default the link uses the external address of Home Assistant (Nabu Casa or your own domain,
+  *Settings → System → Network → external URL*) – whoever gets the link learns that address. To avoid
+  that, see the next section.
+
+### Share without revealing your Home Assistant address
+
+*General settings → Global → Sharing and permissions → Public address for links* (admins):
+
+| Links via | What happens |
+|---|---|
+| **Home Assistant address** (default, as before) | The link points to the external URL of Home Assistant. |
+| **Cloudflare Quick Tunnel** | SmartLists starts `cloudflared` and gets a random address `https://….trycloudflare.com`. No Cloudflare account, no port forwarding. |
+| **Own proxy or tunnel** | Your own address (Caddy, nginx, Traefik, Cloudflare Tunnel with your own domain, …). |
+
+For the tunnel and the own proxy SmartLists starts a **small server of its own (default port 8126)** that
+serves *only* the share page and the share API – no login page, no API, nothing else from Home Assistant.
+The tunnel/proxy points to that port, never to Home Assistant itself. With the tunnel the server listens on
+`127.0.0.1` only; with an own proxy on all addresses (the proxy often runs in another container or device).
+If the chosen way is not ready (tunnel still starting, port in use), **no link is created** – SmartLists
+never falls back silently to the Home Assistant address.
+
+**cloudflared** – SmartLists does **not download it by itself**. If it is already installed (in `PATH`),
+it is used. Otherwise the setting shows a hint: download it from the
+[cloudflared releases](https://github.com/cloudflare/cloudflared/releases/latest) (Home Assistant OS on a
+Raspberry Pi: `cloudflared-linux-arm64`, on x86: `cloudflared-linux-amd64`), rename it to `cloudflared`
+and put it at `/config/cloudflared` or `/config/bin/cloudflared` (e.g. via the Samba or File editor add-on),
+then press *Save*. A missing execute permission is added automatically.
+
+Good to know about Quick Tunnels: the address **changes every time Home Assistant restarts**, so links
+created before stop working (the card marks them "address has changed"). Cloudflare offers Quick Tunnels
+for testing and without uptime guarantee. For lasting links use your own proxy or a named Cloudflare Tunnel
+with your own domain.
+
+**Own proxy – examples** (replace `192.168.1.10` with the IP of Home Assistant):
+
+```caddyfile
+liste.example.org {
+    reverse_proxy 192.168.1.10:8126
+}
+```
+
+```nginx
+server {
+    server_name liste.example.org;
+    location / { proxy_pass http://192.168.1.10:8126; }
+}
+```
+
+Cloudflare Tunnel with your own domain (e.g. the *Cloudflared* add-on): add a public hostname
+`liste.example.org` → `http://homeassistant:8126`. Then enter `https://liste.example.org` as the public
+address. A sub-path such as `https://example.org/list` works as well, as long as the proxy strips it.
 
 ## Notifications
 
@@ -99,6 +148,9 @@ history, and single expense bookings can be deleted under *Bookings* (admins all
 ## Meal plan
 
 <img src="https://raw.githubusercontent.com/m3m0rex/ha_smartlists/main/docs/images/mealplan.svg" alt="Meal plan">
+
+The meal plan is an **extra**: switch it on or off under *General settings → Global → Extras* (the setup
+assistant leaves it off). Off hides the tab, the menu entry and the calendar; planned dishes are kept.
 
 *⋯ → Meal plan* shows a week (← → for other weeks). Put dishes – i.e. templates – on days. Changes are
 kept until you press **Save** (then you are asked whether the ingredients should go on the list) or **Add

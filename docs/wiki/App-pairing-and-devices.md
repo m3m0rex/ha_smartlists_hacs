@@ -1,5 +1,9 @@
 # App pairing and devices
 
+> ℹ️ **The HA SmartLists Android app is not published yet.** This page describes how the integration works with
+> it once it is available. Until then you need none of this – SmartLists works fully in Home Assistant, the card,
+> the sidebar page and the official Home Assistant app (including its home-screen widgets).
+
 The **HA SmartLists** Android app pairs with the integration automatically when it can reach it:
 *App → Settings → Connection → SmartLists integration* shows "Paired · version …". Tap *Sync* to sync
 now; otherwise the app checks at most every 15 minutes while refreshing.
@@ -28,7 +32,7 @@ on the device and is never part of a backup. After a reinstall the app asks for 
 
 ## Connected devices
 
-*Configure → Connected devices* lists every device with user, model, app and Android version and last
+*General settings → Global → Devices and notes* lists every device with user, model, app and Android version and last
 seen (⚠️ after 7 days). Each one is also an HA device under SmartLists with the sensors
 **Last seen** (usable in automations) and **App version**.
 
@@ -44,8 +48,10 @@ Combined lists created **in the app** (from Home Assistant lists) are reported t
 the app syncs. You find them
 
 - in the general settings → *Global → Devices and notes*, below the device, with **Connect**,
-- on the sidebar page as a dashed 📱 chip under *Combined lists*, and
-- under *Settings → Devices & services → SmartLists → Configure → Lists from the app*.
+- on the sidebar page as a dashed 📱 chip under *Combined lists*.
+
+Lists of the app that are still plain Local To-do lists (`todo.ha_smartlists_*`) are reported under
+*Settings → Repairs*; *Fix* takes them over as own SmartLists lists.
 
 Connecting creates a real combined list in Home Assistant with the same sources. It **belongs to the
 device of the app** (it shows up on its device page) and can be edited like any combined list. From then on

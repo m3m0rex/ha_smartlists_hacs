@@ -118,3 +118,14 @@ def test_reset_parts():
     token = s.create("todo.einkauf", "u1")["token"]
     s.create("todo.anders", "u1")
     assert s.revoke_all() == 2 and s.resolve(token) is None
+
+
+def test_list_settings_categories_and_suggest_scope():
+    import types
+
+    from smartlists.extras import Extras
+
+    ex = Extras(types.SimpleNamespace(data={}))
+    assert ex.set_list_settings("todo.a", categories=False, suggest_scope="all") == {"categories": False, "suggest_scope": "all"}
+    assert ex.set_list_settings("todo.a", categories=True, suggest_scope="list") == {}
+    assert "todo.a" not in ex.list_settings
