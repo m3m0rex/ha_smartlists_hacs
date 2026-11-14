@@ -100,7 +100,8 @@ with your own domain.
 
 1. Cloudflare dashboard → *Zero Trust → Networks → Tunnels → Create a tunnel* → type *Cloudflared*, any name.
 2. Copy the token shown in the install command (starts with `eyJ…`; pasting the whole command works too).
-3. *Public Hostname*: e.g. `list.yourdomain.com`, service **HTTP** `localhost:8126` (the SmartLists share server –
+3. *Routes → Add route → Published application* (older dashboards: *Public Hostname → Add a public hostname*):
+   e.g. `list.yourdomain.com`, service **HTTP** `localhost:8126` – Cloudflare creates the DNS record itself (the SmartLists share server –
    not Home Assistant).
 4. In SmartLists choose *Cloudflare Tunnel (fixed address)*, paste the token, enter `https://list.yourdomain.com`
    and *Save*. cloudflared must be present as described above.

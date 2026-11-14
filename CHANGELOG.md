@@ -3,6 +3,14 @@
 All notable changes to SmartLists are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning follows [Semantic Versioning](https://semver.org/).
 
+## [3.9.15] – 2026-11-14
+
+### Changed
+
+- *Public address → Cloudflare Tunnel (fixed address)*: the setting now shows a numbered step-by-step guide (where
+  to click in the Cloudflare dashboard – incl. the new "Add route → Published application" – which values to enter,
+  how to test) instead of a single paragraph, and says that Cloudflare creates the subdomain automatically.
+
 ## [3.9.14] – 2026-11-14
 
 ### Added
