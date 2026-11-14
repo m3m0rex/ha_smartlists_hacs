@@ -2,7 +2,7 @@
 
 # SmartLists – kombinierte To-do-Listen für Home Assistant
 
-🇬🇧 [English version](README.md) · 📖 [Wiki (englisch)](https://github.com/m3m0rex/ha_smartlists/wiki) · 🔒 [Sicherheit](SECURITY.md) · 📝 [Änderungen](CHANGELOG.md)
+🇬🇧 [English version](README.md) · 🌐 [Website](https://ha-smartlists.com/) · 📖 [Wiki (englisch)](https://github.com/m3m0rex/ha_smartlists/wiki) · 🔒 [Sicherheit](SECURITY.md) · 📝 [Änderungen](CHANGELOG.md)
 
 <p align="center"><img src="https://raw.githubusercontent.com/m3m0rex/ha_smartlists/main/docs/images/demo-de.gif" alt="„Milch 2 l 1,19€ @REWE *Anna #bio“ eintippen: SmartLists erkennt Menge, Preis, Markt, Person, Schlagwort und Kategorie und sortiert den Artikel unter Kühlung ein" width="640"></p>
 

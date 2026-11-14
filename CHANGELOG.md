@@ -3,6 +3,13 @@
 All notable changes to SmartLists are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning follows [Semantic Versioning](https://semver.org/).
 
+## [3.9.14] – 2026-11-14
+
+### Added
+
+- Links to the new website [ha-smartlists.com](https://ha-smartlists.com/): in the README (both languages), on the wiki home page and in the
+  settings of the card/sidebar page (next to "Wiki").
+
 ## [3.9.13] – 2026-11-14
 
 ### Added

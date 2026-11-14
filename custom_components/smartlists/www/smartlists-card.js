@@ -43,7 +43,7 @@ const ICON = {
 };
 
 // Wird beim Release mit manifest.json hochgezählt; weicht sie von der Integration ab, ist die Karte im Browser-Cache veraltet
-const CARD_VERSION = "3.9.13";
+const CARD_VERSION = "3.9.14";
 const SORT_MODES = ["category", "alpha", "added", "list"];
 // Darstellung pro Karte (Lovelace-Editor). Persönliche Bedienung steht dagegen in UI_DEFAULTS.
 const CARD_DEFAULTS = {
@@ -6422,6 +6422,7 @@ class SmartListsCard extends HTMLElement {
     const nav = h("nav", { class: "snav", "aria-label": t.settings }, search,
       group("me", t.tab_me), group("global", t.tab_house, t.admin_only_short), group("stats", t.g_stats),
       h("div", { class: "ver" }, h("span", {}, `SmartLists ${this._version || CARD_VERSION}`),
+        h("a", { href: "https://ha-smartlists.com/", target: "_blank", rel: "noopener" }, "Website"), " · ",
         h("a", { href: "https://github.com/m3m0rex/ha_smartlists/wiki", target: "_blank", rel: "noopener" }, "Wiki")));
     const main = h("div", { class: "smain" },
       h("button", { class: "sback", type: "button", onclick: () => { this._setChosen = false; this._renderSettings(); } }, "← " + t.settings),

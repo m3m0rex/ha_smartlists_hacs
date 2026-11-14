@@ -35,6 +35,8 @@ under *Repairs*. See the [changelog](https://github.com/m3m0rex/ha_smartlists/bl
 - [[Shopping helpers]] – aisle order, prices, templates, share via link (tunnel/proxy), meal plan, notifications
 - [[Troubleshooting]]
 
+🌐 Website: [ha-smartlists.com](https://ha-smartlists.com/) – overview of the integration and the Android app.
+
 > This wiki is generated from [`docs/wiki`](https://github.com/m3m0rex/ha_smartlists/tree/main/docs/wiki)
 > in the repository and updated automatically with every change. Edits made directly in the wiki are
 > overwritten – please open an issue or pull request instead.

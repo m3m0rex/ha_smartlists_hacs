@@ -2,7 +2,7 @@
 
 # SmartLists – combined to-do lists for Home Assistant
 
-🇩🇪 [Deutsche Version](README.de.md) · 📖 [Wiki](https://github.com/m3m0rex/ha_smartlists/wiki) · 🔒 [Security](SECURITY.md) · 📝 [Changelog](CHANGELOG.md)
+🇩🇪 [Deutsche Version](README.de.md) · 🌐 [Website](https://ha-smartlists.com/) · 📖 [Wiki](https://github.com/m3m0rex/ha_smartlists/wiki) · 🔒 [Security](SECURITY.md) · 📝 [Changelog](CHANGELOG.md)
 
 <p align="center"><img src="https://raw.githubusercontent.com/m3m0rex/ha_smartlists/main/docs/images/demo.gif" alt="Typing “Milk 2 l 1,19€ @REWE *Anna #organic”: SmartLists recognises quantity, price, store, person, tag and category and files the item under Chilled" width="640"></p>
 
