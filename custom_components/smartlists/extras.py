@@ -277,6 +277,22 @@ class Extras:
                 return True
         return False
 
+    @callback
+    def delete_expenses(self, expense_ids: list[str] | None, user_id: str | None = None) -> int:
+        """Mehrere Buchungen löschen; expense_ids None = alle (Admins: alle, sonst nur eigene). Liefert die Anzahl."""
+        wanted = None if expense_ids is None else set(expense_ids)
+        keep, removed = [], 0
+        for e in self.expenses:
+            mine = user_id is None or e.get("user") == user_id
+            if mine and (wanted is None or self.expense_id(e) in wanted):
+                removed += 1
+            else:
+                keep.append(e)
+        if removed:
+            self.expenses = keep
+            self._save()
+        return removed
+
     def expense_report(self, period: str = "month", count: int = 6) -> dict[str, Any]:
         """Summen je Zeitraum (month|week|year) und Markt, neueste zuletzt."""
         import datetime as dt

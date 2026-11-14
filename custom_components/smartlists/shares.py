@@ -280,6 +280,16 @@ class ShareApiView(HomeAssistantView):
                         unit=info.get("unit") or "",
                         tags=[{k: t.get(k) for k in ("kind", "value", "label", "color")} for t in info.get("tags") or []],
                         cat=info.get("category") if grouped else None)
+                    # Angebot (aus der App / Angebots-Karte): steht in der Notiz – übernommen wird nur das Angebot
+                    # selbst (Markt, Preis, gültig bis), nie der Notiztext. Ebenso ein Preis im Artikeltext („- 0,99 €“).
+                    from .itemtext import split_offer
+
+                    _note, offer, _raw = split_offer(i.get("note"))
+                    if offer:
+                        entry["offer"] = {k: offer.get(k) for k in ("store", "store_label", "color", "price", "old_price",
+                                                                     "discount", "valid_until", "expired")}
+                    elif info.get("text_price") is not None:
+                        entry["price"] = float(info["text_price"])
                 except Exception:  # noqa: BLE001 – im Zweifel nur der Text
                     pass
             out_items.append(entry)
@@ -375,12 +385,12 @@ class SharePageView(HomeAssistantView):
 
 
 SHARE_TEXTS = {
-    "de": {"open": "offen", "done": "erledigt", "add": "Hinzufügen", "placeholder": "Artikel hinzufügen …", "gone": "Dieser Link ist abgelaufen oder wurde widerrufen.", "until": "gültig bis", "soft": "von dir markiert", "error": "Das hat nicht geklappt – bitte neu laden.", "name_ask": "Wie heißt du?", "name_help": "Bitte gib deinen Namen an. Er erscheint bei dem, was du markierst oder hinzufügst – so sieht man, von wem es kommt. Er wird nur auf diesem Gerät gemerkt.", "name_ph": "Vorname", "name_go": "Weiter", "name_skip": "ohne Namen weiter", "you": "du bist", "anon": "ohne Namen", "change": "ändern"},
-    "en": {"open": "open", "done": "done", "add": "Add", "placeholder": "Add an item …", "gone": "This link has expired or was revoked.", "until": "valid until", "soft": "marked by you", "error": "That did not work – please reload.", "name_ask": "What's your name?", "name_help": "Please enter your name. It is shown with what you mark or add – so everyone sees who it came from. It is only remembered on this device.", "name_ph": "First name", "name_go": "Continue", "name_skip": "continue without a name", "you": "you are", "anon": "without a name", "change": "change"},
-    "fr": {"open": "à faire", "done": "fait", "add": "Ajouter", "placeholder": "Ajouter un article …", "gone": "Ce lien a expiré ou a été révoqué.", "until": "valable jusqu'au", "soft": "marqué par toi", "error": "Ça n'a pas marché – recharge la page.", "name_ask": "Comment t'appelles-tu ?", "name_help": "Ton nom apparaît avec ce que tu coches ou ajoutes – on voit ainsi de qui ça vient. Il n'est retenu que sur cet appareil.", "name_ph": "Prénom", "name_go": "Continuer", "name_skip": "continuer sans nom", "you": "tu es", "anon": "sans nom", "change": "modifier"},
-    "es": {"open": "pendientes", "done": "hecho", "add": "Añadir", "placeholder": "Añadir artículo …", "gone": "Este enlace ha caducado o se ha revocado.", "until": "válido hasta", "soft": "marcado por ti", "error": "No ha funcionado – recarga la página.", "name_ask": "¿Cómo te llamas?", "name_help": "Tu nombre aparece con lo que marcas o añades – así se ve de quién viene. Solo se guarda en este dispositivo.", "name_ph": "Nombre", "name_go": "Continuar", "name_skip": "continuar sin nombre", "you": "eres", "anon": "sin nombre", "change": "cambiar"},
-    "it": {"open": "da fare", "done": "fatto", "add": "Aggiungi", "placeholder": "Aggiungi un articolo …", "gone": "Questo link è scaduto o è stato revocato.", "until": "valido fino al", "soft": "segnato da te", "error": "Non ha funzionato – ricarica la pagina.", "name_ask": "Come ti chiami?", "name_help": "Il tuo nome compare con ciò che segni o aggiungi – così si vede da chi arriva. Viene ricordato solo su questo dispositivo.", "name_ph": "Nome", "name_go": "Continua", "name_skip": "continua senza nome", "you": "sei", "anon": "senza nome", "change": "cambia"},
-    "pl": {"open": "do kupienia", "done": "zrobione", "add": "Dodaj", "placeholder": "Dodaj produkt …", "gone": "Ten link wygasł lub został cofnięty.", "until": "ważny do", "soft": "oznaczone przez ciebie", "error": "Nie udało się – odśwież stronę.", "name_ask": "Jak masz na imię?", "name_help": "Twoje imię pojawi się przy tym, co oznaczysz lub dodasz – widać wtedy, od kogo to jest. Zapamiętywane tylko na tym urządzeniu.", "name_ph": "Imię", "name_go": "Dalej", "name_skip": "dalej bez imienia", "you": "jesteś", "anon": "bez imienia", "change": "zmień"},
+    "de": {"open": "offen", "done": "erledigt", "add": "Hinzufügen", "placeholder": "Artikel hinzufügen …", "gone": "Dieser Link ist abgelaufen oder wurde widerrufen.", "until": "gültig bis", "soft": "von dir markiert", "error": "Das hat nicht geklappt – bitte neu laden.", "name_ask": "Wie heißt du?", "name_help": "Bitte gib deinen Namen an. Er erscheint bei dem, was du markierst oder hinzufügst – so sieht man, von wem es kommt. Er wird nur auf diesem Gerät gemerkt.", "name_ph": "Vorname", "name_go": "Weiter", "name_skip": "ohne Namen weiter", "you": "du bist", "anon": "ohne Namen", "change": "ändern", "offer": "Angebot", "offer_expired": "abgelaufen"},
+    "en": {"open": "open", "done": "done", "add": "Add", "placeholder": "Add an item …", "gone": "This link has expired or was revoked.", "until": "valid until", "soft": "marked by you", "error": "That did not work – please reload.", "name_ask": "What's your name?", "name_help": "Please enter your name. It is shown with what you mark or add – so everyone sees who it came from. It is only remembered on this device.", "name_ph": "First name", "name_go": "Continue", "name_skip": "continue without a name", "you": "you are", "anon": "without a name", "change": "change", "offer": "Offer", "offer_expired": "expired"},
+    "fr": {"open": "à faire", "done": "fait", "add": "Ajouter", "placeholder": "Ajouter un article …", "gone": "Ce lien a expiré ou a été révoqué.", "until": "valable jusqu'au", "soft": "marqué par toi", "error": "Ça n'a pas marché – recharge la page.", "name_ask": "Comment t'appelles-tu ?", "name_help": "Ton nom apparaît avec ce que tu coches ou ajoutes – on voit ainsi de qui ça vient. Il n'est retenu que sur cet appareil.", "name_ph": "Prénom", "name_go": "Continuer", "name_skip": "continuer sans nom", "you": "tu es", "anon": "sans nom", "change": "modifier", "offer": "Promo", "offer_expired": "expiré"},
+    "es": {"open": "pendientes", "done": "hecho", "add": "Añadir", "placeholder": "Añadir artículo …", "gone": "Este enlace ha caducado o se ha revocado.", "until": "válido hasta", "soft": "marcado por ti", "error": "No ha funcionado – recarga la página.", "name_ask": "¿Cómo te llamas?", "name_help": "Tu nombre aparece con lo que marcas o añades – así se ve de quién viene. Solo se guarda en este dispositivo.", "name_ph": "Nombre", "name_go": "Continuar", "name_skip": "continuar sin nombre", "you": "eres", "anon": "sin nombre", "change": "cambiar", "offer": "Oferta", "offer_expired": "caducada"},
+    "it": {"open": "da fare", "done": "fatto", "add": "Aggiungi", "placeholder": "Aggiungi un articolo …", "gone": "Questo link è scaduto o è stato revocato.", "until": "valido fino al", "soft": "segnato da te", "error": "Non ha funzionato – ricarica la pagina.", "name_ask": "Come ti chiami?", "name_help": "Il tuo nome compare con ciò che segni o aggiungi – così si vede da chi arriva. Viene ricordato solo su questo dispositivo.", "name_ph": "Nome", "name_go": "Continua", "name_skip": "continua senza nome", "you": "sei", "anon": "senza nome", "change": "cambia", "offer": "Offerta", "offer_expired": "scaduta"},
+    "pl": {"open": "do kupienia", "done": "zrobione", "add": "Dodaj", "placeholder": "Dodaj produkt …", "gone": "Ten link wygasł lub został cofnięty.", "until": "ważny do", "soft": "oznaczone przez ciebie", "error": "Nie udało się – odśwież stronę.", "name_ask": "Jak masz na imię?", "name_help": "Twoje imię pojawi się przy tym, co oznaczysz lub dodasz – widać wtedy, od kogo to jest. Zapamiętywane tylko na tym urządzeniu.", "name_ph": "Imię", "name_go": "Dalej", "name_skip": "dalej bez imienia", "you": "jesteś", "anon": "bez imienia", "change": "zmień", "offer": "Promocja", "offer_expired": "wygasła"},
 }
 
 SHARE_PAGE = """<!doctype html><html lang="__LANG__"><head><meta charset="utf-8">
@@ -407,6 +417,8 @@ h3{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--m)
 .tag.tag{background:var(--d);color:var(--m);font-weight:600;border-radius:9px}.tag.s-filled.person,.tag.s-filled.tag{border-radius:4px}
 .tag.s-outline{background:none!important;border:1px solid currentColor;padding:0 6px}.tag.s-text{background:none!important;padding:0 2px}
 .row.done .tag{opacity:.55}
+.nmw{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.offer{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:.8rem;color:var(--m)}
+.offer .ol{color:#e6a700;font-weight:600}.offer b{color:var(--t)}.offer s{opacity:.7}.offer.exp{opacity:.6}
 </style></head><body><main id="app"><div class="msg">…</div></main>
 <script>
 (function(){
@@ -441,6 +453,15 @@ function draw(d){cur=d;
   var row=function(i){var can=d.check!=="off";var box=el("input",{type:"checkbox"});box.checked=i.checked||i.soft;box.disabled=!can;
     box.addEventListener("change",function(){call({action:box.checked?"check":"uncheck",uid:i.uid}).then(draw,function(e){e==="gone"?fail():e==="name"?0:alert(T.error)})});
     var name=el("span",{class:"nm"},[el("span",{text:i.name||i.text})].concat((i.tags||[]).map(function(t){return badge(t,d.look)})));
+    /* Angebot wie in der Karte: Markt, 🏷️ Angebot, Preis, alter Preis, gültig bis */
+    var euro=function(v){return v.toFixed(2).replace(".",",")+" €"},day=function(x){var p=String(x).slice(0,10).split("-");return p.length===3?p[2]+"."+p[1]+".":x};
+    var o=i.offer,extra=null;
+    if(o){var hasStore=(i.tags||[]).some(function(t){return t.kind==="store"&&String(t.label||t.value).toLowerCase()===String(o.store_label).toLowerCase()});
+      extra=el("span",{class:"offer"+(o.expired?" exp":"")},[hasStore?null:badge({kind:"store",value:o.store,label:o.store_label,color:o.color},d.look),
+        el("span",{class:"ol",text:"🏷️ "+T.offer}),o.price!=null?el("b",{text:euro(o.price)}):null,o.old_price!=null?el("s",{text:euro(o.old_price)}):null,
+        o.discount?el("span",{class:"od",text:o.discount}):null,o.valid_until?el("span",{class:"od",text:(o.expired?T.offer_expired:T.until)+" "+day(o.valid_until)}):null])}
+    else if(i.price!=null)extra=el("span",{class:"offer"},[el("b",{text:euro(i.price)})]);
+    if(extra)name=el("span",{class:"nmw"},[name,extra]);
     return el("label",{class:"row"+(i.checked?" done":i.soft?" soft":"")},[box,name,i.soft&&!i.checked?el("small",{text:"✓ "+(i.soft_by&&i.soft_by!==getName()?i.soft_by:T.soft)}):null,
       i.qty?el("span",{class:"q",text:i.qty+(i.unit?" "+i.unit:"")}):null])};
   /* nach Kategorie gruppiert (Reihenfolge wie im Markt), sofern die Liste so sortiert ist */
@@ -474,7 +495,9 @@ function ask(d){asking=true;
   setTimeout(function(){inp.focus()},30)}
 function show(d){if(asking)return;if((d.check!=="off"||d.add)&&!getName())ask(d);else draw(d)}
 function load(){call().then(show,fail)}
-load();setInterval(function(){if(!document.hidden&&!asking)call().then(show,function(){})},20000);
+/* Hintergrund-Aktualisierung nicht, während jemand tippt (sonst wäre die Eingabe weg) */
+function typing(){var a=document.activeElement,inp=app.querySelector(".add input");return (a&&a.tagName==="INPUT")||(inp&&inp.value.trim())}
+load();setInterval(function(){if(!document.hidden&&!asking&&!typing())call().then(function(d){if(!typing())show(d)},function(){})},20000);
 })();
 </script></body></html>"""
 

@@ -289,6 +289,24 @@ class Learning:
             entry["bought"] = entry["bought"][:-1]
             self._changed()
 
+    @callback
+    def reset_stats(self, names: list[str] | None = None) -> int:
+        """Statistik zurücksetzen: Käufe und Kaufrhythmus vergessen (names = nur diese Artikel, None = alle).
+        Die Artikel bleiben für Vorschläge beim Tippen erhalten; aus dem Artikel-Verlauf wird nicht neu nachgetragen."""
+        keys = None if names is None else {normalize(self.parse(n).name) for n in names}
+        n = 0
+        for key, entry in self.history.items():
+            if keys is not None and key not in keys:
+                continue
+            if entry.get("bought") or entry.get("times"):
+                entry.pop("bought", None)
+                entry.pop("times", None)
+                entry.pop("auto_added_for", None)
+                n += 1
+        self.automation["bought_backfilled"] = True
+        self._changed()
+        return n
+
     def backfill_bought(self, log: dict[str, list[dict[str, Any]]]) -> int:
         """Einmalig: Käufe aus dem Artikel-Verlauf (abgehakt) nachtragen – für Statistik nach dem Update."""
         if self.automation.get("bought_backfilled"):

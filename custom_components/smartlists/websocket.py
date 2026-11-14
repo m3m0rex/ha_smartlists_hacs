@@ -37,7 +37,7 @@ def async_register(hass: HomeAssistant) -> None:
                     ws_register_device, ws_devices, ws_remove_device,
                     ws_users, ws_create_list, ws_share, ws_set_owner, ws_set_labels, ws_delete_list,
                     ws_install_sentences, ws_shopping, ws_due,
-                    ws_subscribe, ws_reset, ws_migrate_candidates, ws_migrate, ws_mealplan, ws_set_meals, ws_add_meals, ws_mealie_status, ws_mealie_import, ws_item_history, ws_setup, ws_set_features, ws_set_rights, ws_share_links_all, ws_set_list_settings, ws_finish_shopping, ws_expense_entries, ws_delete_expense, ws_forget_history, ws_create_notes, ws_store_order, ws_set_price, ws_expenses, ws_templates, ws_save_template, ws_delete_template, ws_add_template, ws_stats, ws_share_links, ws_share_create, ws_share_revoke, ws_share_public, ws_set_share_public, ws_notify, ws_set_notify, ws_notify_test, ws_barcode, ws_app_lists, ws_connect_app_list, ws_appearance, ws_set_appearance, ws_stores, ws_set_store_zone, ws_notes, ws_set_notes, ws_pack_create, ws_pack_terms, ws_pack_update, ws_packs, ws_pack_upload, ws_pack_delete, ws_pack_set_active, ws_pack_export,
+                    ws_subscribe, ws_reset, ws_migrate_candidates, ws_migrate, ws_mealplan, ws_set_meals, ws_add_meals, ws_mealie_status, ws_mealie_import, ws_item_history, ws_setup, ws_set_features, ws_set_rights, ws_share_links_all, ws_set_list_settings, ws_finish_shopping, ws_expense_entries, ws_delete_expense, ws_delete_expenses, ws_reset_stats, ws_forget_history, ws_create_notes, ws_store_order, ws_set_price, ws_expenses, ws_templates, ws_save_template, ws_delete_template, ws_add_template, ws_stats, ws_share_links, ws_share_create, ws_share_revoke, ws_share_public, ws_set_share_public, ws_notify, ws_set_notify, ws_notify_test, ws_barcode, ws_app_lists, ws_connect_app_list, ws_appearance, ws_set_appearance, ws_stores, ws_set_store_zone, ws_notes, ws_set_notes, ws_pack_create, ws_pack_terms, ws_pack_update, ws_packs, ws_pack_upload, ws_pack_delete, ws_pack_set_active, ws_pack_export,
                     ws_app_backup_save, ws_app_backups, ws_app_backup_get, ws_app_backup_delete, ws_export, ws_import, ws_automation, ws_set_automation,
                     ws_get_list, ws_lists, ws_add_item, ws_update_item, ws_remove_items, ws_clear_completed, ws_move_item):
         websocket_api.async_register_command(hass, handler)
@@ -1203,6 +1203,24 @@ def ws_delete_expense(hass: HomeAssistant, connection: websocket_api.ActiveConne
         connection.send_error(msg["id"], "not_found", "Buchung nicht gefunden (oder nicht deine).")
         return
     connection.send_result(msg["id"], {})
+
+
+@websocket_api.websocket_command({vol.Required("type"): "smartlists/delete_expenses",
+                                  vol.Optional("expense_ids"): [str], vol.Optional("all", default=False): bool})
+@callback
+def ws_delete_expenses(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]) -> None:
+    """Mehrere bzw. alle Buchungen löschen (Admins: alle, sonst nur eigene)."""
+    user = connection.user
+    ids = None if msg["all"] else list(msg.get("expense_ids") or [])
+    connection.send_result(msg["id"], {"deleted": _extras(hass).delete_expenses(ids, None if user.is_admin else user.id)})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command({vol.Required("type"): "smartlists/reset_stats", vol.Optional("names"): [str]})
+@callback
+def ws_reset_stats(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]) -> None:
+    """Statistik zurücksetzen – ganz oder nur ausgewählte Artikel (Käufe und Rhythmus; Vorschläge bleiben)."""
+    connection.send_result(msg["id"], {"reset": _learning(hass).reset_stats(msg.get("names"))})
 
 
 @websocket_api.require_admin

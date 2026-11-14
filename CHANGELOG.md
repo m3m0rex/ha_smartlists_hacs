@@ -3,6 +3,17 @@
 All notable changes to SmartLists are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning follows [Semantic Versioning](https://semver.org/).
 
+## [3.9.16] – 2026-11-14
+
+### Fixed
+
+- **Shared list page: offers were missing.** Items with an offer (from the app or an offers card) now show it like the
+  card – store, 🏷️ Offer, price, old price, discount and "until 14.11." – and a price in the item text
+  ("… - 0,99 €") is shown, too. Only the offer is taken from the note, never the note text itself.
+- **Typing was sometimes interrupted by a refresh.** The card and the sidebar page no longer redraw in the
+  background while an input field has the focus (also when it is still empty) or the input contains text; the
+  update follows once you are done. The shared page no longer reloads every 20 seconds while someone is typing.
+
 ## [3.9.15] – 2026-11-14
 
 ### Changed

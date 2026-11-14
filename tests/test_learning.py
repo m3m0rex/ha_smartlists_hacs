@@ -245,3 +245,34 @@ def test_widget_text_for_template_widget():
     assert "Brot" not in html  # abgehakt
     assert "<script>" not in html and "&lt;script&gt;" in html
     assert html.index("Äpfel") < html.index("Milch")  # Obst & Gemüse vor Kühlung
+
+
+def test_share_payload_includes_offer_but_not_note():
+    import sys
+    import types
+
+    from smartlists import shares
+
+    learning = _learning()
+    note = 'Bitte die große Flasche\n⚙OFFER:{"s":"rewe","p":"4,29","e":"2099-11-14"}'
+    items = [{"uid": "1", "text": "Römerwall Mineralwasser", "note": note, "checked": False}]
+    lists_mod = types.ModuleType("smartlists.lists")
+
+    async def raw_items(hass, eid):
+        return items
+
+    lists_mod.raw_items = raw_items
+    old = sys.modules.get("smartlists.lists")
+    sys.modules["smartlists.lists"] = lists_mod
+    try:
+        state = types.SimpleNamespace(attributes={"friendly_name": "Test"})
+        hass = types.SimpleNamespace(data={"smartlists": {"learning": learning, "extras": None}},
+                                     states=types.SimpleNamespace(get=lambda e: state), config=types.SimpleNamespace(language="de"))
+        link = {"entity_id": "todo.test", "check": "off", "add": False, "expires": None, "soft": {}}
+        d = asyncio.run(object.__new__(shares.ShareApiView)._payload(hass, None, link, "de"))
+    finally:
+        if old is not None:
+            sys.modules["smartlists.lists"] = old
+    offer = d["items"][0]["offer"]
+    assert offer["price"] == 4.29 and offer["valid_until"] == "2099-11-14" and offer["store_label"]
+    assert "große Flasche" not in str(d)

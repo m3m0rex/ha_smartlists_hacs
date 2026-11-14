@@ -43,7 +43,7 @@ const ICON = {
 };
 
 // Wird beim Release mit manifest.json hochgezählt; weicht sie von der Integration ab, ist die Karte im Browser-Cache veraltet
-const CARD_VERSION = "3.9.15";
+const CARD_VERSION = "3.9.16";
 const SORT_MODES = ["category", "alpha", "added", "list"];
 // Darstellung pro Karte (Lovelace-Editor). Persönliche Bedienung steht dagegen in UI_DEFAULTS.
 const CARD_DEFAULTS = {
@@ -2856,7 +2856,10 @@ class SmartListsCard extends HTMLElement {
   _busy() {
     const root = this.shadowRoot;
     const active = root && root.activeElement;
-    const typing = active && /^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName) && (active.value || active.tagName !== "INPUT");
+    // Fokus in einem Eingabefeld zählt immer als „tippt gerade“ (auch leer, z. B. direkt nach dem Antippen) –
+    // sonst baut eine Hintergrund-Aktualisierung die Karte neu und die Eingabe springt weg
+    const typing = (active && /^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName) && !/^(checkbox|radio|button)$/.test(active.type || ""))
+      || !!(this._draft && this._draft.text && this._draft.text.trim());
     return !!(this._editing || this._menu || this._showSettings || this._showImport || this._dragging || SL_DRAG
       || (root && root.querySelector && root.querySelector(".dlg-back")) || typing);
   }
